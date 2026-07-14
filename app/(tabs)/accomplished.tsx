@@ -1,91 +1,115 @@
-import React from 'react';
-import { View, Text, FlatList, StyleSheet } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useSunnah } from '@/hooks/SunnahContext';
-import { Card } from '@/components/Card';
-import { PaperBackground } from '@/components/PaperBackground';
+import { PaperBackground } from "@/components/PaperBackground";
+import { Sunnah } from "@/constants/data";
+import { useSunnah } from "@/hooks/SunnahContext";
+import React from "react";
+import { FlatList, Image, Text, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+
+// ─── Stats card ───────────────────────────────────────────────────────────────
+
+function StatsRow({
+  totalCompleted,
+  longestStreak,
+}: {
+  totalCompleted: number;
+  longestStreak: number;
+}) {
+  return (
+    <View className="flex-row gap-3 mx-5 mb-4">
+      <View className="flex-1 bg-warmGold/10 border border-warmGold/20 rounded-xl px-4 py-3 items-center">
+        <Text className="font-tajawal-bold text-warmGold text-2xl">
+          {totalCompleted}
+        </Text>
+        <Text className="font-tajawal text-warmBrownLight text-sm text-center">
+          سنن مكتملة
+        </Text>
+      </View>
+      <View className="flex-1 bg-warmGold/10 border border-warmGold/20 rounded-xl px-4 py-3 items-center">
+        <Text className="font-tajawal-bold text-warmGold text-2xl">
+          {longestStreak}
+        </Text>
+        <Text className="font-tajawal text-warmBrownLight text-sm text-center">
+          أطول سلسلة
+        </Text>
+      </View>
+    </View>
+  );
+}
+
+// ─── Sunnah card in list ──────────────────────────────────────────────────────
+
+function AccomplishedCard({ item }: { item: Sunnah }) {
+  return (
+    <View className="w-full mb-5 rounded-2xl shadow-sm shadow-[#3D2E1F]/10 overflow-hidden bg-[#FAF7F0] border border-warmGold/20">
+      {/* Decorative Images */}
+      <Image
+        source={require("@/assets/images/top-right-decorations.png")}
+        className="absolute top-[-5] left-0 w-[100px] h-[100px] opacity-70"
+        resizeMode="contain"
+      />
+      <Image
+        source={require("@/assets/images/bottome-left-decorations.png")}
+        className="absolute bottom-[-10] right-0 w-[100px] h-[100px] opacity-70"
+        resizeMode="contain"
+      />
+
+      <View className="p-6">
+        <Text
+          className="font-tajawal-bold text-[18px] text-warmBrown leading-7 text-center mb-2"
+          style={{ writingDirection: "rtl" }}
+        >
+          {item.title}
+        </Text>
+
+        {item.action && (
+          <Text
+            className="font-tajawal text-[15px] text-warmBrownLight leading-7 text-center"
+            style={{ writingDirection: "rtl" }}
+          >
+            {item.action}
+          </Text>
+        )}
+      </View>
+    </View>
+  );
+}
+
+// ─── Screen ───────────────────────────────────────────────────────────────────
 
 export default function AccomplishedScreen() {
   const insets = useSafeAreaInsets();
-  const { accomplishedSunnahs } = useSunnah();
+  const { accomplishedSunnahs, totalCompleted, longestStreak } = useSunnah();
 
   return (
     <PaperBackground>
       <View className="flex-1" style={{ paddingTop: insets.top + 12 }}>
-
-        {/* Page Title */}
-        <Text style={{ 
-          fontFamily: 'Amiri_700Bold', 
-          fontSize: 26, 
-          color: '#3D2E1F',
-          textAlign: 'center',
-          marginBottom: 16,
-          paddingHorizontal: 20,
-        }}>
-          السنن المنجزة
+        <Text className="font-tajawal-bold text-[26px] text-warmBrown text-center mb-4 px-5">
+          الانجازات
         </Text>
+
+        {accomplishedSunnahs.length > 0 && (
+          <StatsRow
+            totalCompleted={totalCompleted}
+            longestStreak={longestStreak}
+          />
+        )}
 
         {accomplishedSunnahs.length === 0 ? (
           <View className="flex-1 justify-center items-center px-8">
-            <Text style={{ fontSize: 48, opacity: 0.2, marginBottom: 16 }}>
-              ☾
-            </Text>
-            <Text style={{ 
-              fontFamily: 'Amiri_700Bold', 
-              fontSize: 22, 
-              color: '#3D2E1F',
-              textAlign: 'center',
-            }}>
+            <Text className="text-5xl opacity-20 mb-4">☾</Text>
+            <Text className="font-tajawal-bold text-[22px] text-warmBrown text-center">
               لم تنجز أي سنن بعد.
             </Text>
-            <Text style={{ 
-              fontFamily: 'Amiri_400Regular', 
-              fontSize: 17, 
-              color: '#5C4A3A',
-              textAlign: 'center',
-              marginTop: 12,
-              lineHeight: 28,
-            }}>
+            <Text className="font-tajawal text-[17px] text-warmBrownLight text-center mt-3 leading-7">
               ابدأ بتطبيق السنن اليومية لتراها هنا.
             </Text>
           </View>
         ) : (
           <FlatList
-            data={accomplishedSunnahs}
+            data={[...accomplishedSunnahs].reverse()}
             keyExtractor={(item) => item.id}
-            contentContainerStyle={{
-              paddingHorizontal: 20,
-              paddingBottom: 90,
-              paddingTop: 8,
-            }}
-            renderItem={({ item }) => (
-              <Card color="#FAF7F0">
-                <Text style={{ 
-                  fontFamily: 'Amiri_700Bold', 
-                  fontSize: 22, 
-                  color: '#3D2E1F',
-                  marginBottom: 8,
-                }}>
-                  {item.action}
-                </Text>
-
-                {/* Decorative divider */}
-                <View className="flex-row items-center mb-3">
-                  <View style={{ width: 40, height: 0.5, backgroundColor: 'rgba(196,164,108,0.4)' }} />
-                  <Text style={{ marginHorizontal: 8, color: '#C4A46C', fontSize: 10 }}>✦</Text>
-                  <View style={{ flex: 1, height: 0.5, backgroundColor: 'rgba(196,164,108,0.2)' }} />
-                </View>
-
-                <Text style={{ 
-                  fontFamily: 'Amiri_400Regular', 
-                  fontSize: 16, 
-                  color: '#5C4A3A',
-                  lineHeight: 28,
-                }}>
-                  {item.hadith}
-                </Text>
-              </Card>
-            )}
+            contentContainerClassName="px-5 pb-[90px] pt-2"
+            renderItem={({ item }) => <AccomplishedCard item={item} />}
           />
         )}
       </View>

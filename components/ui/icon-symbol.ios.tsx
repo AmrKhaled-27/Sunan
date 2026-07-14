@@ -7,12 +7,14 @@ export function IconSymbol({
   color,
   style,
   weight = 'regular',
+  className = '',
 }: {
   name: SymbolViewProps['name'];
   size?: number;
   color: string;
   style?: StyleProp<ViewStyle>;
   weight?: SymbolWeight;
+  className?: string;
 }) {
   return (
     <SymbolView
@@ -20,6 +22,7 @@ export function IconSymbol({
       tintColor={color}
       resizeMode="scaleAspectFit"
       name={name}
+      className={className}
       style={[
         {
           width: size,

@@ -25,6 +25,10 @@
       "output": "static",
       "favicon": "./assets/images/favicon.png"
     },
+    "notification": {
+      "androidMode": "collapse",
+      "androidCollapsedTitle": "سُنن — #{unread_notifications} تذكيرات"
+    },
     "plugins": [
       "expo-router",
       [
@@ -37,6 +41,12 @@
           "dark": {
             "backgroundColor": "#000000"
           }
+        }
+      ],
+      [
+        "expo-notifications",
+        {
+          "color": "#C4A46C"
         }
       ]
     ],

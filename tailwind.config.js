@@ -1,10 +1,7 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   // NOTE: Update this to include the paths to all of your component files.
-  content: [
-    "./app/**/*.{js,jsx,ts,tsx}",
-    "./components/**/*.{js,jsx,ts,tsx}",
-  ],
+  content: ["./app/**/*.{js,jsx,ts,tsx}", "./components/**/*.{js,jsx,ts,tsx}"],
   presets: [require("nativewind/preset")],
   theme: {
     extend: {
@@ -24,7 +21,14 @@ module.exports = {
         mutedGold: "#D4B876",
         mutedGoldLight: "#E5D4A0",
       },
+      fontFamily: {
+        sans: ["Tajawal_400Regular", "sans-serif"],
+        tajawal: ["Tajawal_400Regular", "sans-serif"],
+        "tajawal-bold": ["Tajawal_700Bold", "sans-serif"],
+        amiri: ["Amiri_400Regular", "serif"],
+        "amiri-bold": ["Amiri_700Bold", "serif"],
+      },
     },
   },
   plugins: [],
-}
+};

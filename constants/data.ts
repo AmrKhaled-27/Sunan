@@ -1,43 +1,310 @@
-export interface Sunnah {
-  id: string;
-  action: string;
-  hadith: string;
+// ─── Types ────────────────────────────────────────────────────────────────────
+
+export type SunnahCategory =
+  | "prayer" // صلاة
+  | "eating" // طعام
+  | "sleeping" // نوم
+  | "dhikr" // ذكر
+  | "social" // معاملات
+  | "hygiene" // نظافة
+  | "general"; // عام
+
+export type SunnahDifficulty = "easy" | "medium" | "hard";
+
+// Each reminder time maps to an hour (24h) that we schedule the notification
+export type ReminderSlot =
+  | "fajr" // ~5:00
+  | "morning" // ~8:00
+  | "dhuhr" // ~12:30
+  | "asr" // ~15:30
+  | "afternoon" // ~15:30
+  | "maghrib" // ~18:30
+  | "ishaa" // ~20:00
+  | "evening" // ~20:00
+  | "before_sleep"; // user-configurable, default 21:30
+
+export interface NotificationSchedule {
+  reminderSlots: ReminderSlot[]; // contextual reminder times
+  endOfDayCheckIn: boolean; // whether to send end-of-day "did you do it?" question
 }
 
+export interface Sunnah {
+  tags?: string[];
+  tagsEn?: string[];
+  id: string;
+  title: string; // Arabic title name
+  titleEn?: string;
+  action: string;
+  hadith: string; // supporting hadith text
+  hadithEn?: string;
+  category: SunnahCategory;
+  difficulty: SunnahDifficulty;
+  difficultyEn?: string;
+  notificationSchedule: NotificationSchedule;
+  notificationMessages: string[]; // rotated randomly for contextual reminders
+  notificationMessagesEn?: string[];
+
+  reward?: string;
+  rewardSource: string | null;
+  deprecated?: boolean; // never remove; mark deprecated to hide from rotation
+}
+
+// ─── Reminder slot → default hour/minute ──────────────────────────────────────
+
+export const REMINDER_SLOT_TIMES: Record<
+  ReminderSlot,
+  { hour: number; minute: number }
+> = {
+  fajr: { hour: 5, minute: 0 },
+  morning: { hour: 8, minute: 0 },
+  dhuhr: { hour: 12, minute: 30 },
+  asr: { hour: 15, minute: 30 },
+  afternoon: { hour: 15, minute: 30 },
+  maghrib: { hour: 18, minute: 30 },
+  ishaa: { hour: 20, minute: 0 },
+  evening: { hour: 20, minute: 0 },
+  before_sleep: { hour: 21, minute: 30 },
+};
+
+// ─── Sunnah Data ──────────────────────────────────────────────────────────────
+// RULE: Never change or reuse an existing ID. Mark deprecated instead of deleting.
 export const SUNNAHS: Sunnah[] = [
   {
-    id: "1",
-    action: "السواك عند كل صلاة",
-    hadith: "قال رسول الله ﷺ: «لولا أن أشق على أمتي لأمرتهم بالسواك عند كل صلاة»",
-  },
-  {
-    id: "2",
-    action: "قراءة سورة الملك قبل النوم",
-    hadith: "قال رسول الله ﷺ: «سورة تبارك هي المانعة من عذاب القبر»",
-  },
-  {
-    id: "3",
-    action: "صلاة الضحى",
-    hadith: "قال رسول الله ﷺ: «يُصْبِحُ علَى كُلِّ سُلَامَى مِن أَحَدِكُمْ صَدَقَةٌ... وَيُجْزِئُ مِن ذلكَ رَكْعَتَانِ يَرْكَعُهُما مِنَ الضُّحَى»",
-  },
-  {
-    id: "4",
-    action: "التيامن في اللباس والانتعال",
-    hadith: "كان رسول الله ﷺ يُعجبه التيمُّن في تنعُّله، وترجُّله، وطُهوره، وفي شأنه كله.",
-  },
-  {
-    id: "5",
-    action: "الابتسامة",
-    hadith: "قال رسول الله ﷺ: «تبسمك في وجه أخيك لك صدقة»",
-  },
-  {
-    id: "6",
-    action: "الدعاء بعد الأذان",
-    hadith: "قال رسول الله ﷺ: «من قال حين يسمع النداء: اللهم رب هذه الدعوة التامة والصلاة القائمة... حلت له شفاعتي يوم القيامة»",
-  },
-  {
     id: "7",
-    action: "الوتر قبل النوم",
-    hadith: "أوصاني خليلي ﷺ بثلاث: «صيام ثلاثة أيام من كل شهر، وركعتي الضحى، وأن أوتر قبل أن أنام»",
-  }
+    title: "قول بسم الله قبل الأكل",
+    action:
+      "قبل ما تبدأ الأكل، قول 'بسم الله'. ولو نسيت وبدأت الأكل، قول في أي وقت أثناء الوجبة: 'بسم الله في أوله وآخره'.",
+    hadith:
+      "قال رسول الله ﷺ: «إذا أكل أحدكم طعاماً فليقل: بسم الله، فإن نسي في أوله فليقل: بسم الله في أوله وآخره»",
+    category: "eating",
+    difficulty: "easy",
+    reward: "حماية من مشاركة الشيطان لك في أكلك.",
+    rewardSource:
+      "عن حذيفة رضي الله عنه: أن الشيطان يستحل الطعام الذي لم يُذكر اسم الله عليه (رواه مسلم 2017).",
+    notificationSchedule: {
+      reminderSlots: ["morning", "afternoon", "evening"],
+      endOfDayCheckIn: true,
+    },
+    notificationMessages: [
+      "قبل ما تاكل، قول بسم الله 🍽️",
+      "التسمية بركة في الطعام",
+      "لا تنسَ بسم الله على وجبتك",
+    ],
+  },
+  {
+    id: "8",
+    title: "الأكل والشرب باليد اليمنى",
+    action:
+      "كل واشرب بيدك اليمنى مش الشمال، والحديث بيقول كمان كُل من اللي قدامك مباشرة مش من نص الطبق أو من مكان بعيد عنك.",
+    hadith:
+      "عن عمر بن أبي سلمة رضي الله عنه قال: كنت غلاماً في حجر رسول الله ﷺ، فقال لي: «يا غلام، سمِّ الله، وكل بيمينك، وكل مما يليك»",
+    category: "eating",
+    difficulty: "easy",
+    reward: "مخالفة لفعل الشيطان اللي بياكل ويشرب بشماله.",
+    rewardSource: "«الشيطان يأكل بشماله ويشرب بشماله» (رواه مسلم 2020).",
+    notificationSchedule: {
+      reminderSlots: ["morning", "afternoon", "evening"],
+      endOfDayCheckIn: true,
+    },
+    notificationMessages: [
+      "تذكّر: كُل واشرب بيمينك ✋",
+      "سنة بسيطة بس أجرها عظيم",
+      "يمينك أولى بالطعام والشراب",
+    ],
+  },
+  {
+    id: "13",
+    title: "الاستغفار والذكر بعد السلام من الصلاة",
+    action:
+      "فوراً بعد ما تسلّم من الصلاة، قول 'أستغفر الله' 3 مرات، وبعدين: 'اللهم أنت السلام، ومنك السلام، تباركت يا ذا الجلال والإكرام'.",
+    hadith:
+      "عن ثوبان رضي الله عنه قال: كان رسول الله ﷺ إذا انصرف من صلاته استغفر ثلاثاً، وقال: «اللهم أنت السلام، ومنك السلام، تباركت يا ذا الجلال والإكرام»",
+    category: "dhikr",
+    difficulty: "easy",
+    reward: "الاستغفار سبب عام لمغفرة الذنوب.",
+    rewardSource: null,
+    notificationSchedule: {
+      reminderSlots: ["dhuhr", "maghrib", "evening"],
+      endOfDayCheckIn: true,
+    },
+    notificationMessages: [
+      "بعد السلام مباشرة، استغفر ثلاثاً 🤲",
+      "اللهم أنت السلام ومنك السلام",
+    ],
+  },
+  {
+    id: "12",
+    title: "التسبيح بعد الصلاة (33 - 33 - 34)",
+    action:
+      "بعد كل صلاة مفروضة، قول: سبحان الله 33 مرة، الحمد لله 33 مرة، الله أكبر 33 مرة، وكمّل المية بقول: 'لا إله إلا الله وحده لا شريك له، له الملك وله الحمد، وهو على كل شيء قدير'.",
+    hadith:
+      "عن أبي هريرة رضي الله عنه أن رسول الله ﷺ قال: «من سبّح الله في دبر كل صلاة ثلاثاً وثلاثين، وحمد الله ثلاثاً وثلاثين، وكبّر الله ثلاثاً وثلاثين، فتلك تسعة وتسعون، وقال تمام المائة: لا إله إلا الله وحده لا شريك له، له الملك وله الحمد، وهو على كل شيء قدير: غفرت خطاياه وإن كانت مثل زبد البحر»",
+    category: "dhikr",
+    difficulty: "medium",
+    reward: "غفران الذنوب حتى لو كانت كتير جداً.",
+    rewardSource: "«...غفرت خطاياه وإن كانت مثل زبد البحر» (رواه مسلم 597).",
+    notificationSchedule: {
+      reminderSlots: ["dhuhr", "maghrib", "evening"],
+      endOfDayCheckIn: true,
+    },
+    notificationMessages: [
+      "بعد الصلاة، خصص دقيقة للتسبيح 📿",
+      "33 - 33 - 34... خطوة بسيطة لمغفرة كبيرة",
+    ],
+  },
+  {
+    id: "14",
+    title: "قراءة آية الكرسي بعد كل صلاة مكتوبة",
+    action:
+      "بعد ما تسلّم من أي صلاة مفروضة، اقرأ آية الكرسي (سورة البقرة: 255) قبل ما تقوم من مكانك.",
+    hadith:
+      "قال رسول الله ﷺ: «من قرأ آية الكرسي دبر كل صلاة مكتوبة، لم يمنعه من دخول الجنة إلا أن يموت»",
+    category: "dhikr",
+    difficulty: "medium",
+    reward: "لا يمنعك من دخول الجنة إلا الموت.",
+    rewardSource:
+      "«من قرأ آية الكرسي دبر كل صلاة مكتوبة، لم يمنعه من دخول الجنة إلا أن يموت» (رواه النسائي في الكبرى، وصححه الألباني وابن حبان).",
+    notificationSchedule: {
+      reminderSlots: ["dhuhr", "maghrib", "evening"],
+      endOfDayCheckIn: true,
+    },
+    notificationMessages: [
+      "بعد الصلاة، اقرأ آية الكرسي 📖",
+      "سنة بعد كل صلاة مكتوبة",
+    ],
+  },
+  {
+    id: "16",
+    title: "صلاة الضحى ركعتين",
+    action: "صلِّ ركعتين بعد شروق الشمس بحوالي ربع ساعة، لحد قبل الظهر بشوية.",
+    hadith:
+      "عن أبي ذر رضي الله عنه أن النبي ﷺ قال: «يُصبح على كل سُلامى من أحدكم صدقة، فكل تسبيحة صدقة، وكل تحميدة صدقة، وكل تهليلة صدقة، وكل تكبيرة صدقة، وأمر بالمعروف صدقة، ونهي عن المنكر صدقة، ويُجزئ من ذلك ركعتان يركعهما من الضحى»",
+    category: "prayer",
+    difficulty: "medium",
+    reward: "تجزئ عن صدقة كل مفاصل جسمك.",
+    rewardSource: "«...ويُجزئ من ذلك ركعتان يركعهما من الضحى» (رواه مسلم 720).",
+    notificationSchedule: {
+      reminderSlots: ["morning"],
+      endOfDayCheckIn: true,
+    },
+    notificationMessages: [
+      "خصص دقيقتين لركعتي الضحى ☀️",
+      "ركعتان تغنيك عن صدقة كل مفاصل جسمك",
+    ],
+  },
+  {
+    id: "17",
+    title: "دعاء دخول الخلاء",
+    action: "قبل ما تدخل الحمام، قول: «اللهم إني أعوذ بك من الخبث والخبائث».",
+    hadith:
+      "كان النبي ﷺ إذا دخل الخلاء قال: «اللهم إني أعوذ بك من الخبث والخبائث»",
+    category: "hygiene",
+    difficulty: "easy",
+    reward: "حماية من أذى الشياطين في هذا المكان.",
+    rewardSource: null,
+    notificationSchedule: {
+      reminderSlots: ["morning", "evening"],
+      endOfDayCheckIn: true,
+    },
+    notificationMessages: [
+      "قبل الدخول، تذكّر دعاء دخول الخلاء 🚪",
+      "سنة بسيطة تتكرر كل يوم",
+    ],
+  },
+  {
+    id: "18",
+    title: "دعاء الخروج من الخلاء",
+    action: "بعد ما تخرج من الحمام، قول: «غفرانك».",
+    hadith: "كان النبي ﷺ إذا خرج من الخلاء قال: «غفرانك»",
+    category: "hygiene",
+    difficulty: "easy",
+    reward: "طلب المغفرة من الله.",
+    rewardSource: null,
+    notificationSchedule: {
+      reminderSlots: ["morning", "evening"],
+      endOfDayCheckIn: true,
+    },
+    notificationMessages: ["بعد الخروج، قول: غفرانك", "سنة صغيرة بلفظ واحد بس"],
+  },
+  {
+    id: "19",
+    title: "الدعاء عند الخروج من المنزل",
+    action:
+      "وأنت بتقفل باب البيت وراك، قول: «بسم الله، توكلت على الله، ولا حول ولا قوة إلا بالله».",
+    hadith:
+      "كان النبي ﷺ إذا خرج من بيته قال: «بسم الله، توكلت على الله، ولا حول ولا قوة إلا بالله»",
+    category: "general",
+    difficulty: "easy",
+    reward: "تنال الهداية والحماية والكفاية من الله.",
+    rewardSource:
+      "«يقال له: كُفيت، وهُديت، ووُقيت، وتنحّى عنه الشيطان» (رواه أبو داود 5095 والترمذي، وصححه الألباني).",
+    notificationSchedule: {
+      reminderSlots: ["morning"],
+      endOfDayCheckIn: true,
+    },
+    notificationMessages: [
+      "قبل ما تخرج، قول دعاء الخروج 🚪",
+      "توكل على الله وابدأ يومك",
+    ],
+  },
+  {
+    id: "25",
+    title: "قول سبحان الله وبحمده مئة مرة في اليوم",
+    action:
+      "كرر 'سبحان الله وبحمده' مية مرة خلال اليوم، ممكن توزعها بعد كل صلاة بدل ما تقولها دفعة واحدة.",
+    hadith:
+      "قال رسول الله ﷺ: «من قال سبحان الله وبحمده في يوم مائة مرة، حُطّت خطاياه وإن كانت مثل زبد البحر»",
+    category: "dhikr",
+    difficulty: "easy",
+    reward: "تُحط خطاياه ولو كانت كتير جداً.",
+    rewardSource:
+      "«من قال سبحان الله وبحمده في يوم مائة مرة، حُطّت خطاياه وإن كانت مثل زبد البحر» (متفق عليه، البخاري 6405 ومسلم 2691).",
+    notificationSchedule: {
+      reminderSlots: ["morning", "afternoon", "evening"],
+      endOfDayCheckIn: true,
+    },
+    notificationMessages: [
+      "سبحان الله وبحمده... كرّرها اليوم 📿",
+      "مية مرة بسيطة، وخطايا كتير بتتحط",
+    ],
+  },
+  {
+    id: "29",
+    title: "صيام ثلاثة أيام من كل شهر (الأيام البيض)",
+    action:
+      "اختار 3 أيام من كل شهر هجري تصومهم، والأفضل تكون أيام 13 و14 و15 (الأيام البيض).",
+    hadith:
+      "عن أبي هريرة رضي الله عنه قال: أوصاني خليلي ﷺ بثلاث: صيام ثلاثة أيام من كل شهر، وركعتي الضحى، وأن أوتر قبل أن أنام",
+    category: "general",
+    difficulty: "hard",
+    reward: "يعدل صيام الدهر كله.",
+    rewardSource: "«صيام ثلاثة أيام من كل شهر صيام الدهر» (رواه مسلم 1162).",
+    notificationSchedule: {
+      reminderSlots: ["fajr"],
+      endOfDayCheckIn: true,
+    },
+    notificationMessages: [
+      "النهاردة من الأيام البيض؟ فرصة تصوم 🌙",
+      "3 أيام بس تعدل صيام السنة كلها",
+    ],
+  },
+  {
+    id: "30",
+    title: "صيام يومي الاثنين والخميس",
+    action: "اهتم بصيام يومي الاثنين والخميس.",
+    hadith:
+      "قال رسول الله ﷺ: «تُعرض الأعمال يوم الاثنين والخميس، فأحب أن يُعرض عملي وأنا صائم»",
+    category: "general",
+    difficulty: "hard",
+    reward: "تُعرض أعمالك على الله وأنت في حال صيام.",
+    rewardSource: null,
+    notificationSchedule: {
+      reminderSlots: ["fajr"],
+      endOfDayCheckIn: true,
+    },
+    notificationMessages: [
+      "النهاردة اتنين أو خميس؟ فرصة تصوم 🌙",
+      "يوم بسيط ممكن تبدأ بيه",
+    ],
+  },
 ];

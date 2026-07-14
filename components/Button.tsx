@@ -1,6 +1,10 @@
-import React, { useRef } from 'react';
-import { Pressable, Text, Animated, ViewStyle, TextStyle } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
+import { LinearGradient } from "expo-linear-gradient";
+import { cssInterop } from "nativewind";
+import React, { useRef } from "react";
+import { Animated, Pressable, Text, TextStyle, ViewStyle } from "react-native";
+
+cssInterop(LinearGradient, { className: "style" });
+cssInterop(Animated.View, { className: "style" });
 
 interface ButtonProps {
   title: string;
@@ -8,20 +12,24 @@ interface ButtonProps {
   color?: string;
   colorEnd?: string;
   textColor?: string;
-  variant?: 'solid' | 'ghost';
+  variant?: "solid" | "ghost";
   style?: ViewStyle;
   textStyle?: TextStyle;
+  className?: string;
+  disabled?: boolean;
 }
 
-export const Button: React.FC<ButtonProps> = ({ 
-  title, 
-  onPress, 
-  color = '#8FAF8B',
+export const Button: React.FC<ButtonProps> = ({
+  title,
+  onPress,
+  color = "#90937A",
   colorEnd,
-  textColor = '#FFFFFF',
-  variant = 'solid',
+  textColor = "#FFFFFF",
+  variant = "solid",
   style,
-  textStyle 
+  textStyle,
+  className = "",
+  disabled = false,
 }) => {
   const scale = useRef(new Animated.Value(1)).current;
 
@@ -43,38 +51,34 @@ export const Button: React.FC<ButtonProps> = ({
     }).start();
   };
 
-  // Derive a slightly darker shade for the gradient end
   const gradientEnd = colorEnd || color;
 
-  if (variant === 'ghost') {
+  if (variant === "ghost") {
     return (
       <Pressable
         onPress={onPress}
         onPressIn={handlePressIn}
         onPressOut={handlePressOut}
-        className="mb-3 w-full"
+        disabled={disabled}
+        className={`mb-3 w-full ${className}`}
       >
         <Animated.View
           style={[
             { transform: [{ scale }] },
             {
-              borderWidth: 1.5,
               borderColor: color,
-              backgroundColor: 'transparent',
+              shadowColor: color,
+              shadowOffset: { width: 0, height: 2 },
+              shadowOpacity: 0.1,
+              shadowRadius: 4,
             },
             style,
           ]}
-          className="px-6 py-4 rounded-2xl items-center justify-center"
+          className="border-[1.5px] bg-white/40 px-6 py-4 rounded-2xl items-center justify-center"
         >
-          <Text 
-            style={[
-              { 
-                color: color, 
-                fontFamily: 'Amiri_700Bold',
-              }, 
-              textStyle,
-            ]} 
-            className="text-lg"
+          <Text
+            style={[{ color: color }, textStyle]}
+            className="font-amiri-bold text-lg"
           >
             {title}
           </Text>
@@ -88,45 +92,30 @@ export const Button: React.FC<ButtonProps> = ({
       onPress={onPress}
       onPressIn={handlePressIn}
       onPressOut={handlePressOut}
-      className="mb-3 w-full"
+      disabled={disabled}
+      className={`mb-3 w-full ${className}`}
     >
       <Animated.View
         style={[
-          { 
+          {
             transform: [{ scale }],
+            opacity: disabled ? 0.5 : 1,
             shadowColor: color,
-            shadowOffset: { width: 0, height: 4 },
-            shadowOpacity: 0.25,
-            shadowRadius: 8,
-            elevation: 4,
-            overflow: 'hidden',
-            borderRadius: 16,
-            borderWidth: 1,
-            borderColor: 'rgba(255,255,255,0.15)',
+            backgroundColor: color,
           },
           style,
         ]}
+        className="shadow-md rounded-2xl border border-white/30 border-b-[3px] border-b-black/20"
       >
         <LinearGradient
           colors={[color, gradientEnd]}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
-          style={{
-            paddingHorizontal: 24,
-            paddingVertical: 16,
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
+          className="px-6 py-4 items-center justify-center rounded-[15px]"
         >
-          <Text 
-            style={[
-              { 
-                color: textColor, 
-                fontFamily: 'Amiri_700Bold',
-              }, 
-              textStyle,
-            ]} 
-            className="text-lg"
+          <Text
+            style={[{ color: textColor }, textStyle]}
+            className="font-amiri-bold text-lg"
           >
             {title}
           </Text>
