@@ -4,7 +4,7 @@
     "slug": "sonan",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/images/app-icon.png",
     "scheme": "sonan",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
@@ -12,18 +12,21 @@
       "supportsTablet": true
     },
     "android": {
+      "package": "com.sunnah.sonan",
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
-        "foregroundImage": "./assets/images/android-icon-foreground.png",
-        "backgroundImage": "./assets/images/android-icon-background.png",
-        "monochromeImage": "./assets/images/android-icon-monochrome.png"
+        "foregroundImage": "./assets/images/app-icon.png"
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false
     },
+    "androidNavigationBar": {
+      "barStyle": "dark-content",
+      "backgroundColor": "#FAF7F0"
+    },
     "web": {
       "output": "static",
-      "favicon": "./assets/images/favicon.png"
+      "favicon": "./assets/images/app-icon.png"
     },
     "notification": {
       "androidMode": "collapse",
@@ -34,7 +37,7 @@
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/splash-icon.png",
+          "image": "./assets/images/app-icon.png",
           "imageWidth": 200,
           "resizeMode": "contain",
           "backgroundColor": "#ffffff",
@@ -53,6 +56,13 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": false
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "9321d380-af89-435d-bb6b-85a5a2f5bc1a"
+      }
+    },
+    "owner": "amr-kh"
   }
 }

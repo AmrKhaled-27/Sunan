@@ -10,6 +10,7 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { PaperBackground } from "@/components/PaperBackground";
+import { Button } from "@/components/Button";
 import { useSunnah } from "@/hooks/SunnahContext";
 import { Ionicons } from "@expo/vector-icons";
 
@@ -141,8 +142,10 @@ export default function SettingsScreen() {
     longestStreak,
     prayerTimes,
     refreshPrayerTimes,
+    resetAllProgress,
   } = useSunnah();
   const [showTimePicker, setShowTimePicker] = useState(false);
+  const [showResetConfirm, setShowResetConfirm] = useState(false);
 
   const pad = (n: number) => String(n).padStart(2, "0");
   const timeLabel = `${pad(settings.endOfDayHour)}:${pad(settings.endOfDayMinute)}`;
@@ -254,7 +257,7 @@ export default function SettingsScreen() {
         <Text className="font-tajawal-bold text-warmGold text-lg mb-3 mr-1">
           عن التطبيق
         </Text>
-        <View className="bg-[#FAF7F0] rounded-2xl px-4 shadow-sm border border-warmGold/10">
+        <View className="bg-[#FAF7F0] rounded-2xl px-4 shadow-sm border border-warmGold/10 mb-6">
           <SettingRow
             label="كيف يعمل التطبيق؟"
             description="تحصل على سنة واحدة، وإذا طبّقتها 7 أيام متتالية انتقلت للسنة التالية."
@@ -284,8 +287,29 @@ export default function SettingsScreen() {
           />
         </View>
 
+        {/* ── Data Management / Testing ────────────────────────────────────── */}
+        <Text className="font-tajawal-bold text-warmGold text-lg mb-3 mr-1">
+          إدارة البيانات
+        </Text>
+        <View className="bg-[#FAF7F0] rounded-2xl px-4 shadow-sm border border-warmGold/10 mb-6">
+          <SettingRow
+            label="إعادة ضبط التقدم"
+            description="مسح الإنجازات والبدء من السنة الأولى من جديد"
+            right={
+              <TouchableOpacity
+                onPress={() => setShowResetConfirm(true)}
+                className="bg-red-50 border border-red-200 rounded-xl px-3 py-2"
+              >
+                <Text className="font-tajawal-bold text-red-600 text-sm">
+                  مسح وبدء من جديد
+                </Text>
+              </TouchableOpacity>
+            }
+          />
+        </View>
+
         {/* ── App version ───────────────────────────────────────────────────── */}
-        <Text className="font-tajawal text-warmBrownLight text-sm text-center mt-8 opacity-50">
+        <Text className="font-tajawal text-warmBrownLight text-sm text-center mt-2 opacity-50">
           سنن · الإصدار 1.0.0
         </Text>
       </ScrollView>
@@ -300,6 +324,36 @@ export default function SettingsScreen() {
         }}
         onClose={() => setShowTimePicker(false)}
       />
+
+      {/* Reset Progress Modal */}
+      <Modal transparent animationType="fade" visible={showResetConfirm}>
+        <View className="flex-1 bg-black/40 justify-center items-center px-6">
+          <View className="bg-[#FAF7F0] rounded-2xl p-6 w-full">
+            <Text className="font-tajawal-bold text-warmBrown text-2xl text-center mb-3">
+              إعادة ضبط البيانات؟
+            </Text>
+            <Text className="font-tajawal text-warmBrownLight text-lg text-center leading-8 mb-6">
+              سيتم مسح جميع الإحصائيات، السلاسل، والسنن المكتملة، والبدء من جديد من أول سنة.
+            </Text>
+            <Button
+              title="نعم، امسح وابدأ من جديد"
+              onPress={async () => {
+                setShowResetConfirm(false);
+                await resetAllProgress();
+              }}
+              color="#DC2626"
+              colorEnd="#B91C1C"
+              textColor="#FFFFFF"
+            />
+            <Button
+              title="إلغاء"
+              onPress={() => setShowResetConfirm(false)}
+              variant="ghost"
+              color="#A89A84"
+            />
+          </View>
+        </View>
+      </Modal>
     </PaperBackground>
   );
 }

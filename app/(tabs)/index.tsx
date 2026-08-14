@@ -4,7 +4,15 @@ import { PaperBackground } from "@/components/PaperBackground";
 import { useSunnah } from "@/hooks/SunnahContext";
 import { Ionicons } from "@expo/vector-icons";
 import React, { useState } from "react";
-import { ActivityIndicator, Modal, ScrollView, Text, View } from "react-native";
+import {
+  ActivityIndicator,
+  Image,
+  Modal,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 // ─── Streak dots ──────────────────────────────────────────────────────────────
@@ -35,8 +43,8 @@ function StreakDots({ count, total = 7 }: { count: number; total?: number }) {
 
 function MilestoneBanner({ count }: { count: number }) {
   const milestones: Record<number, string> = {
-    3: "رائع! لقد تجاوزت النصف 🌟",
-    6: "يوم واحد بقي! تحلَّ بالصبر 💪",
+    3: "رائع! لقد تجاوزت النصف",
+    6: "يوم واحد بقي! تحلَّ بالصبر",
   };
   const msg = milestones[count];
   if (!msg) return null;
@@ -84,7 +92,11 @@ export default function ActiveSunnahScreen() {
           className="flex-1 justify-center items-center p-6"
           style={{ paddingTop: insets.top }}
         >
-          <Text className="text-5xl mb-4">🌙</Text>
+          <Image
+            source={require("@/assets/images/app-icon.png")}
+            className="w-24 h-24 rounded-2xl mb-6 opacity-80"
+            resizeMode="contain"
+          />
           <Text className="font-tajawal-bold text-warmBrown text-2xl text-center mb-2">
             أتممت جميع السنن!
           </Text>
@@ -97,13 +109,13 @@ export default function ActiveSunnahScreen() {
   }
 
   const categoryLabels: Record<string, string> = {
-    prayer: "🕌 صلاة",
-    eating: "🍽️ طعام",
-    sleeping: "🌙 نوم",
-    dhikr: "📿 ذكر",
-    social: "🤝 معاملات",
-    hygiene: "✨ نظافة",
-    general: "⭐ عام",
+    prayer: "صلاة",
+    eating: "طعام",
+    sleeping: "نوم",
+    dhikr: "ذكر",
+    social: "معاملات",
+    hygiene: "نظافة",
+    general: "عام",
   };
 
   const difficultyLabels: Record<string, string> = {
@@ -127,7 +139,7 @@ export default function ActiveSunnahScreen() {
           style={{ marginTop: insets.top + 8 }}
         >
           <Text className="font-tajawal-bold text-red-700 text-center text-base">
-            انقطعت سلسلتك بسبب يوم فائت. ابدأ من جديد! 💪
+            انقطعت سلسلتك بسبب يوم فائت. ابدأ من جديد!
           </Text>
         </View>
       )}
@@ -206,30 +218,7 @@ export default function ActiveSunnahScreen() {
           )}
         </Card>
 
-        {/* Notification times */}
-        <View className="px-2 mb-4">
-          <Text className="font-tajawal text-warmBrownLight text-sm text-center opacity-70">
-            تصلك تذكيرات هذه السنة في:{"  "}
-            {currentSunnah.notificationSchedule.reminderSlots
-              .map((s) => {
-                const labels: Record<string, string> = {
-                  fajr: "الفجر",
-                  morning: "الصباح",
-                  dhuhr: "الظهر",
-                  asr: "العصر",
-                  afternoon: "بعد الظهر",
-                  maghrib: "المغرب",
-                  ishaa: "العشاء",
-                  evening: "المساء",
-                  before_sleep: "قبل النوم",
-                };
-                return labels[s];
-              })
-              .join(" · ")}
-          </Text>
-        </View>
-
-        {/* Actions */}
+        {/* Primary Action */}
         <View className="mt-2">
           <Button
             title={hasMarkedToday ? "تم إنجازها اليوم" : "فعلتها اليوم"}
@@ -239,21 +228,29 @@ export default function ActiveSunnahScreen() {
             textColor="#FFFFFF"
             disabled={hasMarkedToday}
           />
+        </View>
 
-          <Button
-            title="أفعلها بالفعل في حياتي"
+        {/* Secondary Actions */}
+        <View className="flex-row justify-center items-center gap-6 mt-2 mb-2">
+          <TouchableOpacity
             onPress={() => setShowAlreadyConfirm(true)}
-            color="#A89A84"
-            colorEnd="#8A7E6B"
-            textColor="#FFFFFF"
-          />
+            className="py-2"
+          >
+            <Text className="font-tajawal text-warmBrownLight text-sm underline">
+              أفعلها بالفعل
+            </Text>
+          </TouchableOpacity>
 
-          <Button
-            title="تخطي هذه السنة"
+          <View className="w-[1px] h-4 bg-warmBrownLight/30" />
+
+          <TouchableOpacity
             onPress={() => setShowSkipConfirm(true)}
-            variant="ghost"
-            color="#A89A84"
-          />
+            className="py-2"
+          >
+            <Text className="font-tajawal text-warmBrownLight text-sm underline">
+              تخطي
+            </Text>
+          </TouchableOpacity>
         </View>
       </ScrollView>
 

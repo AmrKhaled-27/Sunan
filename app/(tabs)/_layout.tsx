@@ -1,10 +1,13 @@
 import { Tabs } from "expo-router";
 import React from "react";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { HapticTab } from "@/components/haptic-tab";
-import { IconSymbol } from "@/components/ui/icon-symbol";
+import { Ionicons } from "@expo/vector-icons";
 
 export default function TabLayout() {
+  const insets = useSafeAreaInsets();
+
   return (
     <Tabs
       screenOptions={{
@@ -21,8 +24,8 @@ export default function TabLayout() {
           shadowOpacity: 0.05,
           shadowRadius: 10,
           shadowColor: "#000",
-          height: 70,
-          paddingBottom: 12,
+          height: 60 + Math.max(insets.bottom, 10),
+          paddingBottom: Math.max(insets.bottom, 8),
           paddingTop: 6,
         },
         tabBarLabelStyle: {
@@ -36,8 +39,12 @@ export default function TabLayout() {
         options={{
           title: "سنة اليوم",
           tabBarLabel: "سنة اليوم",
-          tabBarIcon: ({ color }) => (
-            <IconSymbol size={24} name="book.closed.fill" color={color} />
+          tabBarIcon: ({ color, focused }) => (
+            <Ionicons
+              name={focused ? "moon" : "moon-outline"}
+              size={22}
+              color={color}
+            />
           ),
         }}
       />
@@ -46,8 +53,12 @@ export default function TabLayout() {
         options={{
           title: "الانجازات",
           tabBarLabel: "الانجازات",
-          tabBarIcon: ({ color }) => (
-            <IconSymbol size={24} name="checkmark.seal.fill" color={color} />
+          tabBarIcon: ({ color, focused }) => (
+            <Ionicons
+              name={focused ? "trophy" : "trophy-outline"}
+              size={22}
+              color={color}
+            />
           ),
         }}
       />
@@ -56,8 +67,12 @@ export default function TabLayout() {
         options={{
           title: "الإعدادات",
           tabBarLabel: "الإعدادات",
-          tabBarIcon: ({ color }) => (
-            <IconSymbol size={24} name="gearshape.fill" color={color} />
+          tabBarIcon: ({ color, focused }) => (
+            <Ionicons
+              name={focused ? "settings" : "settings-outline"}
+              size={22}
+              color={color}
+            />
           ),
         }}
       />

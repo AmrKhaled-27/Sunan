@@ -38,7 +38,11 @@ export const Card: React.FC<CardProps> = ({
 
         {/* Top Badge */}
         <View className="absolute -top-7 self-center w-14 h-14 rounded-full bg-[#C4A46C] border-[3px] border-[#FFFCF5] items-center justify-center z-20 shadow-md shadow-black/10">
-          <MaterialCommunityIcons name="flower" size={26} color="#FFFFFF" />
+          <MaterialCommunityIcons
+            name="flower-tulip"
+            size={26}
+            color="#FFFFFF"
+          />
         </View>
 
         {/* Inner Content (No background) */}

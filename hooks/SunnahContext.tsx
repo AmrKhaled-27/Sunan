@@ -19,7 +19,7 @@ export interface UserSettings {
 }
 
 interface PersistedState {
-  currentSunnahId: string;
+  currentSunnahId: string | null;
   streakDates: string[];          // ISO date strings 'YYYY-MM-DD'
   accomplishedIds: string[];
   skippedIds: string[];
@@ -47,6 +47,7 @@ interface SunnahContextType {
   updateSettings: (s: Partial<UserSettings>) => void;
   prayerTimes: PrayerTimesResult | null;
   refreshPrayerTimes: () => Promise<void>;
+  resetAllProgress: () => Promise<void>;
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -63,18 +64,40 @@ function daysBetween(a: string, b: string): number {
 
 /** Find the next available sunnah ID that is not accomplished or skipped */
 function nextSunnahId(
-  currentId: string,
+  currentId: string | null,
   accomplishedIds: string[],
   skippedIds: string[]
-): string {
-  const activeSunnahs = SUNNAHS.filter(
+): string | null {
+  // 1. First priority: Active Sunnahs that are neither accomplished nor skipped
+  const unhandledSunnahs = SUNNAHS.filter(
+    s => !s.deprecated && !accomplishedIds.includes(s.id) && !skippedIds.includes(s.id)
+  );
+
+  if (unhandledSunnahs.length > 0) {
+    const currentIdx = currentId ? unhandledSunnahs.findIndex(s => s.id === currentId) : -1;
+    if (currentIdx === -1) {
+      return unhandledSunnahs[0].id;
+    }
+    const nextIdx = (currentIdx + 1) % unhandledSunnahs.length;
+    return unhandledSunnahs[nextIdx].id;
+  }
+
+  // 2. Second priority: If all unhandled are done/skipped, cycle through remaining unaccomplished skipped ones
+  const remainingUnaccomplished = SUNNAHS.filter(
     s => !s.deprecated && !accomplishedIds.includes(s.id)
   );
-  if (activeSunnahs.length === 0) return SUNNAHS[0].id; // fallback: wrap
 
-  const currentIdx = activeSunnahs.findIndex(s => s.id === currentId);
-  const nextIdx    = (currentIdx + 1) % activeSunnahs.length;
-  return activeSunnahs[nextIdx].id;
+  if (remainingUnaccomplished.length > 0) {
+    const currentIdx = currentId ? remainingUnaccomplished.findIndex(s => s.id === currentId) : -1;
+    if (currentIdx === -1) {
+      return remainingUnaccomplished[0].id;
+    }
+    const nextIdx = (currentIdx + 1) % remainingUnaccomplished.length;
+    return remainingUnaccomplished[nextIdx].id;
+  }
+
+  // 3. All sunnahs are accomplished!
+  return null;
 }
 
 // ─── Defaults ─────────────────────────────────────────────────────────────────
@@ -91,7 +114,7 @@ const SunnahContext = createContext<SunnahContextType | undefined>(undefined);
 const STORAGE_KEY = '@sonan_state_v2';
 
 export function SunnahProvider({ children }: { children: React.ReactNode }) {
-  const [currentSunnahId, setCurrentSunnahId] = useState<string>(SUNNAHS[0].id);
+  const [currentSunnahId, setCurrentSunnahId] = useState<string | null>(null);
   const [streakDates,     setStreakDates]     = useState<string[]>([]);
   const [accomplishedIds, setAccomplishedIds] = useState<string[]>([]);
   const [skippedIds,      setSkippedIds]      = useState<string[]>([]);
@@ -140,10 +163,19 @@ export function SunnahProvider({ children }: { children: React.ReactNode }) {
           }
         }
 
-        setCurrentSunnahId(p.currentSunnahId ?? SUNNAHS[0].id);
+        const accomplished = p.accomplishedIds ?? [];
+        const skipped = p.skippedIds ?? [];
+        let resolvedId = p.currentSunnahId ?? null;
+
+        // If saved ID is already accomplished, non-existent, or empty, find next valid ID
+        if (!resolvedId || accomplished.includes(resolvedId) || !SUNNAHS.some(s => s.id === resolvedId)) {
+          resolvedId = nextSunnahId(resolvedId, accomplished, skipped);
+        }
+
+        setCurrentSunnahId(resolvedId);
         setStreakDates(validStreak);
-        setAccomplishedIds(p.accomplishedIds ?? []);
-        setSkippedIds(p.skippedIds ?? []);
+        setAccomplishedIds(accomplished);
+        setSkippedIds(skipped);
         setSettings({ ...DEFAULT_SETTINGS, ...(p.settings ?? {}) });
         setTotalCompleted(p.totalCompleted ?? 0);
         setLongestStreak(p.longestStreak ?? 0);
@@ -153,9 +185,13 @@ export function SunnahProvider({ children }: { children: React.ReactNode }) {
         if (broken) {
           await saveState({
             ...p,
+            currentSunnahId: resolvedId,
             streakDates: [],
           });
         }
+      } else {
+        const initialId = nextSunnahId(null, [], []);
+        setCurrentSunnahId(initialId);
       }
     } catch (e) {
       console.error('Failed to load state', e);
@@ -182,8 +218,15 @@ export function SunnahProvider({ children }: { children: React.ReactNode }) {
   // ── Re-schedule notifications whenever sunnah or settings change ─────────────
   useEffect(() => {
     if (isLoading) return;
+    if (!currentSunnahId) {
+      cancelAllNotifications();
+      return;
+    }
     const sunnah = SUNNAHS.find(s => s.id === currentSunnahId);
-    if (!sunnah) return;
+    if (!sunnah) {
+      cancelAllNotifications();
+      return;
+    }
     
     const today = todayStr();
     const hasMarkedToday = streakDates.includes(today);
@@ -215,7 +258,7 @@ export function SunnahProvider({ children }: { children: React.ReactNode }) {
   // ── Actions ──────────────────────────────────────────────────────────────────
 
   const markDoneToday = useCallback(() => {
-    if (hasMarkedToday) return; // already marked
+    if (hasMarkedToday || !currentSunnahId) return; // already marked or no active sunnah
 
     const today = todayStr();
     let newStreakDates = [...streakDates];
@@ -274,6 +317,7 @@ export function SunnahProvider({ children }: { children: React.ReactNode }) {
   ]);
 
   const markAlreadyDoing = useCallback(() => {
+    if (!currentSunnahId) return;
     const newAccomplished = [...accomplishedIds, currentSunnahId];
     const newTotal = totalCompleted + 1;
     const newId = nextSunnahId(currentSunnahId, newAccomplished, skippedIds);
@@ -293,7 +337,10 @@ export function SunnahProvider({ children }: { children: React.ReactNode }) {
   }, [currentSunnahId, accomplishedIds, skippedIds, totalCompleted]);
 
   const skipSunnah = useCallback(() => {
-    const newSkipped = [...skippedIds, currentSunnahId];
+    if (!currentSunnahId) return;
+    const newSkipped = skippedIds.includes(currentSunnahId)
+      ? skippedIds
+      : [...skippedIds, currentSunnahId];
     const newId = nextSunnahId(currentSunnahId, accomplishedIds, newSkipped);
 
     setSkippedIds(newSkipped);
@@ -317,12 +364,31 @@ export function SunnahProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   // ── Derived collections ──────────────────────────────────────────────────────
-  const currentSunnah    = SUNNAHS.find(s => s.id === currentSunnahId) ?? null;
+  const currentSunnah = currentSunnahId && !accomplishedIds.includes(currentSunnahId)
+    ? SUNNAHS.find(s => s.id === currentSunnahId) ?? null
+    : null;
   const accomplishedSunnahs = SUNNAHS.filter(s => accomplishedIds.includes(s.id));
   const skippedSunnahs   = SUNNAHS.filter(s => skippedIds.includes(s.id));
 
   const refreshPrayerTimes = useCallback(async () => {
     await fetchPrayerTimes(true);
+  }, []);
+
+  const resetAllProgress = useCallback(async () => {
+    try {
+      await AsyncStorage.removeItem(STORAGE_KEY);
+      const initialId = nextSunnahId(null, [], []);
+      setCurrentSunnahId(initialId);
+      setStreakDates([]);
+      setAccomplishedIds([]);
+      setSkippedIds([]);
+      setSettings(DEFAULT_SETTINGS);
+      setTotalCompleted(0);
+      setLongestStreak(0);
+      setStreakBrokenToday(false);
+    } catch (e) {
+      console.error('Failed to reset progress', e);
+    }
   }, []);
 
   return (
@@ -345,6 +411,7 @@ export function SunnahProvider({ children }: { children: React.ReactNode }) {
         updateSettings,
         prayerTimes,
         refreshPrayerTimes,
+        resetAllProgress,
       }}
     >
       {children}
