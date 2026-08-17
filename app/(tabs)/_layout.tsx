@@ -1,9 +1,9 @@
+import { HapticTab } from "@/components/ui/HapticTab";
+import { fonts, palette } from "@/constants/theme";
+import { Ionicons } from "@expo/vector-icons";
 import { Tabs } from "expo-router";
 import React from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-
-import { HapticTab } from "@/components/haptic-tab";
-import { Ionicons } from "@expo/vector-icons";
 
 export default function TabLayout() {
   const insets = useSafeAreaInsets();
@@ -11,26 +11,26 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: "#C4A46C",
-        tabBarInactiveTintColor: "#B0A89A",
+        tabBarActiveTintColor: palette.warmGold,
+        tabBarInactiveTintColor: palette.tabInactive,
         headerShown: false,
         tabBarButton: HapticTab,
         tabBarStyle: {
           position: "absolute",
-          backgroundColor: "#FAF7F0",
+          backgroundColor: palette.parchmentLight,
           borderTopWidth: 1,
           borderTopColor: "rgba(196, 164, 108, 0.2)",
           elevation: 5,
           shadowOpacity: 0.05,
           shadowRadius: 10,
-          shadowColor: "#000",
+          shadowColor: palette.black,
           height: 60 + Math.max(insets.bottom, 10),
           paddingBottom: Math.max(insets.bottom, 8),
           paddingTop: 6,
         },
         tabBarLabelStyle: {
           fontSize: 12,
-          fontFamily: "Tajawal_700Bold",
+          fontFamily: fonts.tajawalBold[0],
         },
       }}
     >

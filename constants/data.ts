@@ -1,53 +1,12 @@
-// ─── Types ────────────────────────────────────────────────────────────────────
+import { ReminderSlot, Sunnah } from "@/types";
 
-export type SunnahCategory =
-  | "prayer" // صلاة
-  | "eating" // طعام
-  | "sleeping" // نوم
-  | "dhikr" // ذكر
-  | "social" // معاملات
-  | "hygiene" // نظافة
-  | "general"; // عام
-
-export type SunnahDifficulty = "easy" | "medium" | "hard";
-
-// Each reminder time maps to an hour (24h) that we schedule the notification
-export type ReminderSlot =
-  | "fajr" // ~5:00
-  | "morning" // ~8:00
-  | "dhuhr" // ~12:30
-  | "asr" // ~15:30
-  | "afternoon" // ~15:30
-  | "maghrib" // ~18:30
-  | "ishaa" // ~20:00
-  | "evening" // ~20:00
-  | "before_sleep"; // user-configurable, default 21:30
-
-export interface NotificationSchedule {
-  reminderSlots: ReminderSlot[]; // contextual reminder times
-  endOfDayCheckIn: boolean; // whether to send end-of-day "did you do it?" question
-}
-
-export interface Sunnah {
-  tags?: string[];
-  tagsEn?: string[];
-  id: string;
-  title: string; // Arabic title name
-  titleEn?: string;
-  action: string;
-  hadith: string; // supporting hadith text
-  hadithEn?: string;
-  category: SunnahCategory;
-  difficulty: SunnahDifficulty;
-  difficultyEn?: string;
-  notificationSchedule: NotificationSchedule;
-  notificationMessages: string[]; // rotated randomly for contextual reminders
-  notificationMessagesEn?: string[];
-
-  reward?: string;
-  rewardSource: string | null;
-  deprecated?: boolean; // never remove; mark deprecated to hide from rotation
-}
+// Re-export types for backward compatibility
+export type {
+  SunnahDifficulty,
+  ReminderSlot,
+  NotificationSchedule,
+  Sunnah,
+} from "@/types";
 
 // ─── Reminder slot → default hour/minute ──────────────────────────────────────
 

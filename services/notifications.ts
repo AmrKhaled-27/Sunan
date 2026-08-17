@@ -1,7 +1,9 @@
-import * as Notifications from 'expo-notifications';
-import { Platform } from 'react-native';
-import { Sunnah, REMINDER_SLOT_TIMES, ReminderSlot } from '../constants/data';
-import { PrayerTimesResult } from './prayerTimes';
+import * as Notifications from "expo-notifications";
+import { Platform } from "react-native";
+import { REMINDER_SLOT_TIMES } from "@/constants/data";
+import { calculatePrayerTimes } from "@/services/prayerTimes";
+import { PrayerTimesResult, Sunnah } from "@/types";
+import { pickRandom } from "@/utils/array";
 
 // ─── Notification Handler ─────────────────────────────────────────────────────
 // This must be called at the top level (before any component mounts)
@@ -15,33 +17,33 @@ Notifications.setNotificationHandler({
 });
 
 // ─── Channel IDs ─────────────────────────────────────────────────────────────
-const CHANNEL_REMINDERS = 'sunnah_reminders';
-const CHANNEL_CHECKIN   = 'sunnah_checkin';
-const CHANNEL_STREAK    = 'sunnah_streak';
+const CHANNEL_REMINDERS = "sunnah_reminders";
+const CHANNEL_CHECKIN = "sunnah_checkin";
+const CHANNEL_STREAK = "sunnah_streak";
 
 // ─── Notification identifier prefixes ────────────────────────────────────────
-const PREFIX_REMINDER = 'reminder';
-const PREFIX_CHECKIN  = 'checkin';
-const PREFIX_STREAK   = 'streak';
+const PREFIX_REMINDER = "reminder";
+const PREFIX_CHECKIN = "checkin";
+const PREFIX_STREAK = "streak";
 
 // ─── Setup ────────────────────────────────────────────────────────────────────
 
 export async function setupAndroidChannels() {
-  if (Platform.OS !== 'android') return;
+  if (Platform.OS !== "android") return;
 
   await Notifications.setNotificationChannelAsync(CHANNEL_REMINDERS, {
-    name: 'تذكيرات السنن',
+    name: "تذكيرات السنن",
     importance: Notifications.AndroidImportance.HIGH,
     vibrationPattern: [0, 250, 250, 250],
   });
 
   await Notifications.setNotificationChannelAsync(CHANNEL_CHECKIN, {
-    name: 'مراجعة اليوم',
+    name: "مراجعة اليوم",
     importance: Notifications.AndroidImportance.DEFAULT,
   });
 
   await Notifications.setNotificationChannelAsync(CHANNEL_STREAK, {
-    name: 'حماية السلسلة',
+    name: "حماية السلسلة",
     importance: Notifications.AndroidImportance.HIGH,
     vibrationPattern: [0, 400, 200, 400],
   });
@@ -49,16 +51,10 @@ export async function setupAndroidChannels() {
 
 export async function requestPermissions(): Promise<boolean> {
   const { status: existing } = await Notifications.getPermissionsAsync();
-  if (existing === 'granted') return true;
+  if (existing === "granted") return true;
 
   const { status } = await Notifications.requestPermissionsAsync();
-  return status === 'granted';
-}
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
-function pickRandom<T>(arr: T[]): T {
-  return arr[Math.floor(Math.random() * arr.length)];
+  return status === "granted";
 }
 
 // ─── Schedule notifications for an active sunnah ─────────────────────────────
@@ -86,9 +82,28 @@ export async function scheduleSunnahNotifications(
       let hour: number;
       let minute: number;
 
-      if (prayerTimes && (slot === 'fajr' || slot === 'dhuhr' || slot === 'asr' || slot === 'maghrib' || slot === 'ishaa')) {
-        hour = prayerTimes[slot].hour;
-        minute = prayerTimes[slot].minute;
+      if (
+        prayerTimes &&
+        (slot === "fajr" ||
+          slot === "dhuhr" ||
+          slot === "asr" ||
+          slot === "maghrib" ||
+          slot === "ishaa")
+      ) {
+        if (prayerTimes.latitude != null && prayerTimes.longitude != null) {
+          const targetDay = new Date(now);
+          targetDay.setDate(now.getDate() + offset);
+          const dayTimes = calculatePrayerTimes(
+            prayerTimes.latitude,
+            prayerTimes.longitude,
+            targetDay
+          );
+          hour = dayTimes[slot].hour;
+          minute = dayTimes[slot].minute;
+        } else {
+          hour = prayerTimes[slot].hour;
+          minute = prayerTimes[slot].minute;
+        }
       } else {
         hour = REMINDER_SLOT_TIMES[slot].hour;
         minute = REMINDER_SLOT_TIMES[slot].minute;
@@ -103,9 +118,9 @@ export async function scheduleSunnahNotifications(
         await Notifications.scheduleNotificationAsync({
           identifier: `${PREFIX_REMINDER}_${slot}_day${offset}`,
           content: {
-            title: sunnah.action,
+            title: sunnah.title,
             body: message,
-            data: { type: 'reminder', sunnahId: sunnah.id },
+            data: { type: "reminder", sunnahId: sunnah.id },
           },
           trigger: {
             type: Notifications.SchedulableTriggerInputTypes.DATE,
@@ -126,9 +141,9 @@ export async function scheduleSunnahNotifications(
         await Notifications.scheduleNotificationAsync({
           identifier: `${PREFIX_CHECKIN}_day${offset}`,
           content: {
-            title: 'كيف كان يومك؟ 🌙',
-            body: `هل التزمت اليوم بـ «${sunnah.action}»؟`,
-            data: { type: 'checkin', sunnahId: sunnah.id },
+            title: "كيف كان يومك؟ 🌙",
+            body: `هل التزمت اليوم بـ «${sunnah.title}»؟`,
+            data: { type: "checkin", sunnahId: sunnah.id },
           },
           trigger: {
             type: Notifications.SchedulableTriggerInputTypes.DATE,
@@ -143,15 +158,22 @@ export async function scheduleSunnahNotifications(
     if (streakCount > 0) {
       const streakDate = new Date(now);
       streakDate.setDate(now.getDate() + offset);
-      streakDate.setHours(endOfDayHour, endOfDayMinute - 30, 0, 0);
+
+      // Explicit minute arithmetic to avoid negative minutes
+      const totalCheckInMinutes = endOfDayHour * 60 + endOfDayMinute;
+      const streakTotalMinutes = (totalCheckInMinutes - 30 + 1440) % 1440;
+      const streakHour = Math.floor(streakTotalMinutes / 60);
+      const streakMinute = streakTotalMinutes % 60;
+
+      streakDate.setHours(streakHour, streakMinute, 0, 0);
 
       if (streakDate > now) {
         await Notifications.scheduleNotificationAsync({
           identifier: `${PREFIX_STREAK}_day${offset}`,
           content: {
-            title: `لا تكسر سلسلتك! ✨`,
-            body: `أنت في اليوم ${streakCount + 1} من 7 لسنة «${sunnah.action}»`,
-            data: { type: 'streak', sunnahId: sunnah.id },
+            title: "لا تكسر سلسلتك! ✨",
+            body: `أنت في اليوم ${streakCount + 1} من 7 لسنة «${sunnah.title}»`,
+            data: { type: "streak", sunnahId: sunnah.id },
           },
           trigger: {
             type: Notifications.SchedulableTriggerInputTypes.DATE,
@@ -167,16 +189,17 @@ export async function scheduleSunnahNotifications(
 export async function cancelSunnahNotifications() {
   try {
     const scheduled = await Notifications.getAllScheduledNotificationsAsync();
-    const ours = scheduled.filter(n =>
-      n.identifier.startsWith(PREFIX_REMINDER) ||
-      n.identifier.startsWith(PREFIX_CHECKIN) ||
-      n.identifier.startsWith(PREFIX_STREAK)
+    const ours = scheduled.filter(
+      (n) =>
+        n.identifier.startsWith(PREFIX_REMINDER) ||
+        n.identifier.startsWith(PREFIX_CHECKIN) ||
+        n.identifier.startsWith(PREFIX_STREAK)
     );
     for (const notif of ours) {
       await Notifications.cancelScheduledNotificationAsync(notif.identifier);
     }
   } catch (e) {
-    console.warn('Failed to cancel notifications', e);
+    console.warn("Failed to cancel notifications", e);
   }
 }
 

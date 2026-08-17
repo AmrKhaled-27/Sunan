@@ -2,6 +2,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { cssInterop } from "nativewind";
 import React, { useRef } from "react";
 import { Animated, Pressable, Text, TextStyle, ViewStyle } from "react-native";
+import { palette } from "@/constants/theme";
 
 cssInterop(LinearGradient, { className: "style" });
 cssInterop(Animated.View, { className: "style" });
@@ -17,19 +18,23 @@ interface ButtonProps {
   textStyle?: TextStyle;
   className?: string;
   disabled?: boolean;
+  accessibilityLabel?: string;
+  accessibilityHint?: string;
 }
 
 export const Button: React.FC<ButtonProps> = ({
   title,
   onPress,
-  color = "#90937A",
+  color = palette.oliveGreen,
   colorEnd,
-  textColor = "#FFFFFF",
+  textColor = palette.white,
   variant = "solid",
   style,
   textStyle,
   className = "",
   disabled = false,
+  accessibilityLabel,
+  accessibilityHint,
 }) => {
   const scale = useRef(new Animated.Value(1)).current;
 
@@ -60,6 +65,10 @@ export const Button: React.FC<ButtonProps> = ({
         onPressIn={handlePressIn}
         onPressOut={handlePressOut}
         disabled={disabled}
+        accessibilityRole="button"
+        accessibilityLabel={accessibilityLabel || title}
+        accessibilityHint={accessibilityHint}
+        accessibilityState={{ disabled }}
         className={`mb-3 w-full ${className}`}
       >
         <Animated.View
@@ -93,6 +102,10 @@ export const Button: React.FC<ButtonProps> = ({
       onPressIn={handlePressIn}
       onPressOut={handlePressOut}
       disabled={disabled}
+      accessibilityRole="button"
+      accessibilityLabel={accessibilityLabel || title}
+      accessibilityHint={accessibilityHint}
+      accessibilityState={{ disabled }}
       className={`mb-3 w-full ${className}`}
     >
       <Animated.View

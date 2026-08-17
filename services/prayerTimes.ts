@@ -1,99 +1,152 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import * as Location from 'expo-location';
-import { REMINDER_SLOT_TIMES } from '../constants/data';
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { CalculationMethod, Coordinates, PrayerTimes } from "adhan";
+import * as Location from "expo-location";
+import { REMINDER_SLOT_TIMES } from "@/constants/data";
+import { PrayerTimesResult } from "@/types";
 
-export interface PrayerTimesResult {
-  source: 'api' | 'cache' | 'fallback';
-  fajr: { hour: number; minute: number };
-  dhuhr: { hour: number; minute: number };
-  asr: { hour: number; minute: number };
-  maghrib: { hour: number; minute: number };
-  ishaa: { hour: number; minute: number };
-  fetchedAt: string | null;
+export type { PrayerTimesResult };
+
+const COORDS_STORAGE_KEY = "@sonan_user_coords";
+
+/** Select optimal calculation parameters based on user's geographic coordinates */
+export function getCalculationParameters(latitude: number, longitude: number) {
+  // Egypt and surrounding North Africa
+  if (latitude >= 22 && latitude <= 32 && longitude >= 24 && longitude <= 37) {
+    return CalculationMethod.Egyptian();
+  }
+  // Saudi Arabia & Gulf
+  if (latitude >= 15 && latitude <= 33 && longitude >= 34 && longitude <= 60) {
+    // UAE
+    if (
+      latitude >= 22 &&
+      latitude <= 26.5 &&
+      longitude >= 51 &&
+      longitude <= 56.5
+    ) {
+      return CalculationMethod.Dubai();
+    }
+    // Qatar
+    if (
+      latitude >= 24.5 &&
+      latitude <= 26.5 &&
+      longitude >= 50.5 &&
+      longitude <= 51.7
+    ) {
+      return CalculationMethod.Qatar();
+    }
+    // Kuwait
+    if (
+      latitude >= 28.5 &&
+      latitude <= 30.5 &&
+      longitude >= 46.5 &&
+      longitude <= 48.5
+    ) {
+      return CalculationMethod.Kuwait();
+    }
+    return CalculationMethod.UmmAlQura();
+  }
+  // North America
+  if (
+    latitude >= 24 &&
+    latitude <= 72 &&
+    longitude >= -170 &&
+    longitude <= -50
+  ) {
+    return CalculationMethod.NorthAmerica();
+  }
+  // South Asia (Pakistan, India, Bangladesh)
+  if (latitude >= 6 && latitude <= 37 && longitude >= 60 && longitude <= 98) {
+    return CalculationMethod.Karachi();
+  }
+  // Turkey
+  if (latitude >= 35 && latitude <= 43 && longitude >= 25 && longitude <= 45) {
+    return CalculationMethod.Turkey();
+  }
+  // Singapore & Southeast Asia
+  if (latitude >= -11 && latitude <= 8 && longitude >= 95 && longitude <= 141) {
+    return CalculationMethod.Singapore();
+  }
+  // Default worldwide standard
+  return CalculationMethod.MuslimWorldLeague();
 }
 
-const STORAGE_KEY = '@sonan_prayer_times';
-const CACHE_TTL_HOURS = 24;
+/** Calculate offline prayer times for a specific date given coordinates */
+export function calculatePrayerTimes(
+  latitude: number,
+  longitude: number,
+  date: Date = new Date()
+): PrayerTimesResult {
+  const coordinates = new Coordinates(latitude, longitude);
+  const params = getCalculationParameters(latitude, longitude);
+  const pt = new PrayerTimes(coordinates, date, params);
 
-function parseTime(timeStr: string): { hour: number; minute: number } {
-  // Expected format: "HH:mm"
-  const [hour, minute] = timeStr.split(':').map(Number);
-  return { hour, minute };
+  return {
+    source: "calc",
+    fajr: { hour: pt.fajr.getHours(), minute: pt.fajr.getMinutes() },
+    dhuhr: { hour: pt.dhuhr.getHours(), minute: pt.dhuhr.getMinutes() },
+    asr: { hour: pt.asr.getHours(), minute: pt.asr.getMinutes() },
+    maghrib: { hour: pt.maghrib.getHours(), minute: pt.maghrib.getMinutes() },
+    ishaa: { hour: pt.isha.getHours(), minute: pt.isha.getMinutes() },
+    fetchedAt: new Date().toISOString(),
+    latitude,
+    longitude,
+  };
 }
 
-export async function getPrayerTimes(forceRefresh = false): Promise<PrayerTimesResult> {
+/** Retrieve prayer times using offline calculation with cached coordinates fallback */
+export async function getPrayerTimes(
+  forceRefresh = false
+): Promise<PrayerTimesResult> {
   try {
     if (!forceRefresh) {
-      // 1. Check cache
-      const cached = await AsyncStorage.getItem(STORAGE_KEY);
+      // 1. Check cached coordinates
+      const cached = await AsyncStorage.getItem(COORDS_STORAGE_KEY);
       if (cached) {
-        const parsed = JSON.parse(cached) as PrayerTimesResult;
-        if (parsed.fetchedAt) {
-          const fetchDate = new Date(parsed.fetchedAt);
-          const now = new Date();
-          const diffHours = (now.getTime() - fetchDate.getTime()) / (1000 * 60 * 60);
-          
-          if (diffHours < CACHE_TTL_HOURS) {
-            return parsed;
-          }
+        const { latitude, longitude } = JSON.parse(cached);
+        if (typeof latitude === "number" && typeof longitude === "number") {
+          return calculatePrayerTimes(latitude, longitude, new Date());
         }
       }
     }
 
-    // 2. Request permission (will not prompt if already granted/denied previously)
+    // 2. Request permission (will not prompt if already granted or denied)
     const { status } = await Location.requestForegroundPermissionsAsync();
-    
-    if (status !== 'granted') {
+
+    if (status !== "granted") {
       return getFallbackTimes();
     }
 
-    // 3. Get location
+    // 3. Get low-accuracy / city-level coordinates
     const location = await Location.getCurrentPositionAsync({
-      accuracy: Location.Accuracy.Lowest, // We only need city-level accuracy
+      accuracy: Location.Accuracy.Lowest,
     });
-    
+
     const { latitude, longitude } = location.coords;
 
-    // 4. Fetch Aladhan API
-    // method 5 is Egyptian General Authority of Survey
-    const today = new Date();
-    const dateStr = `${String(today.getDate()).padStart(2, '0')}-${String(today.getMonth() + 1).padStart(2, '0')}-${today.getFullYear()}`;
-    const response = await fetch(
-      `https://api.aladhan.com/v1/timings/${dateStr}?latitude=${latitude}&longitude=${longitude}&method=5`
+    // Cache coordinates for instant 100% offline calculations next time
+    await AsyncStorage.setItem(
+      COORDS_STORAGE_KEY,
+      JSON.stringify({ latitude, longitude })
     );
 
-    if (!response.ok) {
-      throw new Error(`API fetch failed with status: ${response.status}`);
-    }
-
-    const json = await response.json();
-    const timings = json.data.timings;
-
-    const newTimes: PrayerTimesResult = {
-      source: 'api',
-      fajr: parseTime(timings.Fajr),
-      dhuhr: parseTime(timings.Dhuhr),
-      asr: parseTime(timings.Asr),
-      maghrib: parseTime(timings.Maghrib),
-      ishaa: parseTime(timings.Isha),
-      fetchedAt: new Date().toISOString(),
-    };
-
-    // Cache the result
-    await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(newTimes));
-
-    return newTimes;
+    return calculatePrayerTimes(latitude, longitude, new Date());
   } catch (error) {
-    console.warn('Failed to get real prayer times, using fallback:', error);
-    
-    // Try to return stale cache if available
+    console.warn(
+      "Failed to calculate offline prayer times, using fallback:",
+      error
+    );
+
+    // Try using cached coordinates even on error
     try {
-      const cached = await AsyncStorage.getItem(STORAGE_KEY);
+      const cached = await AsyncStorage.getItem(COORDS_STORAGE_KEY);
       if (cached) {
-        const parsed = JSON.parse(cached) as PrayerTimesResult;
-        return { ...parsed, source: 'cache' }; // mark as cache so we know it's stale
+        const { latitude, longitude } = JSON.parse(cached);
+        if (typeof latitude === "number" && typeof longitude === "number") {
+          const result = calculatePrayerTimes(latitude, longitude, new Date());
+          return { ...result, source: "cache" };
+        }
       }
-    } catch (e) {
+    } catch {
       // Ignore cache read errors
     }
 
@@ -101,9 +154,9 @@ export async function getPrayerTimes(forceRefresh = false): Promise<PrayerTimesR
   }
 }
 
-function getFallbackTimes(): PrayerTimesResult {
+export function getFallbackTimes(): PrayerTimesResult {
   return {
-    source: 'fallback',
+    source: "fallback",
     fajr: REMINDER_SLOT_TIMES.fajr,
     dhuhr: REMINDER_SLOT_TIMES.dhuhr,
     asr: REMINDER_SLOT_TIMES.asr,
@@ -111,9 +164,4 @@ function getFallbackTimes(): PrayerTimesResult {
     ishaa: REMINDER_SLOT_TIMES.ishaa,
     fetchedAt: null,
   };
-}
-
-export async function getLocationPermissionStatus() {
-  const { status } = await Location.getForegroundPermissionsAsync();
-  return status;
 }
