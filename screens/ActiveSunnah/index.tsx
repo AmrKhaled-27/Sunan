@@ -4,6 +4,7 @@ import { PaperBackground } from "@/components/ui/PaperBackground";
 import { palette } from "@/constants/theme";
 import { useSunnah } from "@/context/SunnahContext";
 import { Ionicons } from "@expo/vector-icons";
+import * as Haptics from "expo-haptics";
 import React, { useState } from "react";
 import {
   ActivityIndicator,
@@ -178,7 +179,13 @@ export default function ActiveSunnahScreen() {
         <View className="mt-2">
           <Button
             title={hasMarkedToday ? "تم إنجازها اليوم" : "فعلتها اليوم"}
-            onPress={hasMarkedToday ? () => {} : markDoneToday}
+            onPress={() => {
+              if (hasMarkedToday) return;
+              void Haptics.notificationAsync(
+                Haptics.NotificationFeedbackType.Success,
+              );
+              markDoneToday();
+            }}
             color={palette.oliveGreen}
             colorEnd={palette.oliveGreenDark}
             textColor={palette.white}
