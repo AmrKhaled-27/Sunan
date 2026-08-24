@@ -4,6 +4,7 @@ import { PaperBackground } from "@/components/ui/PaperBackground";
 import { palette } from "@/constants/theme";
 import { useSunnah } from "@/context/SunnahContext";
 import { Ionicons } from "@expo/vector-icons";
+import * as Haptics from "expo-haptics";
 import React, { useState } from "react";
 import { ActivityIndicator, Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -35,6 +36,7 @@ export default function ActiveSunnahScreen() {
 		if (hasMarkedToday) return;
 		const completingStreak = streakCount === 6;
 		const completedTitle = currentSunnah?.title;
+		void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
 		markDoneToday();
 		if (completingStreak && completedTitle) {
 			setCelebrationTitle(completedTitle);
