@@ -4,19 +4,25 @@ export type SunnahDifficulty = "easy" | "medium" | "hard";
 
 // Each reminder time maps to an hour (24h) that we schedule the notification
 export type ReminderSlot =
-  | "fajr" // ~5:00
-  | "morning" // ~8:00
-  | "dhuhr" // ~12:30
-  | "asr" // ~15:30
+  | "fajr" // Fajr prayer time
+  | "morning" // Dynamic: Fajr + 2.5 hours
+  | "dhuhr" // Dhuhr prayer time
+  | "asr" // Asr prayer time
   | "afternoon" // ~15:30
-  | "maghrib" // ~18:30
-  | "ishaa" // ~20:00
-  | "evening" // ~20:00
-  | "before_sleep"; // user-configurable, default 21:30
+  | "maghrib" // Maghrib prayer time
+  | "ishaa" // Ishaa prayer time
+  | "before_sleep"; // default 22:00 (10:00 PM)
 
 export interface NotificationSchedule {
   reminderSlots: ReminderSlot[]; // contextual reminder times
   endOfDayCheckIn: boolean; // whether to send end-of-day "did you do it?" question
+}
+
+export interface SunnahGroup {
+  id: string;
+  title: string; // Arabic group title e.g. "أذكار ما بعد الصلاة"
+  icon?: string;
+  description?: string;
 }
 
 export interface Sunnah {
@@ -25,6 +31,7 @@ export interface Sunnah {
   action: string;
   hadith: string; // supporting hadith text
   category: string;
+  groupId?: string; // contextual bundle / group ID (e.g. "after_prayer", "eating_etiquette")
   difficulty: SunnahDifficulty;
   notificationSchedule: NotificationSchedule;
   notificationMessages: string[]; // rotated randomly for contextual reminders

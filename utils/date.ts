@@ -28,3 +28,14 @@ export function parseTime(timeStr: string): { hour: number; minute: number } {
   const [hour, minute] = timeStr.split(":").map(Number);
   return { hour, minute };
 }
+
+/**
+ * Formats a 24-hour time (hour, minute) into 12-hour format with Arabic AM/PM (e.g., "10:00 م" or "08:30 ص").
+ */
+export function formatTime12h(hour: number, minute: number): string {
+  const pad = (n: number) => String(n).padStart(2, "0");
+  const period = hour >= 12 ? "م" : "ص";
+  const h12 = hour % 12 === 0 ? 12 : hour % 12;
+  return `${pad(h12)}:${pad(minute)} ${period}`;
+}
+

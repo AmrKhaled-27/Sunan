@@ -11,6 +11,7 @@ import {
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { formatTime12h } from "@/utils/date";
 import { ResetModal } from "./components/ResetModal";
 import { SettingRow } from "./components/SettingRow";
 import { TimePicker } from "./components/TimePicker";
@@ -27,8 +28,7 @@ export default function SettingsScreen() {
   const [showTimePicker, setShowTimePicker] = useState(false);
   const [showResetConfirm, setShowResetConfirm] = useState(false);
 
-  const pad = (n: number) => String(n).padStart(2, "0");
-  const timeLabel = `${pad(settings.endOfDayHour)}:${pad(settings.endOfDayMinute)}`;
+  const timeLabel = formatTime12h(settings.endOfDayHour, settings.endOfDayMinute);
 
   return (
     <PaperBackground>

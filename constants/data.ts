@@ -1,4 +1,4 @@
-import { ReminderSlot, Sunnah } from "@/types";
+import { ReminderSlot, Sunnah, SunnahGroup } from "@/types";
 
 // Re-export types for backward compatibility
 export type {
@@ -6,7 +6,27 @@ export type {
   ReminderSlot,
   NotificationSchedule,
   Sunnah,
+  SunnahGroup,
 } from "@/types";
+
+// ─── Sunnah Contextual Groups / Bundles ───────────────────────────────────────
+export const SUNNAH_GROUPS: Record<string, SunnahGroup> = {
+  eating_etiquette: {
+    id: "eating_etiquette",
+    title: "آداب الطعام والشراب",
+    icon: "🍽️",
+  },
+  after_prayer: {
+    id: "after_prayer",
+    title: "أذكار ما بعد الصلاة",
+    icon: "📿",
+  },
+  toilet_etiquette: {
+    id: "toilet_etiquette",
+    title: "آداب الخلاء",
+    icon: "🚪",
+  },
+};
 
 // ─── Reminder slot → default hour/minute ──────────────────────────────────────
 
@@ -15,14 +35,13 @@ export const REMINDER_SLOT_TIMES: Record<
   { hour: number; minute: number }
 > = {
   fajr: { hour: 5, minute: 0 },
-  morning: { hour: 8, minute: 0 },
+  morning: { hour: 7, minute: 30 },
   dhuhr: { hour: 12, minute: 30 },
   asr: { hour: 15, minute: 30 },
   afternoon: { hour: 15, minute: 30 },
   maghrib: { hour: 18, minute: 30 },
   ishaa: { hour: 20, minute: 0 },
-  evening: { hour: 20, minute: 0 },
-  before_sleep: { hour: 21, minute: 30 },
+  before_sleep: { hour: 22, minute: 0 },
 };
 
 // ─── Sunnah Data ──────────────────────────────────────────────────────────────
@@ -36,12 +55,13 @@ export const SUNNAHS: Sunnah[] = [
     hadith:
       "قال رسول الله ﷺ: «إذا أكل أحدكم طعاماً فليقل: بسم الله، فإن نسي في أوله فليقل: بسم الله في أوله وآخره»",
     category: "eating",
+    groupId: "eating_etiquette",
     difficulty: "easy",
     reward: "حماية من مشاركة الشيطان لك في أكلك.",
     rewardSource:
       "عن حذيفة رضي الله عنه: أن الشيطان يستحل الطعام الذي لم يُذكر اسم الله عليه (رواه مسلم 2017).",
     notificationSchedule: {
-      reminderSlots: ["morning", "afternoon", "evening"],
+      reminderSlots: ["morning", "afternoon", "ishaa"],
       endOfDayCheckIn: true,
     },
     notificationMessages: [
@@ -58,11 +78,12 @@ export const SUNNAHS: Sunnah[] = [
     hadith:
       "عن عمر بن أبي سلمة رضي الله عنه قال: كنت غلاماً في حجر رسول الله ﷺ، فقال لي: «يا غلام، سمِّ الله، وكل بيمينك، وكل مما يليك»",
     category: "eating",
+    groupId: "eating_etiquette",
     difficulty: "easy",
     reward: "مخالفة لفعل الشيطان اللي بياكل ويشرب بشماله.",
     rewardSource: "«الشيطان يأكل بشماله ويشرب بشماله» (رواه مسلم 2020).",
     notificationSchedule: {
-      reminderSlots: ["morning", "afternoon", "evening"],
+      reminderSlots: ["morning", "afternoon", "ishaa"],
       endOfDayCheckIn: true,
     },
     notificationMessages: [
@@ -79,11 +100,12 @@ export const SUNNAHS: Sunnah[] = [
     hadith:
       "عن ثوبان رضي الله عنه قال: كان رسول الله ﷺ إذا انصرف من صلاته استغفر ثلاثاً، وقال: «اللهم أنت السلام، ومنك السلام، تباركت يا ذا الجلال والإكرام»",
     category: "dhikr",
+    groupId: "after_prayer",
     difficulty: "easy",
     reward: "الاستغفار سبب عام لمغفرة الذنوب.",
     rewardSource: null,
     notificationSchedule: {
-      reminderSlots: ["dhuhr", "maghrib", "evening"],
+      reminderSlots: ["dhuhr", "maghrib", "ishaa"],
       endOfDayCheckIn: true,
     },
     notificationMessages: [
@@ -99,11 +121,12 @@ export const SUNNAHS: Sunnah[] = [
     hadith:
       "عن أبي هريرة رضي الله عنه أن رسول الله ﷺ قال: «من سبّح الله في دبر كل صلاة ثلاثاً وثلاثين، وحمد الله ثلاثاً وثلاثين، وكبّر الله ثلاثاً وثلاثين، فتلك تسعة وتسعون، وقال تمام المائة: لا إله إلا الله وحده لا شريك له، له الملك وله الحمد، وهو على كل شيء قدير: غفرت خطاياه وإن كانت مثل زبد البحر»",
     category: "dhikr",
+    groupId: "after_prayer",
     difficulty: "medium",
     reward: "غفران الذنوب حتى لو كانت كتير جداً.",
     rewardSource: "«...غفرت خطاياه وإن كانت مثل زبد البحر» (رواه مسلم 597).",
     notificationSchedule: {
-      reminderSlots: ["dhuhr", "maghrib", "evening"],
+      reminderSlots: ["dhuhr", "maghrib", "ishaa"],
       endOfDayCheckIn: true,
     },
     notificationMessages: [
@@ -119,12 +142,13 @@ export const SUNNAHS: Sunnah[] = [
     hadith:
       "قال رسول الله ﷺ: «من قرأ آية الكرسي دبر كل صلاة مكتوبة، لم يمنعه من دخول الجنة إلا أن يموت»",
     category: "dhikr",
+    groupId: "after_prayer",
     difficulty: "medium",
     reward: "لا يمنعك من دخول الجنة إلا الموت.",
     rewardSource:
       "«من قرأ آية الكرسي دبر كل صلاة مكتوبة، لم يمنعه من دخول الجنة إلا أن يموت» (رواه النسائي في الكبرى، وصححه الألباني وابن حبان).",
     notificationSchedule: {
-      reminderSlots: ["dhuhr", "maghrib", "evening"],
+      reminderSlots: ["dhuhr", "maghrib", "ishaa"],
       endOfDayCheckIn: true,
     },
     notificationMessages: [
@@ -158,11 +182,12 @@ export const SUNNAHS: Sunnah[] = [
     hadith:
       "كان النبي ﷺ إذا دخل الخلاء قال: «اللهم إني أعوذ بك من الخبث والخبائث»",
     category: "hygiene",
+    groupId: "toilet_etiquette",
     difficulty: "easy",
     reward: "حماية من أذى الشياطين في هذا المكان.",
     rewardSource: null,
     notificationSchedule: {
-      reminderSlots: ["morning", "evening"],
+      reminderSlots: ["morning", "before_sleep"],
       endOfDayCheckIn: true,
     },
     notificationMessages: [
@@ -176,11 +201,12 @@ export const SUNNAHS: Sunnah[] = [
     action: "بعد ما تخرج من الحمام، قول: «غفرانك».",
     hadith: "كان النبي ﷺ إذا خرج من الخلاء قال: «غفرانك»",
     category: "hygiene",
+    groupId: "toilet_etiquette",
     difficulty: "easy",
     reward: "طلب المغفرة من الله.",
     rewardSource: null,
     notificationSchedule: {
-      reminderSlots: ["morning", "evening"],
+      reminderSlots: ["morning", "before_sleep"],
       endOfDayCheckIn: true,
     },
     notificationMessages: ["بعد الخروج، قول: غفرانك", "سنة صغيرة بلفظ واحد بس"],
@@ -219,7 +245,7 @@ export const SUNNAHS: Sunnah[] = [
     rewardSource:
       "«من قال سبحان الله وبحمده في يوم مائة مرة، حُطّت خطاياه وإن كانت مثل زبد البحر» (متفق عليه، البخاري 6405 ومسلم 2691).",
     notificationSchedule: {
-      reminderSlots: ["morning", "afternoon", "evening"],
+      reminderSlots: ["morning", "afternoon", "ishaa"],
       endOfDayCheckIn: true,
     },
     notificationMessages: [

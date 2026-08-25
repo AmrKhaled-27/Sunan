@@ -7,7 +7,7 @@ import { nextSunnahId } from "@/utils/sunnah";
 const STORAGE_KEY = "@sonan_state_v2";
 
 export const DEFAULT_SETTINGS: UserSettings = {
-  endOfDayHour: 21,
+  endOfDayHour: 22,
   endOfDayMinute: 0,
   notificationsEnabled: true,
 };

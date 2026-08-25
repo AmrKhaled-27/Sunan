@@ -82,7 +82,35 @@ export async function scheduleSunnahNotifications(
       let hour: number;
       let minute: number;
 
-      if (
+      if (slot === "morning") {
+        let fajrHour: number;
+        let fajrMinute: number;
+
+        if (prayerTimes) {
+          if (prayerTimes.latitude != null && prayerTimes.longitude != null) {
+            const targetDay = new Date(now);
+            targetDay.setDate(now.getDate() + offset);
+            const dayTimes = calculatePrayerTimes(
+              prayerTimes.latitude,
+              prayerTimes.longitude,
+              targetDay
+            );
+            fajrHour = dayTimes.fajr.hour;
+            fajrMinute = dayTimes.fajr.minute;
+          } else {
+            fajrHour = prayerTimes.fajr.hour;
+            fajrMinute = prayerTimes.fajr.minute;
+          }
+        } else {
+          fajrHour = REMINDER_SLOT_TIMES.fajr.hour;
+          fajrMinute = REMINDER_SLOT_TIMES.fajr.minute;
+        }
+
+        // Morning reminder = Fajr + 2.5 hours (150 mins)
+        const totalMins = (fajrHour * 60 + fajrMinute + 150) % 1440;
+        hour = Math.floor(totalMins / 60);
+        minute = totalMins % 60;
+      } else if (
         prayerTimes &&
         (slot === "fajr" ||
           slot === "dhuhr" ||

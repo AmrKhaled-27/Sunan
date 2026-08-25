@@ -6,7 +6,16 @@ import { useSunnah } from "@/context/SunnahContext";
 import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import React, { useState } from "react";
-import { ActivityIndicator, Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import {
+	ActivityIndicator,
+	Image,
+	Platform,
+	ScrollView,
+	Text,
+	TouchableOpacity,
+	Vibration,
+	View,
+} from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { AlreadyDoingModal } from "./components/AlreadyDoingModal";
 import { MilestoneBanner } from "./components/MilestoneBanner";
@@ -36,7 +45,18 @@ export default function ActiveSunnahScreen() {
 		if (hasMarkedToday) return;
 		const completingStreak = streakCount === 6;
 		const completedTitle = currentSunnah?.title;
-		void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+
+		try {
+			if (Platform.OS === "ios") {
+				void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+			} else {
+				void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+				Vibration.vibrate(80);
+			}
+		} catch {
+			Vibration.vibrate(80);
+		}
+
 		markDoneToday();
 		if (completingStreak && completedTitle) {
 			setCelebrationTitle(completedTitle);
