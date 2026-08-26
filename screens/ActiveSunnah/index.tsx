@@ -5,7 +5,7 @@ import { palette } from "@/constants/theme";
 import { useSunnah } from "@/context/SunnahContext";
 import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
 	ActivityIndicator,
 	Image,
@@ -22,6 +22,15 @@ import { MilestoneBanner } from "./components/MilestoneBanner";
 import { SkipModal } from "./components/SkipModal";
 import { StreakCompleteModal } from "./components/StreakCompleteModal";
 import { StreakDots } from "./components/StreakDots";
+
+const HADITH_CHAR_LIMIT = 120;
+
+function getTruncatedHadith(text: string, limit: number): string {
+	if (text.length <= limit) return text;
+	const sliced = text.slice(0, limit);
+	const lastSpace = sliced.lastIndexOf(" ");
+	return (lastSpace > 20 ? sliced.slice(0, lastSpace) : sliced) + "...";
+}
 
 export default function ActiveSunnahScreen() {
 	const insets = useSafeAreaInsets();
@@ -40,6 +49,12 @@ export default function ActiveSunnahScreen() {
 	const [showSkipConfirm, setShowSkipConfirm] = useState(false);
 	const [showCelebration, setShowCelebration] = useState(false);
 	const [celebrationTitle, setCelebrationTitle] = useState("");
+	const [hadithExpanded, setHadithExpanded] = useState(false);
+
+	// Reset hadith expand state when sunnah changes
+	useEffect(() => {
+		setHadithExpanded(false);
+	}, [currentSunnah?.id]);
 
 	const handleMarkDone = () => {
 		if (hasMarkedToday) return;
@@ -113,6 +128,8 @@ export default function ActiveSunnahScreen() {
 		general: "عام",
 	};
 
+	const isLongHadith = (currentSunnah.hadith?.length ?? 0) > HADITH_CHAR_LIMIT;
+
 	return (
 		<PaperBackground>
 			{/* Broken streak banner */}
@@ -176,9 +193,35 @@ export default function ActiveSunnahScreen() {
 					</View>
 
 					{/* Hadith */}
-					<Text className="font-amiri text-lg text-warmBrownLight/80 text-center leading-[32px]">
-						{currentSunnah.hadith}
+					<Text
+						className="font-amiri text-lg text-warmBrownLight/80 text-center leading-[32px]"
+						onPress={() => {
+							if (isLongHadith) setHadithExpanded((prev) => !prev);
+						}}
+					>
+						{isLongHadith && !hadithExpanded
+							? getTruncatedHadith(currentSunnah.hadith, HADITH_CHAR_LIMIT)
+							: currentSunnah.hadith}
 					</Text>
+
+					{isLongHadith && (
+						<TouchableOpacity
+							onPress={() => setHadithExpanded((prev) => !prev)}
+							accessibilityRole="button"
+							accessibilityLabel={hadithExpanded ? "عرض أقل للحديث" : "اقرأ المزيد من الحديث"}
+							activeOpacity={0.7}
+							className="mt-2 py-1 self-center flex-row items-center justify-center gap-1.5"
+						>
+							<Text className="font-tajawal-bold text-sm text-warmGold">
+								{hadithExpanded ? "عرض أقل" : "اقرأ المزيد..."}
+							</Text>
+							<Ionicons
+								name={hadithExpanded ? "chevron-up" : "chevron-down"}
+								size={14}
+								color={palette.warmGold}
+							/>
+						</TouchableOpacity>
+					)}
 
 					{/* Reward */}
 					{currentSunnah.reward && (

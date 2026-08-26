@@ -2,10 +2,10 @@ import { ReminderSlot, Sunnah, SunnahGroup } from "@/types";
 
 // Re-export types for backward compatibility
 export type {
-  SunnahDifficulty,
-  ReminderSlot,
   NotificationSchedule,
+  ReminderSlot,
   Sunnah,
+  SunnahDifficulty,
   SunnahGroup,
 } from "@/types";
 
@@ -61,7 +61,7 @@ export const SUNNAHS: Sunnah[] = [
     rewardSource:
       "عن حذيفة رضي الله عنه: أن الشيطان يستحل الطعام الذي لم يُذكر اسم الله عليه (رواه مسلم 2017).",
     notificationSchedule: {
-      reminderSlots: ["morning", "afternoon", "ishaa"],
+      reminderSlots: ["morning", "asr", "maghrib"],
       endOfDayCheckIn: true,
     },
     notificationMessages: [
@@ -83,7 +83,7 @@ export const SUNNAHS: Sunnah[] = [
     reward: "مخالفة لفعل الشيطان اللي بياكل ويشرب بشماله.",
     rewardSource: "«الشيطان يأكل بشماله ويشرب بشماله» (رواه مسلم 2020).",
     notificationSchedule: {
-      reminderSlots: ["morning", "afternoon", "ishaa"],
+      reminderSlots: ["morning", "asr", "maghrib"],
       endOfDayCheckIn: true,
     },
     notificationMessages: [
@@ -105,7 +105,7 @@ export const SUNNAHS: Sunnah[] = [
     reward: "الاستغفار سبب عام لمغفرة الذنوب.",
     rewardSource: null,
     notificationSchedule: {
-      reminderSlots: ["dhuhr", "maghrib", "ishaa"],
+      reminderSlots: ["fajr", "dhuhr", "asr", "maghrib", "ishaa"],
       endOfDayCheckIn: true,
     },
     notificationMessages: [
@@ -126,7 +126,7 @@ export const SUNNAHS: Sunnah[] = [
     reward: "غفران الذنوب حتى لو كانت كتير جداً.",
     rewardSource: "«...غفرت خطاياه وإن كانت مثل زبد البحر» (رواه مسلم 597).",
     notificationSchedule: {
-      reminderSlots: ["dhuhr", "maghrib", "ishaa"],
+      reminderSlots: ["fajr", "dhuhr", "asr", "maghrib", "ishaa"],
       endOfDayCheckIn: true,
     },
     notificationMessages: [
@@ -148,7 +148,7 @@ export const SUNNAHS: Sunnah[] = [
     rewardSource:
       "«من قرأ آية الكرسي دبر كل صلاة مكتوبة، لم يمنعه من دخول الجنة إلا أن يموت» (رواه النسائي في الكبرى، وصححه الألباني وابن حبان).",
     notificationSchedule: {
-      reminderSlots: ["dhuhr", "maghrib", "ishaa"],
+      reminderSlots: ["fajr", "dhuhr", "asr", "maghrib", "ishaa"],
       endOfDayCheckIn: true,
     },
     notificationMessages: [
@@ -224,7 +224,7 @@ export const SUNNAHS: Sunnah[] = [
     rewardSource:
       "«يقال له: كُفيت، وهُديت، ووُقيت، وتنحّى عنه الشيطان» (رواه أبو داود 5095 والترمذي، وصححه الألباني).",
     notificationSchedule: {
-      reminderSlots: ["morning"],
+      reminderSlots: ["morning", "maghrib"],
       endOfDayCheckIn: true,
     },
     notificationMessages: [
