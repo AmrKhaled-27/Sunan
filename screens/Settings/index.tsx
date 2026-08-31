@@ -1,7 +1,9 @@
 import { PaperBackground } from "@/components/ui/PaperBackground";
 import { palette } from "@/constants/theme";
+import { useOnboarding } from "@/context/OnboardingContext";
 import { useSunnah } from "@/context/SunnahContext";
 import { Ionicons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
   ScrollView,
@@ -16,8 +18,12 @@ import { ResetModal } from "./components/ResetModal";
 import { SettingRow } from "./components/SettingRow";
 import { TimePicker } from "./components/TimePicker";
 
+/** Lets the home tab mount and lay out before the tour measures its targets. */
+const REPLAY_NAVIGATION_DELAY = 350;
+
 export default function SettingsScreen() {
   const insets = useSafeAreaInsets();
+  const router = useRouter();
   const {
     settings,
     updateSettings,
@@ -25,10 +31,16 @@ export default function SettingsScreen() {
     refreshPrayerTimes,
     resetAllProgress,
   } = useSunnah();
+  const { startTour } = useOnboarding();
   const [showTimePicker, setShowTimePicker] = useState(false);
   const [showResetConfirm, setShowResetConfirm] = useState(false);
 
   const timeLabel = formatTime12h(settings.endOfDayHour, settings.endOfDayMinute);
+
+  const handleReplayTour = () => {
+    router.navigate("/");
+    setTimeout(startTour, REPLAY_NAVIGATION_DELAY);
+  };
 
   return (
     <PaperBackground>
@@ -136,6 +148,23 @@ export default function SettingsScreen() {
                 size={24}
                 color={palette.warmGold}
               />
+            }
+          />
+          <SettingRow
+            label="إعادة عرض الشرح"
+            description="جولة تعريفية سريعة على واجهة التطبيق"
+            right={
+              <TouchableOpacity
+                onPress={handleReplayTour}
+                accessibilityRole="button"
+                accessibilityLabel="إعادة عرض الشرح"
+                accessibilityHint="عرض الجولة التعريفية لواجهة التطبيق من جديد"
+                className="bg-warmGold/10 border border-warmGold/30 rounded-xl px-3 py-2"
+              >
+                <Text className="font-tajawal-bold text-warmGold text-sm">
+                  عرض الشرح
+                </Text>
+              </TouchableOpacity>
             }
           />
           <SettingRow
