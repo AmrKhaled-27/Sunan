@@ -140,17 +140,6 @@ export default function SettingsScreen() {
         </Text>
         <View className="bg-parchmentLight rounded-2xl px-4 shadow-sm border border-warmGold/10 mb-6">
           <SettingRow
-            label="كيف يعمل التطبيق؟"
-            description="تحصل على سنة واحدة، وإذا طبّقتها 7 أيام متتالية انتقلت للسنة التالية."
-            right={
-              <Ionicons
-                name="book-outline"
-                size={24}
-                color={palette.warmGold}
-              />
-            }
-          />
-          <SettingRow
             label="إعادة عرض الشرح"
             description="جولة تعريفية سريعة على واجهة التطبيق"
             right={

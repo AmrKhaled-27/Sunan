@@ -158,16 +158,6 @@ export default function ActiveSunnahScreen() {
 		);
 	}
 
-	const categoryLabels: Record<string, string> = {
-		prayer: "صلاة",
-		eating: "طعام",
-		sleeping: "نوم",
-		dhikr: "ذكر",
-		social: "معاملات",
-		hygiene: "نظافة",
-		general: "عام",
-	};
-
 	const isLongHadith = (currentSunnah.hadith?.length ?? 0) > HADITH_CHAR_LIMIT;
 
 	return (
@@ -199,18 +189,9 @@ export default function ActiveSunnahScreen() {
 				}}
 			>
 				{/* Title */}
-				<Text className="font-tajawal-bold text-[26px] text-warmBrown text-center mb-2">
+				<Text className="font-tajawal-bold text-[26px] text-warmBrown text-center mb-5">
 					سنة اليوم
 				</Text>
-
-				{/* Category badge */}
-				<View className="flex-row justify-center items-center mb-5">
-					<View className="px-3 py-1 rounded-full bg-warmGold/10 border border-warmGold/20">
-						<Text className="font-tajawal text-warmGold text-sm">
-							{categoryLabels[currentSunnah.category] ?? currentSunnah.category}
-						</Text>
-					</View>
-				</View>
 
 				{/* Milestone banner */}
 				<MilestoneBanner count={streakCount} />
@@ -304,21 +285,20 @@ export default function ActiveSunnahScreen() {
 				</View>
 
 				{/* Secondary Actions */}
-				<View className="flex-row justify-center items-center gap-6 mt-2 mb-2">
+				<View className="flex-row gap-3 mt-1 mb-2">
 					<TouchableOpacity
 						ref={alreadyDoingRef}
 						onPress={() => setShowAlreadyConfirm(true)}
 						accessibilityRole="button"
 						accessibilityLabel="أفعلها بالفعل"
 						accessibilityHint="تحديد أنك ملتزم بهذه السنة مسبقاً والانتقال للسنة التالية"
-						className="py-2"
+						activeOpacity={0.8}
+						className="flex-1 py-3.5 rounded-2xl bg-warmGold/15 border border-warmGold/30 items-center"
 					>
-						<Text className="font-tajawal text-warmBrownLight text-sm underline">
+						<Text className="font-tajawal-bold text-warmBrownLight text-sm">
 							أفعلها بالفعل
 						</Text>
 					</TouchableOpacity>
-
-					<View className="w-[1px] h-4 bg-warmBrownLight/30" />
 
 					<TouchableOpacity
 						ref={skipRef}
@@ -326,9 +306,10 @@ export default function ActiveSunnahScreen() {
 						accessibilityRole="button"
 						accessibilityLabel="تخطي هذه السنة"
 						accessibilityHint="تخطي هذه السنة مؤقتاً والانتقال للسنة التالية"
-						className="py-2"
+						activeOpacity={0.8}
+						className="flex-1 py-3.5 rounded-2xl bg-warmGold/15 border border-warmGold/30 items-center"
 					>
-						<Text className="font-tajawal text-warmBrownLight text-sm underline">
+						<Text className="font-tajawal-bold text-warmBrownLight text-sm">
 							تخطي
 						</Text>
 					</TouchableOpacity>

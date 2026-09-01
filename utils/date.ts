@@ -39,3 +39,15 @@ export function formatTime12h(hour: number, minute: number): string {
   return `${pad(h12)}:${pad(minute)} ${period}`;
 }
 
+/**
+ * Formats a 'YYYY-MM-DD' date into a long Arabic calendar label.
+ */
+export function formatArabicDate(iso: string): string {
+  const [year, month, day] = iso.split("-").map(Number);
+  return new Intl.DateTimeFormat("ar", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  }).format(new Date(year, month - 1, day));
+}
+

@@ -62,11 +62,20 @@ export interface UserSettings {
   notificationsEnabled: boolean;
 }
 
+export type AccomplishedMethod = "streak" | "already_doing";
+
+export interface AccomplishedRecord {
+  id: string;
+  completedAt: string | null; // ISO date 'YYYY-MM-DD'; null for older saves
+  method: AccomplishedMethod | null;
+}
+
 export interface PersistedState {
   version?: number;
   currentSunnahId: string | null;
   streakDates: string[]; // ISO date strings 'YYYY-MM-DD'
   accomplishedIds: string[];
+  accomplishedRecords?: AccomplishedRecord[];
   skippedIds: string[];
   settings: UserSettings;
   totalCompleted: number;
@@ -78,6 +87,7 @@ export interface SunnahContextType {
   streakDates: string[];
   streakCount: number;
   accomplishedSunnahs: Sunnah[];
+  accomplishedRecords: AccomplishedRecord[];
   skippedSunnahs: Sunnah[];
   settings: UserSettings;
   totalCompleted: number;
