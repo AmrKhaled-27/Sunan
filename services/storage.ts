@@ -1,6 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { SUNNAHS } from "@/constants/data";
-import { PersistedState, UserSettings } from "@/types";
+import { AccomplishedRecord, PersistedState, UserSettings } from "@/types";
 import { daysBetween, todayStr } from "@/utils/date";
 import { nextSunnahId } from "@/utils/sunnah";
 
@@ -17,6 +17,7 @@ export const INITIAL_PERSISTED_STATE: PersistedState = {
   currentSunnahId: null,
   streakDates: [],
   accomplishedIds: [],
+  accomplishedRecords: [],
   skippedIds: [],
   settings: DEFAULT_SETTINGS,
   totalCompleted: 0,
@@ -26,6 +27,20 @@ export const INITIAL_PERSISTED_STATE: PersistedState = {
 export interface LoadedStateResult {
   state: PersistedState;
   streakBroken: boolean;
+}
+
+function normalizeAccomplishedRecords(
+  ids: string[],
+  records?: AccomplishedRecord[],
+): AccomplishedRecord[] {
+  if (records && records.length > 0) {
+    const have = new Set(records.map((record) => record.id));
+    const missing = ids
+      .filter((id) => !have.has(id))
+      .map((id) => ({ id, completedAt: null, method: null }));
+    return [...records, ...missing];
+  }
+  return ids.map((id) => ({ id, completedAt: null, method: null }));
 }
 
 /** Load state from AsyncStorage with streak and ID validation */
@@ -59,6 +74,10 @@ export async function loadPersistedState(): Promise<LoadedStateResult> {
     }
 
     const accomplished = p.accomplishedIds ?? [];
+    const accomplishedRecords = normalizeAccomplishedRecords(
+      accomplished,
+      p.accomplishedRecords,
+    );
     const skipped = p.skippedIds ?? [];
     let resolvedId = p.currentSunnahId ?? null;
 
@@ -76,6 +95,7 @@ export async function loadPersistedState(): Promise<LoadedStateResult> {
       currentSunnahId: resolvedId,
       streakDates: validStreak,
       accomplishedIds: accomplished,
+      accomplishedRecords,
       skippedIds: skipped,
       settings: { ...DEFAULT_SETTINGS, ...(p.settings ?? {}) },
       totalCompleted: p.totalCompleted ?? 0,

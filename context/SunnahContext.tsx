@@ -22,6 +22,7 @@ import {
   savePersistedState,
 } from "@/services/storage";
 import {
+  AccomplishedRecord,
   PrayerTimesResult,
   SunnahContextType,
   UserSettings,
@@ -38,6 +39,9 @@ export function SunnahProvider({ children }: { children: React.ReactNode }) {
   const [currentSunnahId, setCurrentSunnahId] = useState<string | null>(null);
   const [streakDates, setStreakDates] = useState<string[]>([]);
   const [accomplishedIds, setAccomplishedIds] = useState<string[]>([]);
+  const [accomplishedRecords, setAccomplishedRecords] = useState<
+    AccomplishedRecord[]
+  >([]);
   const [skippedIds, setSkippedIds] = useState<string[]>([]);
   const [settings, setSettings] = useState<UserSettings>(DEFAULT_SETTINGS);
   const [totalCompleted, setTotalCompleted] = useState(0);
@@ -51,6 +55,7 @@ export function SunnahProvider({ children }: { children: React.ReactNode }) {
     currentSunnahId,
     streakDates,
     accomplishedIds,
+    accomplishedRecords,
     skippedIds,
     settings,
     totalCompleted,
@@ -61,6 +66,7 @@ export function SunnahProvider({ children }: { children: React.ReactNode }) {
     currentSunnahId,
     streakDates,
     accomplishedIds,
+    accomplishedRecords,
     skippedIds,
     settings,
     totalCompleted,
@@ -91,6 +97,7 @@ export function SunnahProvider({ children }: { children: React.ReactNode }) {
       setCurrentSunnahId(state.currentSunnahId);
       setStreakDates(state.streakDates);
       setAccomplishedIds(state.accomplishedIds);
+      setAccomplishedRecords(state.accomplishedRecords ?? []);
       setSkippedIds(state.skippedIds);
       setSettings(state.settings);
       setTotalCompleted(state.totalCompleted);
@@ -153,10 +160,19 @@ export function SunnahProvider({ children }: { children: React.ReactNode }) {
     if (newStreak >= 7) {
       // Completed 7-day streak
       const newAccomplished = [...accomplishedIds, currentSunnahId];
+      const newRecords: AccomplishedRecord[] = [
+        ...accomplishedRecords,
+        {
+          id: currentSunnahId,
+          completedAt: todayStr(),
+          method: "streak",
+        },
+      ];
       const newTotal = totalCompleted + 1;
       const newId = nextSunnahId(currentSunnahId, newAccomplished, skippedIds);
 
       setAccomplishedIds(newAccomplished);
+      setAccomplishedRecords(newRecords);
       setTotalCompleted(newTotal);
       setLongestStreak(newLongest);
       setCurrentSunnahId(newId);
@@ -167,6 +183,7 @@ export function SunnahProvider({ children }: { children: React.ReactNode }) {
         currentSunnahId: newId,
         streakDates: [],
         accomplishedIds: newAccomplished,
+        accomplishedRecords: newRecords,
         totalCompleted: newTotal,
         longestStreak: newLongest,
       });
@@ -186,6 +203,7 @@ export function SunnahProvider({ children }: { children: React.ReactNode }) {
     streakDates,
     longestStreak,
     accomplishedIds,
+    accomplishedRecords,
     skippedIds,
     totalCompleted,
   ]);
@@ -193,10 +211,19 @@ export function SunnahProvider({ children }: { children: React.ReactNode }) {
   const markAlreadyDoing = useCallback(() => {
     if (!currentSunnahId) return;
     const newAccomplished = [...accomplishedIds, currentSunnahId];
+    const newRecords: AccomplishedRecord[] = [
+      ...accomplishedRecords,
+      {
+        id: currentSunnahId,
+        completedAt: todayStr(),
+        method: "already_doing",
+      },
+    ];
     const newTotal = totalCompleted + 1;
     const newId = nextSunnahId(currentSunnahId, newAccomplished, skippedIds);
 
     setAccomplishedIds(newAccomplished);
+    setAccomplishedRecords(newRecords);
     setTotalCompleted(newTotal);
     setCurrentSunnahId(newId);
     setStreakDates([]);
@@ -206,9 +233,10 @@ export function SunnahProvider({ children }: { children: React.ReactNode }) {
       currentSunnahId: newId,
       streakDates: [],
       accomplishedIds: newAccomplished,
+      accomplishedRecords: newRecords,
       totalCompleted: newTotal,
     });
-  }, [currentSunnahId, accomplishedIds, skippedIds, totalCompleted]);
+  }, [currentSunnahId, accomplishedIds, accomplishedRecords, skippedIds, totalCompleted]);
 
   const skipSunnah = useCallback(() => {
     if (!currentSunnahId) return;
@@ -250,6 +278,7 @@ export function SunnahProvider({ children }: { children: React.ReactNode }) {
     setCurrentSunnahId(initialId);
     setStreakDates([]);
     setAccomplishedIds([]);
+    setAccomplishedRecords([]);
     setSkippedIds([]);
     setSettings(DEFAULT_SETTINGS);
     setTotalCompleted(0);
@@ -262,9 +291,9 @@ export function SunnahProvider({ children }: { children: React.ReactNode }) {
     currentSunnahId && !accomplishedIds.includes(currentSunnahId)
       ? SUNNAHS.find((s) => s.id === currentSunnahId) ?? null
       : null;
-  const accomplishedSunnahs = SUNNAHS.filter((s) =>
-    accomplishedIds.includes(s.id)
-  );
+  const accomplishedSunnahs = accomplishedIds
+    .map((id) => SUNNAHS.find((s) => s.id === id))
+    .filter((s): s is NonNullable<typeof s> => !!s);
   const skippedSunnahs = SUNNAHS.filter((s) => skippedIds.includes(s.id));
 
   return (
@@ -274,6 +303,7 @@ export function SunnahProvider({ children }: { children: React.ReactNode }) {
         streakDates,
         streakCount,
         accomplishedSunnahs,
+        accomplishedRecords,
         skippedSunnahs,
         settings,
         totalCompleted,
