@@ -1,4 +1,7 @@
+import { SpotlightOverlay } from "@/components/onboarding/SpotlightOverlay";
+import { TourOriginProbe } from "@/components/onboarding/TourOriginProbe";
 import { palette } from "@/constants/theme";
+import { OnboardingProvider } from "@/context/OnboardingContext";
 import { SunnahProvider } from "@/context/SunnahContext";
 import { requestPermissions } from "@/services/notifications";
 import {
@@ -133,12 +136,21 @@ export default function RootLayout() {
 
   return (
     <SunnahProvider>
-      <ThemeProvider value={CustomTheme}>
-        <Stack>
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        </Stack>
-        <StatusBar style="dark" />
-      </ThemeProvider>
+      <OnboardingProvider>
+        <ThemeProvider value={CustomTheme}>
+          {/* The tour overlay is a sibling of the navigator rather than a
+              <Modal> so it can dim the tab bar and share its window
+              coordinates with measureInWindow. */}
+          <View className="flex-1">
+            <Stack>
+              <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+            </Stack>
+            <TourOriginProbe />
+            <SpotlightOverlay />
+          </View>
+          <StatusBar style="dark" />
+        </ThemeProvider>
+      </OnboardingProvider>
     </SunnahProvider>
   );
 }

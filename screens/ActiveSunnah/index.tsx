@@ -1,14 +1,18 @@
+import { useTourTarget } from "@/components/onboarding/TourTarget";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { PaperBackground } from "@/components/ui/PaperBackground";
 import { palette } from "@/constants/theme";
+import { useOnboarding } from "@/context/OnboardingContext";
 import { useSunnah } from "@/context/SunnahContext";
 import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
 	ActivityIndicator,
 	Image,
+	NativeScrollEvent,
+	NativeSyntheticEvent,
 	Platform,
 	ScrollView,
 	Text,
@@ -45,6 +49,16 @@ export default function ActiveSunnahScreen() {
 		isLoading,
 	} = useSunnah();
 
+	const { registerScroller, setHomeReady } = useOnboarding();
+	const cardRef = useTourTarget("card");
+	const streakDotsRef = useTourTarget("streakDots");
+	const markDoneRef = useTourTarget("markDone");
+	const alreadyDoingRef = useTourTarget("alreadyDoing");
+	const skipRef = useTourTarget("skip");
+
+	const scrollRef = useRef<ScrollView>(null);
+	const scrollOffsetRef = useRef(0);
+
 	const [showAlreadyConfirm, setShowAlreadyConfirm] = useState(false);
 	const [showSkipConfirm, setShowSkipConfirm] = useState(false);
 	const [showCelebration, setShowCelebration] = useState(false);
@@ -55,6 +69,32 @@ export default function ActiveSunnahScreen() {
 	useEffect(() => {
 		setHadithExpanded(false);
 	}, [currentSunnah?.id]);
+
+	// Record the commanded offset up front: onScroll lags behind an animated
+	// scroll, and the tour computes its next scroll from this value.
+	const scrollTourTo = useCallback((y: number) => {
+		scrollOffsetRef.current = y;
+		scrollRef.current?.scrollTo({ y, animated: true });
+	}, []);
+
+	// Let the tour scroll targets into view before measuring them.
+	useEffect(() => {
+		registerScroller({
+			scrollTo: scrollTourTo,
+			getOffset: () => scrollOffsetRef.current,
+		});
+		return () => registerScroller(null);
+	}, [registerScroller, scrollTourTo]);
+
+	// The tour only makes sense once the real card and controls are on screen.
+	useEffect(() => {
+		setHomeReady(!isLoading && !!currentSunnah);
+		return () => setHomeReady(false);
+	}, [isLoading, currentSunnah, setHomeReady]);
+
+	const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+		scrollOffsetRef.current = event.nativeEvent.contentOffset.y;
+	};
 
 	const handleMarkDone = () => {
 		if (hasMarkedToday) return;
@@ -145,6 +185,13 @@ export default function ActiveSunnahScreen() {
 			)}
 
 			<ScrollView
+				ref={scrollRef}
+				onScroll={handleScroll}
+				scrollEventThrottle={16}
+				// Android clips off-screen children by default, which detaches them
+				// from the native view hierarchy. The tour has to measure targets
+				// while they are still out of view in order to scroll to them.
+				removeClippedSubviews={false}
 				className="flex-1"
 				contentContainerClassName="p-5 pb-[100px]"
 				contentContainerStyle={{
@@ -169,10 +216,10 @@ export default function ActiveSunnahScreen() {
 				<MilestoneBanner count={streakCount} />
 
 				{/* Streak dots */}
-				<StreakDots count={streakCount} />
+				<StreakDots ref={streakDotsRef} count={streakCount} />
 
 				{/* Sunnah Card */}
-				<Card variant="home" className="mb-4">
+				<Card ref={cardRef} variant="home" className="mb-4">
 					<Text className="font-amiri-bold text-[28px] text-warmBrown text-center mb-4 leading-[44px]">
 						{currentSunnah.title}
 					</Text>
@@ -245,7 +292,7 @@ export default function ActiveSunnahScreen() {
 				</Card>
 
 				{/* Primary Action */}
-				<View className="mt-2">
+				<View ref={markDoneRef} collapsable={false} className="mt-2">
 					<Button
 						title={hasMarkedToday ? "تم إنجازها اليوم" : "فعلتها اليوم"}
 						onPress={handleMarkDone}
@@ -259,6 +306,7 @@ export default function ActiveSunnahScreen() {
 				{/* Secondary Actions */}
 				<View className="flex-row justify-center items-center gap-6 mt-2 mb-2">
 					<TouchableOpacity
+						ref={alreadyDoingRef}
 						onPress={() => setShowAlreadyConfirm(true)}
 						accessibilityRole="button"
 						accessibilityLabel="أفعلها بالفعل"
@@ -273,6 +321,7 @@ export default function ActiveSunnahScreen() {
 					<View className="w-[1px] h-4 bg-warmBrownLight/30" />
 
 					<TouchableOpacity
+						ref={skipRef}
 						onPress={() => setShowSkipConfirm(true)}
 						accessibilityRole="button"
 						accessibilityLabel="تخطي هذه السنة"

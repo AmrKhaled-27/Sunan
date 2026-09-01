@@ -1,15 +1,16 @@
 import React from "react";
 import { Text, View } from "react-native";
 
-export function StreakDots({
-  count,
-  total = 7,
-}: {
-  count: number;
-  total?: number;
-}) {
+export const StreakDots = React.forwardRef<
+  View,
+  { count: number; total?: number }
+>(function StreakDots({ count, total = 7 }, ref) {
   return (
-    <View className="flex-row justify-center items-center gap-2 mb-8">
+    <View
+      ref={ref}
+      collapsable={false}
+      className="flex-row justify-center items-center gap-2 mb-8"
+    >
       {Array.from({ length: total }).map((_, i) => (
         <View
           key={i}
@@ -27,4 +28,4 @@ export function StreakDots({
       ))}
     </View>
   );
-}
+});

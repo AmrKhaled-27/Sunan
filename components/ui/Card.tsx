@@ -12,17 +12,25 @@ interface CardProps {
   variant?: "default" | "home";
 }
 
-export const Card: React.FC<CardProps> = ({
-  children,
-  style,
-  className = "",
-  color = palette.parchmentLight,
-  accentColor = palette.warmGold,
-  variant = "default",
-}) => {
+export const Card = React.forwardRef<View, CardProps>(function Card(
+  {
+    children,
+    style,
+    className = "",
+    color = palette.parchmentLight,
+    accentColor = palette.warmGold,
+    variant = "default",
+  },
+  ref,
+) {
   if (variant === "home") {
     return (
-      <View className={`w-full mb-6 mt-7 ${className}`} style={style}>
+      <View
+        ref={ref}
+        collapsable={false}
+        className={`w-full mb-6 mt-7 ${className}`}
+        style={style}
+      >
         {/* Main Background & Decorations (with overflow hidden to clip images to rounded corners) */}
         <View className="absolute inset-0 bg-parchmentPure rounded-3xl shadow-sm shadow-black/5 overflow-hidden">
           <Image
@@ -56,6 +64,8 @@ export const Card: React.FC<CardProps> = ({
 
   return (
     <View
+      ref={ref}
+      collapsable={false}
       className={`w-full mb-6 rounded-2xl overflow-hidden shadow-lg shadow-warmBrown/10 border border-warmGold/25 ${className}`}
       style={[{ backgroundColor: color }, style]}
     >
@@ -76,4 +86,4 @@ export const Card: React.FC<CardProps> = ({
       </View>
     </View>
   );
-};
+});
