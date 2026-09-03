@@ -64,6 +64,7 @@ export function SpotlightOverlay() {
   const { width: windowWidth, height: windowHeight } = useWindowDimensions();
   const screenHeight = windowHeight;
   const screenWidth = windowWidth;
+  const isTabBar = step?.targetKey === "tabBar";
 
   const [tooltipHeight, setTooltipHeight] = useState(0);
 
@@ -100,14 +101,21 @@ export function SpotlightOverlay() {
       return;
     }
 
-    const target =
-      padded ??
-      ({
-        x: screenWidth / 2,
-        y: screenHeight / 2,
-        width: 0,
-        height: 0,
-      } as TourRect);
+    const target = padded
+      ? isTabBar
+        ? {
+            x: 0,
+            y: padded.y,
+            width: screenWidth,
+            height: Math.max(screenHeight - padded.y, 150),
+          }
+        : padded
+      : ({
+          x: screenWidth / 2,
+          y: screenHeight / 2,
+          width: 0,
+          height: 0,
+        } as TourRect);
 
     if (hasAnimatedRef.current) {
       holeX.value = withTiming(target.x, RECT_TIMING);
@@ -144,7 +152,7 @@ export function SpotlightOverlay() {
   }));
 
   // Bottom panel: spans full width from bottom of spotlight hole all the way
-  // to the very bottom of the screen (covering full navigation bar)
+  // to the very bottom of the screen
   const bottomPanelStyle = useAnimatedStyle(() => {
     const start = holeY.value + holeHeight.value;
     return {
@@ -178,7 +186,6 @@ export function SpotlightOverlay() {
     };
   });
 
-  const isTabBar = step?.targetKey === "tabBar";
   const ringStyle = useAnimatedStyle(() => {
     const width = Math.max(0, holeWidth.value);
     const x = holeX.value;
@@ -186,9 +193,15 @@ export function SpotlightOverlay() {
       top: holeY.value,
       left: mirror ? screenWidth - x - width : x,
       width,
-      height: Math.max(0, holeHeight.value),
+      height: isTabBar ? Math.max(0, screenHeight - holeY.value) : Math.max(0, holeHeight.value),
       opacity: ringOpacity.value,
       borderRadius: isTabBar ? 0 : 18,
+      borderTopWidth: 2,
+      borderLeftWidth: isTabBar ? 0 : 2,
+      borderRightWidth: isTabBar ? 0 : 2,
+      borderBottomWidth: isTabBar ? 0 : 2,
+      elevation: 0,
+      backgroundColor: "transparent",
     };
   });
 
@@ -206,7 +219,10 @@ export function SpotlightOverlay() {
     // Centered modal for welcome step
     tooltipTop = Math.max(topLimit, (screenHeight - height) / 2);
   } else {
-    const targetTop = padded.y;
+    const targetTop =
+      step.targetKey === "tabBar"
+        ? screenHeight - (padded.height || tabBarHeight)
+        : padded.y;
     const targetBottom = padded.y + padded.height;
 
     const fitsBelow =
@@ -375,7 +391,7 @@ const styles = StyleSheet.create({
     borderRadius: 18,
     borderWidth: 2,
     borderColor: palette.warmGold,
-    elevation: 10000,
+    backgroundColor: "transparent",
   },
   tooltip: {
     backgroundColor: palette.parchmentLight,

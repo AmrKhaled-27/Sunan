@@ -1,15 +1,34 @@
+import { TourTarget } from "@/components/onboarding/TourTarget";
 import { HapticTab } from "@/components/ui/HapticTab";
 import { fonts, palette } from "@/constants/theme";
 import { Ionicons } from "@expo/vector-icons";
+import { BottomTabBar, BottomTabBarProps } from "@react-navigation/bottom-tabs";
 import { Tabs } from "expo-router";
 import React from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+
+function TabBarWithTourTarget(props: BottomTabBarProps) {
+  return (
+    <TourTarget
+      tourKey="tabBar"
+      style={{
+        position: "absolute",
+        bottom: 0,
+        left: 0,
+        right: 0,
+      }}
+    >
+      <BottomTabBar {...props} />
+    </TourTarget>
+  );
+}
 
 export default function TabLayout() {
   const insets = useSafeAreaInsets();
 
   return (
     <Tabs
+      tabBar={(props) => <TabBarWithTourTarget {...props} />}
       screenOptions={{
         lazy: false,
         tabBarActiveTintColor: palette.warmGold,
@@ -17,7 +36,6 @@ export default function TabLayout() {
         headerShown: false,
         tabBarButton: HapticTab,
         tabBarStyle: {
-          position: "absolute",
           backgroundColor: palette.parchmentLight,
           borderTopWidth: 1,
           borderTopColor: "rgba(196, 164, 108, 0.2)",
