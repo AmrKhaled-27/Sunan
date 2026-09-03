@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "Sunan",
-    "slug": "sunan",
+    "slug": "sonan",
     "version": "1.0.0",
     "runtimeVersion": {
       "policy": "appVersion"
@@ -19,6 +19,7 @@
     },
     "android": {
       "package": "com.sunnah.sunan",
+      "permissions": ["SCHEDULE_EXACT_ALARM"],
       "adaptiveIcon": {
         "backgroundColor": "#00000000",
         "foregroundImage": "./assets/images/app-icon.png"
@@ -55,6 +56,7 @@
       [
         "expo-notifications",
         {
+          "icon": "./assets/images/notification-icon.png",
           "color": "#C4A46C"
         }
       ]

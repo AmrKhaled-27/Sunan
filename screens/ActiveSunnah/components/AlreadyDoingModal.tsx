@@ -23,7 +23,6 @@ export function AlreadyDoingModal({
       confirmText="نعم، أفعلها باستمرار"
       cancelText="رجوع"
       confirmColor={palette.oliveGreen}
-      confirmColorEnd={palette.oliveGreenDark}
       onConfirm={onConfirm}
       onClose={onClose}
     />

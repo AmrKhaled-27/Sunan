@@ -1,7 +1,7 @@
-import React from "react";
-import { Modal, Text, View } from "react-native";
 import { palette } from "@/constants/theme";
-import { Button } from "./Button";
+import React from "react";
+import { Text, TouchableOpacity, View } from "react-native";
+import { BaseModal } from "./BaseModal";
 
 export interface ConfirmModalProps {
   visible: boolean;
@@ -10,7 +10,6 @@ export interface ConfirmModalProps {
   confirmText: string;
   cancelText?: string;
   confirmColor?: string;
-  confirmColorEnd?: string;
   confirmTextColor?: string;
   onConfirm: () => void;
   onClose: () => void;
@@ -22,37 +21,49 @@ export function ConfirmModal({
   description,
   confirmText,
   cancelText = "رجوع",
-  confirmColor = palette.oliveGreen,
-  confirmColorEnd,
+  confirmColor = palette.warmGold,
   confirmTextColor = palette.white,
   onConfirm,
   onClose,
 }: ConfirmModalProps) {
   return (
-    <Modal transparent animationType="fade" visible={visible}>
-      <View className="flex-1 bg-black/40 justify-center items-center px-6">
-        <View className="bg-parchmentLight rounded-2xl p-6 w-full">
-          <Text className="font-tajawal-bold text-warmBrown text-2xl text-center mb-3">
-            {title}
+    <BaseModal visible={visible} onClose={onClose}>
+      <Text className="font-tajawal-bold text-warmBrown text-lg text-center mb-1.5">
+        {title}
+      </Text>
+      <Text className="font-tajawal text-warmBrownLight text-sm text-center leading-6">
+        {description}
+      </Text>
+
+      <View className="h-[0.5px] bg-warmGold/25 my-3.5" />
+
+      <View className="flex-row items-center justify-between gap-3">
+        <TouchableOpacity
+          onPress={onClose}
+          accessibilityRole="button"
+          accessibilityLabel={cancelText}
+          className="py-1.5 px-1"
+        >
+          <Text className="font-tajawal text-warmBrownMuted text-xs underline">
+            {cancelText}
           </Text>
-          <Text className="font-tajawal text-warmBrownLight text-lg text-center leading-8 mb-6">
-            {description}
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          onPress={onConfirm}
+          accessibilityRole="button"
+          accessibilityLabel={confirmText}
+          style={{ backgroundColor: confirmColor }}
+          className="px-4 h-9 rounded-xl items-center justify-center shadow-sm"
+        >
+          <Text
+            className="font-tajawal-bold text-sm"
+            style={{ color: confirmTextColor }}
+          >
+            {confirmText}
           </Text>
-          <Button
-            title={confirmText}
-            onPress={onConfirm}
-            color={confirmColor}
-            colorEnd={confirmColorEnd}
-            textColor={confirmTextColor}
-          />
-          <Button
-            title={cancelText}
-            onPress={onClose}
-            variant="ghost"
-            color={palette.warmBrownSubtle}
-          />
-        </View>
+        </TouchableOpacity>
       </View>
-    </Modal>
+    </BaseModal>
   );
 }

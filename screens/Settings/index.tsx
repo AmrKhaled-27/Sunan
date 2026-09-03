@@ -2,10 +2,12 @@ import { PaperBackground } from "@/components/ui/PaperBackground";
 import { palette } from "@/constants/theme";
 import { useOnboarding } from "@/context/OnboardingContext";
 import { useSunnah } from "@/context/SunnahContext";
+import { formatTime12h } from "@/utils/date";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
+  Platform,
   ScrollView,
   Switch,
   Text,
@@ -13,7 +15,7 @@ import {
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { formatTime12h } from "@/utils/date";
+import { BatteryModal } from "./components/BatteryModal";
 import { ResetModal } from "./components/ResetModal";
 import { SettingRow } from "./components/SettingRow";
 import { TimePicker } from "./components/TimePicker";
@@ -34,8 +36,12 @@ export default function SettingsScreen() {
   const { startTour } = useOnboarding();
   const [showTimePicker, setShowTimePicker] = useState(false);
   const [showResetConfirm, setShowResetConfirm] = useState(false);
+  const [showBatteryModal, setShowBatteryModal] = useState(false);
 
-  const timeLabel = formatTime12h(settings.endOfDayHour, settings.endOfDayMinute);
+  const timeLabel = formatTime12h(
+    settings.endOfDayHour,
+    settings.endOfDayMinute,
+  );
 
   const handleReplayTour = () => {
     router.navigate("/");
@@ -46,7 +52,7 @@ export default function SettingsScreen() {
     <PaperBackground>
       <ScrollView
         className="flex-1"
-        contentContainerClassName="px-5 pb-[100px]"
+        contentContainerClassName="px-5 pb-[115px]"
         contentContainerStyle={{ paddingTop: insets.top + 12 }}
       >
         <Text className="font-tajawal-bold text-[26px] text-warmBrown text-center mb-6">
@@ -86,7 +92,9 @@ export default function SettingsScreen() {
                 disabled={!settings.notificationsEnabled}
                 accessibilityRole="button"
                 accessibilityLabel={`تغيير وقت تذكير نهاية اليوم، الوقت الحالي ${timeLabel}`}
-                accessibilityState={{ disabled: !settings.notificationsEnabled }}
+                accessibilityState={{
+                  disabled: !settings.notificationsEnabled,
+                }}
                 className="bg-warmGold/10 border border-warmGold/30 rounded-xl px-4 py-2"
               >
                 <Text
@@ -132,6 +140,25 @@ export default function SettingsScreen() {
               )
             }
           />
+
+          {Platform.OS === "android" && (
+            <SettingRow
+              label="الإشعارات لا تصل بانتظام؟"
+              description="حل مشكلة توفير البطارية في أندرويد"
+              right={
+                <TouchableOpacity
+                  onPress={() => setShowBatteryModal(true)}
+                  accessibilityRole="button"
+                  accessibilityLabel="حل مشكلة وصول الإشعارات"
+                  className="bg-warmGold/10 border border-warmGold/30 rounded-xl px-3 py-2"
+                >
+                  <Text className="font-tajawal-bold text-warmGold text-sm">
+                    إرشادات
+                  </Text>
+                </TouchableOpacity>
+              }
+            />
+          )}
         </View>
 
         {/* ── About ─────────────────────────────────────────────────────────── */}
@@ -220,6 +247,14 @@ export default function SettingsScreen() {
         }}
         onClose={() => setShowTimePicker(false)}
       />
+
+      {/* Battery Optimization Info Modal (Android only) */}
+      {Platform.OS === "android" && (
+        <BatteryModal
+          visible={showBatteryModal}
+          onClose={() => setShowBatteryModal(false)}
+        />
+      )}
 
       {/* Reset Progress Modal */}
       <ResetModal

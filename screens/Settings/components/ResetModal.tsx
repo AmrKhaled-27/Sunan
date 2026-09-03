@@ -17,7 +17,6 @@ export function ResetModal({ visible, onConfirm, onClose }: ResetModalProps) {
       confirmText="نعم، امسح وابدأ من جديد"
       cancelText="إلغاء"
       confirmColor={palette.danger}
-      confirmColorEnd={palette.dangerDark}
       onConfirm={onConfirm}
       onClose={onClose}
     />

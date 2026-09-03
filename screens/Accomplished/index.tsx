@@ -32,12 +32,10 @@ export default function AccomplishedScreen() {
           الانجازات
         </Text>
 
-        {accomplishedSunnahs.length > 0 && (
-          <StatsRow
-            totalCompleted={totalCompleted}
-            longestStreak={longestStreak}
-          />
-        )}
+        <StatsRow
+          totalCompleted={totalCompleted}
+          longestStreak={longestStreak}
+        />
 
         {accomplishedSunnahs.length === 0 ? (
           <View className="flex-1 justify-center items-center px-8 pb-16">
@@ -67,7 +65,7 @@ export default function AccomplishedScreen() {
           <FlatList
             data={newestFirst}
             keyExtractor={(item) => item.id}
-            contentContainerClassName="px-5 pb-[90px] pt-2"
+            contentContainerClassName="px-5 pb-[110px] pt-2"
             renderItem={({ item }) => (
               <AccomplishedCard item={item} record={recordsById.get(item.id)} />
             )}

@@ -17,7 +17,6 @@ export function SkipModal({ visible, onConfirm, onClose }: SkipModalProps) {
       confirmText="نعم، تخطي"
       cancelText="رجوع"
       confirmColor={palette.warmBrownSubtle}
-      confirmColorEnd={palette.warmBrownMuted}
       onConfirm={onConfirm}
       onClose={onClose}
     />
