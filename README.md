@@ -11,6 +11,7 @@ An Arabic, right-to-left, fully offline habit app. Practise a single Sunnah for 
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org)
 [![Platforms](https://img.shields.io/badge/platforms-iOS%20%7C%20Android-lightgrey)](#requirements)
 [![New Architecture](https://img.shields.io/badge/New%20Architecture-enabled-success)](https://docs.expo.dev/guides/new-architecture/)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue)](./LICENSE)
 
 </div>
 
@@ -180,7 +181,9 @@ eas update --channel production                  # ship a JS-only change over th
 
 ## License
 
-No license has been chosen yet, which means the code carries **no permission to use, copy, modify, or distribute it**. If you intend to accept outside contributions or allow reuse, add a `LICENSE` file — MIT is the conventional choice for a project like this.
+Released under the [MIT License](./LICENSE) — free to use, modify, and distribute, including commercially, provided the copyright notice is retained.
+
+The license covers the **code**. It does not extend to the hadith texts in `constants/data.ts`, which are quoted from their published collections and cited in place, nor does it grant rights to the decorative artwork in `assets/images/` beyond use within this project.
 
 ---
 
