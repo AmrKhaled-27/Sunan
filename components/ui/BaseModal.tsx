@@ -69,6 +69,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     paddingHorizontal: 20,
+    direction: "rtl",
   },
   card: {
     width: "100%",
@@ -84,6 +85,7 @@ const styles = StyleSheet.create({
     shadowRadius: 16,
     shadowOffset: { width: 0, height: 6 },
     elevation: 10,
+    direction: "rtl",
   },
 });
 

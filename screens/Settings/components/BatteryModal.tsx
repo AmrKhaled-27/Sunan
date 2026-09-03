@@ -26,15 +26,29 @@ export function BatteryModal({ visible, onClose }: BatteryModalProps) {
         لضمان وصول التذكيرات في وقتها المحدد دون تأخير من الهاتف:
       </Text>
 
-      <View className="bg-warmGold/10 rounded-xl p-3.5 mb-1 border border-warmGold/20 gap-2">
-        <Text className="font-tajawal-bold text-warmBrown text-xs text-right leading-5">
-          ١. اضغط الزر أدناه لفتح صفحة التطبيق
+      <View className="bg-warmGold/10 rounded-xl p-3.5 mb-1 border border-warmGold/20 gap-2.5">
+        <Text
+          style={{ writingDirection: "rtl" }}
+          className="font-tajawal-bold text-warmBrown text-xs leading-5"
+        >
+          <Text className="text-warmGold">١. </Text>
+          اضغط الزر أدناه لفتح صفحة التطبيق
         </Text>
-        <Text className="font-tajawal-bold text-warmBrown text-xs text-right leading-5">
-          ٢. ادخل على «البطارية» (Battery)
+
+        <Text
+          style={{ writingDirection: "rtl" }}
+          className="font-tajawal-bold text-warmBrown text-xs leading-5"
+        >
+          <Text className="text-warmGold">٢. </Text>
+          ادخل على «البطارية» (Battery)
         </Text>
-        <Text className="font-tajawal-bold text-warmBrown text-xs text-right leading-5">
-          ٣. غيّر الإعداد إلى «غير مقيّد» (Unrestricted)
+
+        <Text
+          style={{ writingDirection: "rtl" }}
+          className="font-tajawal-bold text-warmBrown text-xs leading-5"
+        >
+          <Text className="text-warmGold">٣. </Text>
+          غيّر الإعداد إلى «غير مقيّد» (Unrestricted)
         </Text>
       </View>
 

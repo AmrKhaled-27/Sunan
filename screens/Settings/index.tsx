@@ -4,9 +4,13 @@ import { useOnboarding } from "@/context/OnboardingContext";
 import { useSunnah } from "@/context/SunnahContext";
 import { formatTime12h } from "@/utils/date";
 import { Ionicons } from "@expo/vector-icons";
+import * as Notifications from "expo-notifications";
 import { useRouter } from "expo-router";
-import React, { useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
+  ActivityIndicator,
+  AppState,
+  Linking,
   Platform,
   ScrollView,
   Switch,
@@ -16,6 +20,7 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { BatteryModal } from "./components/BatteryModal";
+import { PrayerTimesRow } from "./components/PrayerTimesRow";
 import { ResetModal } from "./components/ResetModal";
 import { SettingRow } from "./components/SettingRow";
 import { TimePicker } from "./components/TimePicker";
@@ -37,6 +42,69 @@ export default function SettingsScreen() {
   const [showTimePicker, setShowTimePicker] = useState(false);
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [showBatteryModal, setShowBatteryModal] = useState(false);
+  const [hasNotifPermission, setHasNotifPermission] = useState<boolean | null>(null);
+  const [requestingNotif, setRequestingNotif] = useState(false);
+
+  const checkNotificationPermission = useCallback(async () => {
+    try {
+      const perm = await Notifications.getPermissionsAsync();
+      const granted = perm.status === "granted";
+      setHasNotifPermission(granted);
+      // If system permission is denied, ensure settings.notificationsEnabled is false
+      if (!granted && settings.notificationsEnabled) {
+        updateSettings({ notificationsEnabled: false });
+      }
+    } catch (e) {
+      console.warn("Error checking notification permissions", e);
+    }
+  }, [settings.notificationsEnabled, updateSettings]);
+
+  useEffect(() => {
+    checkNotificationPermission();
+
+    const sub = AppState.addEventListener("change", (state) => {
+      if (state === "active") {
+        checkNotificationPermission();
+      }
+    });
+
+    return () => sub.remove();
+  }, [checkNotificationPermission]);
+
+  const handleToggleNotifications = async (enable: boolean) => {
+    if (!enable) {
+      updateSettings({ notificationsEnabled: false });
+      return;
+    }
+
+    try {
+      setRequestingNotif(true);
+      const perm = await Notifications.getPermissionsAsync();
+      if (perm.status === "granted") {
+        setHasNotifPermission(true);
+        updateSettings({ notificationsEnabled: true });
+        return;
+      }
+
+      if (perm.canAskAgain) {
+        const req = await Notifications.requestPermissionsAsync();
+        if (req.status === "granted") {
+          setHasNotifPermission(true);
+          updateSettings({ notificationsEnabled: true });
+          return;
+        }
+      }
+
+      // If denied or cannot ask again, keep off and open system settings
+      setHasNotifPermission(false);
+      updateSettings({ notificationsEnabled: false });
+      await Linking.openSettings();
+    } catch (e) {
+      console.warn("Could not request notification permissions", e);
+    } finally {
+      setRequestingNotif(false);
+    }
+  };
 
   const timeLabel = formatTime12h(
     settings.endOfDayHour,
@@ -47,6 +115,9 @@ export default function SettingsScreen() {
     router.navigate("/");
     setTimeout(startTour, REPLAY_NAVIGATION_DELAY);
   };
+
+  const isNotificationsActive =
+    settings.notificationsEnabled && hasNotifPermission !== false;
 
   return (
     <PaperBackground>
@@ -70,10 +141,8 @@ export default function SettingsScreen() {
             description="تذكيرات يومية وتنبيهات السلسلة"
             right={
               <Switch
-                value={settings.notificationsEnabled}
-                onValueChange={(v) =>
-                  updateSettings({ notificationsEnabled: v })
-                }
+                value={isNotificationsActive}
+                onValueChange={handleToggleNotifications}
                 trackColor={{
                   false: palette.switchTrackFalse,
                   true: palette.warmGold,
@@ -83,23 +152,62 @@ export default function SettingsScreen() {
             }
           />
 
+          {hasNotifPermission === false && (
+            <View className="bg-amber-500/10 border border-amber-500/25 rounded-2xl p-3.5 my-3">
+              <View className="flex-row items-center gap-1.5 mb-1.5">
+                <Ionicons
+                  name="notifications-off-outline"
+                  size={17}
+                  color="#D97706"
+                />
+                <Text className="font-tajawal-bold text-amber-900 text-sm">
+                  إذن الإشعارات غير مفعّل في الهاتف
+                </Text>
+              </View>
+              <Text className="font-tajawal text-warmBrownLight text-xs leading-5 mb-3">
+                لتلقي التذكيرات اليومية وتنبيهات حماية السلسلة، يحتاج التطبيق إلى إذن إرسال الإشعارات.
+              </Text>
+              <TouchableOpacity
+                onPress={() => handleToggleNotifications(true)}
+                disabled={requestingNotif}
+                activeOpacity={0.8}
+                className="bg-warmGold active:bg-warmGold/90 py-2.5 px-4 rounded-xl flex-row items-center justify-center gap-2 shadow-sm"
+              >
+                {requestingNotif ? (
+                  <ActivityIndicator size="small" color="#FFFFFF" />
+                ) : (
+                  <>
+                    <Ionicons
+                      name="notifications-outline"
+                      size={15}
+                      color="#FFFFFF"
+                    />
+                    <Text className="font-tajawal-bold text-white text-xs">
+                      تفعيل إذن الإشعارات
+                    </Text>
+                  </>
+                )}
+              </TouchableOpacity>
+            </View>
+          )}
+
           <SettingRow
             label="تذكير نهاية اليوم"
             description="هل فعلت السنة اليوم?"
             right={
               <TouchableOpacity
                 onPress={() => setShowTimePicker(true)}
-                disabled={!settings.notificationsEnabled}
+                disabled={!isNotificationsActive}
                 accessibilityRole="button"
                 accessibilityLabel={`تغيير وقت تذكير نهاية اليوم، الوقت الحالي ${timeLabel}`}
                 accessibilityState={{
-                  disabled: !settings.notificationsEnabled,
+                  disabled: !isNotificationsActive,
                 }}
                 className="bg-warmGold/10 border border-warmGold/30 rounded-xl px-4 py-2"
               >
                 <Text
                   className={`font-tajawal-bold text-lg ${
-                    settings.notificationsEnabled
+                    isNotificationsActive
                       ? "text-warmGold"
                       : "text-warmBrownLight/40"
                   }`}
@@ -110,35 +218,9 @@ export default function SettingsScreen() {
             }
           />
 
-          <SettingRow
-            label="أوقات الصلاة"
-            description={
-              prayerTimes?.source === "calc" ||
-              prayerTimes?.source === "api" ||
-              prayerTimes?.source === "cache"
-                ? "أوقات دقيقة حسب موقعك"
-                : "أوقات صلاة تقريبية"
-            }
-            right={
-              prayerTimes?.source === "fallback" || !prayerTimes ? (
-                <TouchableOpacity
-                  onPress={() => refreshPrayerTimes()}
-                  accessibilityRole="button"
-                  accessibilityLabel="تحديث أوقات الصلاة"
-                  className="bg-warmGold/10 border border-warmGold/30 rounded-xl px-3 py-2"
-                >
-                  <Text className="font-tajawal-bold text-warmGold text-sm">
-                    تحديث
-                  </Text>
-                </TouchableOpacity>
-              ) : (
-                <Ionicons
-                  name="checkmark-circle"
-                  size={28}
-                  color={palette.warmGold}
-                />
-              )
-            }
+          <PrayerTimesRow
+            prayerTimes={prayerTimes}
+            onRefresh={refreshPrayerTimes}
           />
 
           {Platform.OS === "android" && (

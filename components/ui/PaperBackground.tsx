@@ -23,16 +23,30 @@ export const PaperBackground: React.FC<PaperBackgroundProps> = ({
         cachePolicy="memory-disk"
       />
       {/* Corner decorative foliage */}
-      <View pointerEvents="none" className="absolute inset-0">
+      <View pointerEvents="none" style={StyleSheet.absoluteFill}>
         <Image
           source={require("@/assets/images/leaves-top.png")}
-          className="absolute -top-[-20] -left-[60] w-[200px] h-[200px]"
+          style={{
+            position: "absolute",
+            top: -10,
+            left: -20,
+            width: 150,
+            height: 230,
+            opacity: 0.5,
+          }}
           contentFit="contain"
           cachePolicy="memory-disk"
         />
         <Image
           source={require("@/assets/images/leaves-bottom.png")}
-          className="absolute -bottom-[-30] -right-20 w-[200px] h-[200px]"
+          style={{
+            position: "absolute",
+            bottom: 80,
+            right: -40,
+            width: 160,
+            height: 230,
+            opacity: 0.5,
+          }}
           contentFit="contain"
           cachePolicy="memory-disk"
         />
