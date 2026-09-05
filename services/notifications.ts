@@ -1,20 +1,33 @@
 import * as Notifications from "expo-notifications";
 import { Platform } from "react-native";
 import { REMINDER_SLOT_TIMES } from "@/constants/data";
+import { palette } from "@/constants/theme";
 import { calculatePrayerTimes } from "@/services/prayerTimes";
 import { PrayerTimesResult, Sunnah } from "@/types";
 import { pickRandom } from "@/utils/array";
 
 // ─── Notification Handler ─────────────────────────────────────────────────────
-// This must be called at the top level (before any component mounts)
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldPlaySound: true,
-    shouldSetBadge: false,
-    shouldShowBanner: true,
-    shouldShowList: true,
-  }),
-});
+// Must be called once after the native bridge is ready (from a useEffect),
+// NOT at module level — some devices crash if the bridge isn't initialised yet.
+let handlerInitialized = false;
+
+export function initNotificationHandler() {
+  if (handlerInitialized) return;
+  handlerInitialized = true;
+  try {
+    Notifications.setNotificationHandler({
+      handleNotification: async () => ({
+        shouldPlaySound: true,
+        shouldSetBadge: false,
+        shouldShowBanner: true,
+        shouldShowList: true,
+      }),
+    });
+  } catch (e) {
+    handlerInitialized = false;
+    console.warn("Failed to set notification handler:", e);
+  }
+}
 
 // ─── Channel IDs ─────────────────────────────────────────────────────────────
 const CHANNEL_REMINDERS = "sunnah_reminders";
@@ -149,6 +162,7 @@ export async function scheduleSunnahNotifications(
             title: sunnah.title,
             body: message,
             data: { type: "reminder", sunnahId: sunnah.id },
+            color: palette.warmGold,
           },
           trigger: {
             type: Notifications.SchedulableTriggerInputTypes.DATE,
@@ -172,6 +186,7 @@ export async function scheduleSunnahNotifications(
             title: "كيف كان يومك؟ 🌙",
             body: `هل التزمت اليوم بـ «${sunnah.title}»؟`,
             data: { type: "checkin", sunnahId: sunnah.id },
+            color: palette.warmGold,
           },
           trigger: {
             type: Notifications.SchedulableTriggerInputTypes.DATE,
@@ -202,6 +217,7 @@ export async function scheduleSunnahNotifications(
             title: "لا تكسر سلسلتك! ✨",
             body: `أنت في اليوم ${streakCount + 1} من 7 لسنة «${sunnah.title}»`,
             data: { type: "streak", sunnahId: sunnah.id },
+            color: palette.warmGold,
           },
           trigger: {
             type: Notifications.SchedulableTriggerInputTypes.DATE,

@@ -50,14 +50,10 @@ export default function SettingsScreen() {
       const perm = await Notifications.getPermissionsAsync();
       const granted = perm.status === "granted";
       setHasNotifPermission(granted);
-      // If system permission is denied, ensure settings.notificationsEnabled is false
-      if (!granted && settings.notificationsEnabled) {
-        updateSettings({ notificationsEnabled: false });
-      }
     } catch (e) {
       console.warn("Error checking notification permissions", e);
     }
-  }, [settings.notificationsEnabled, updateSettings]);
+  }, []);
 
   useEffect(() => {
     checkNotificationPermission();
@@ -72,20 +68,46 @@ export default function SettingsScreen() {
   }, [checkNotificationPermission]);
 
   const handleToggleNotifications = async (enable: boolean) => {
-    if (!enable) {
-      updateSettings({ notificationsEnabled: false });
-      return;
-    }
+    updateSettings({ notificationsEnabled: enable });
+    if (!enable) return;
 
+    // User turned on — try to get system permission
     try {
       setRequestingNotif(true);
       const perm = await Notifications.getPermissionsAsync();
       if (perm.status === "granted") {
         setHasNotifPermission(true);
-        updateSettings({ notificationsEnabled: true });
         return;
       }
 
+      if (perm.canAskAgain) {
+        const req = await Notifications.requestPermissionsAsync();
+        if (req.status === "granted") {
+          setHasNotifPermission(true);
+          return;
+        }
+      }
+
+      // Permission denied — keep toggle ON but show the permission banner
+      setHasNotifPermission(false);
+    } catch (e) {
+      console.warn("Could not request notification permissions", e);
+    } finally {
+      setRequestingNotif(false);
+    }
+  };
+
+  /** Called from the permission banner's "enable" button */
+  const handleRequestPermission = async () => {
+    try {
+      setRequestingNotif(true);
+      const perm = await Notifications.getPermissionsAsync();
+      if (perm.status === "granted") {
+        setHasNotifPermission(true);
+        // Poke settings so SunnahContext's effect re-fires and schedules notifications
+        updateSettings({ notificationsEnabled: true });
+        return;
+      }
       if (perm.canAskAgain) {
         const req = await Notifications.requestPermissionsAsync();
         if (req.status === "granted") {
@@ -94,10 +116,7 @@ export default function SettingsScreen() {
           return;
         }
       }
-
-      // If denied or cannot ask again, keep off and open system settings
-      setHasNotifPermission(false);
-      updateSettings({ notificationsEnabled: false });
+      // Can't ask again — send user to system settings
       await Linking.openSettings();
     } catch (e) {
       console.warn("Could not request notification permissions", e);
@@ -116,8 +135,7 @@ export default function SettingsScreen() {
     setTimeout(startTour, REPLAY_NAVIGATION_DELAY);
   };
 
-  const isNotificationsActive =
-    settings.notificationsEnabled && hasNotifPermission !== false;
+  const isNotificationsActive = settings.notificationsEnabled;
 
   return (
     <PaperBackground>
@@ -152,7 +170,7 @@ export default function SettingsScreen() {
             }
           />
 
-          {hasNotifPermission === false && (
+          {hasNotifPermission === false && settings.notificationsEnabled && (
             <View className="bg-amber-500/10 border border-amber-500/25 rounded-2xl p-3.5 my-3">
               <View className="flex-row items-center gap-1.5 mb-1.5">
                 <Ionicons
@@ -168,7 +186,7 @@ export default function SettingsScreen() {
                 لتلقي التذكيرات اليومية وتنبيهات حماية السلسلة، يحتاج التطبيق إلى إذن إرسال الإشعارات.
               </Text>
               <TouchableOpacity
-                onPress={() => handleToggleNotifications(true)}
+                onPress={handleRequestPermission}
                 disabled={requestingNotif}
                 activeOpacity={0.8}
                 className="bg-warmGold active:bg-warmGold/90 py-2.5 px-4 rounded-xl flex-row items-center justify-center gap-2 shadow-sm"

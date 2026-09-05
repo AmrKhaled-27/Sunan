@@ -3,7 +3,7 @@ import { TourOriginProbe } from "@/components/onboarding/TourOriginProbe";
 import { palette } from "@/constants/theme";
 import { OnboardingProvider } from "@/context/OnboardingContext";
 import { SunnahProvider } from "@/context/SunnahContext";
-import { requestPermissions } from "@/services/notifications";
+import { initNotificationHandler, requestPermissions } from "@/services/notifications";
 import {
   Amiri_400Regular,
   Amiri_700Bold,
@@ -19,7 +19,6 @@ import * as Notifications from "expo-notifications";
 import {
   ErrorBoundaryProps,
   Stack,
-  useRootNavigationState,
   useRouter,
 } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
@@ -50,17 +49,61 @@ I18nManager.forceRTL(true);
 
 export function ErrorBoundary({ error, retry }: ErrorBoundaryProps) {
   return (
-    <View className="flex-1 justify-center items-center bg-[#FAF7F0] px-6">
-      <View className="bg-white/80 border border-warmGold/20 rounded-3xl p-6 w-full max-w-sm items-center shadow-sm">
+    <View
+      style={{
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+        backgroundColor: "#FAF7F0",
+        paddingHorizontal: 24,
+      }}
+    >
+      <View
+        style={{
+          backgroundColor: "rgba(255,255,255,0.8)",
+          borderWidth: 1,
+          borderColor: "rgba(196,164,108,0.2)",
+          borderRadius: 24,
+          padding: 24,
+          width: "100%",
+          maxWidth: 340,
+          alignItems: "center",
+        }}
+      >
         <Image
           source={require("@/assets/images/app-icon.png")}
-          className="w-20 h-20 rounded-2xl mb-4 opacity-90"
+          style={{
+            width: 80,
+            height: 80,
+            borderRadius: 16,
+            marginBottom: 16,
+            opacity: 0.9,
+          }}
           resizeMode="contain"
         />
-        <Text className="font-tajawal-bold text-[22px] text-warmBrown text-center mb-2">
+        <Text
+          style={{
+            fontSize: 22,
+            fontWeight: "700",
+            color: "#5C4033",
+            textAlign: "center",
+            marginBottom: 8,
+            writingDirection: "rtl",
+          }}
+        >
           حدث خطأ غير متوقع
         </Text>
-        <Text className="font-tajawal text-warmBrownLight text-center text-sm mb-6 leading-6 opacity-80">
+        <Text
+          style={{
+            fontSize: 14,
+            color: "#8B7355",
+            textAlign: "center",
+            marginBottom: 24,
+            lineHeight: 24,
+            opacity: 0.8,
+            writingDirection: "rtl",
+          }}
+        >
           نعتذر عن هذا الانقطاع. اضغط أدناه لإعادة تشغيل التطبيق والمتابعة.
         </Text>
         <TouchableOpacity
@@ -74,9 +117,23 @@ export function ErrorBoundary({ error, retry }: ErrorBoundaryProps) {
           activeOpacity={0.8}
           accessibilityRole="button"
           accessibilityLabel="إعادة المحاولة"
-          className="bg-warmGold active:bg-warmGold/90 w-full py-3.5 rounded-2xl shadow-sm items-center justify-center"
+          style={{
+            backgroundColor: "#C4A46C",
+            width: "100%",
+            paddingVertical: 14,
+            borderRadius: 16,
+            alignItems: "center",
+            justifyContent: "center",
+          }}
         >
-          <Text className="font-tajawal-bold text-white text-base">
+          <Text
+            style={{
+              fontWeight: "700",
+              color: "#FFFFFF",
+              fontSize: 16,
+              writingDirection: "rtl",
+            }}
+          >
             إعادة المحاولة
           </Text>
         </TouchableOpacity>
@@ -106,8 +163,11 @@ export default function RootLayout() {
   });
 
   const router = useRouter();
-  const rootNavigationState = useRootNavigationState();
-  const lastNotificationResponse = Notifications.useLastNotificationResponse();
+
+  // Initialize notification handler once native bridge is ready
+  useEffect(() => {
+    initNotificationHandler();
+  }, []);
 
   // Configure Android navigation bar to match app's bottom bar theme
   useEffect(() => {
@@ -127,35 +187,23 @@ export default function RootLayout() {
     }
   }, [fontsLoaded]);
 
-  // Handle cold start tap safely once navigation tree is mounted
-  useEffect(() => {
-    if (!rootNavigationState?.key) return;
-    if (
-      lastNotificationResponse?.actionIdentifier ===
-      Notifications.DEFAULT_ACTION_IDENTIFIER
-    ) {
-      try {
-        router.replace("/(tabs)");
-      } catch (e) {
-        console.warn("Navigation on notification response skipped:", e);
-      }
-    }
-  }, [lastNotificationResponse, rootNavigationState?.key, router]);
-
-  // Handle foreground/background tap safely
+  // Handle foreground/background notification tap.
+  // Cold-start taps don't need navigation since (tabs) is already the initial route.
   useEffect(() => {
     const subscription = Notifications.addNotificationResponseReceivedListener(
       () => {
-        if (!rootNavigationState?.key) return;
-        try {
-          router.replace("/(tabs)");
-        } catch (e) {
-          console.warn("Navigation on notification event skipped:", e);
-        }
+        // Defer to ensure the navigation tree is fully mounted
+        setTimeout(() => {
+          try {
+            router.replace("/(tabs)");
+          } catch (e) {
+            console.warn("Navigation on notification event skipped:", e);
+          }
+        }, 0);
       },
     );
     return () => subscription.remove();
-  }, [rootNavigationState?.key, router]);
+  }, [router]);
 
   if (!fontsLoaded) {
     return (
