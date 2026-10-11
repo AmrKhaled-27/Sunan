@@ -22,7 +22,6 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { AlreadyDoingModal } from "./components/AlreadyDoingModal";
-import { MilestoneBanner } from "./components/MilestoneBanner";
 import { SkipModal } from "./components/SkipModal";
 import { StreakBrokenToast } from "./components/StreakBrokenToast";
 import { StreakCompleteModal } from "./components/StreakCompleteModal";
@@ -161,7 +160,8 @@ export default function ActiveSunnahScreen() {
     );
   }
 
-  const isLongHadith = (currentSunnah.hadith?.length ?? 0) > HADITH_CHAR_LIMIT;
+  const hadithText = currentSunnah.hadiths[0]?.text ?? "";
+  const isLongHadith = hadithText.length > HADITH_CHAR_LIMIT;
 
   return (
     <PaperBackground>
@@ -186,9 +186,6 @@ export default function ActiveSunnahScreen() {
         <Text className="font-tajawal-bold text-[26px] text-warmBrown text-center mb-5">
           سنة اليوم
         </Text>
-
-        {/* Milestone banner */}
-        <MilestoneBanner count={streakCount} />
 
         {/* Streak dots */}
         <StreakDots ref={streakDotsRef} count={streakCount} />
@@ -226,8 +223,8 @@ export default function ActiveSunnahScreen() {
             }}
           >
             {isLongHadith && !hadithExpanded
-              ? getTruncatedHadith(currentSunnah.hadith, HADITH_CHAR_LIMIT)
-              : currentSunnah.hadith}
+              ? getTruncatedHadith(hadithText, HADITH_CHAR_LIMIT)
+              : hadithText}
           </Text>
 
           {isLongHadith && (
@@ -267,11 +264,6 @@ export default function ActiveSunnahScreen() {
               <Text className="font-tajawal-bold text-base text-warmBrown text-center leading-7">
                 {currentSunnah.reward}
               </Text>
-              {currentSunnah.rewardSource && (
-                <Text className="font-tajawal text-xs text-warmBrownLight text-center mt-2 opacity-80 leading-5">
-                  {currentSunnah.rewardSource}
-                </Text>
-              )}
             </View>
           )}
         </Card>

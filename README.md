@@ -149,7 +149,7 @@ Retire an entry with `deprecated: true` instead — the rotation logic filters o
 
 ### 2. Religious content must be sourced
 
-Every Sunnah carries a `hadith` and a `rewardSource`. Additions need an accurate narration with its collection and number, and a grading where relevant. If you are adding or correcting content, cite it in the pull request so it can be checked.
+Every Sunnah carries a `hadiths` array of evidence. Additions need an accurate narration with its collection and number, and a grading where relevant. If you are adding or correcting content, cite it in the pull request so it can be checked.
 
 ### Development notes
 

@@ -1,6 +1,6 @@
 // ─── Sunnah Types ─────────────────────────────────────────────────────────────
 
-export type SunnahDifficulty = "easy" | "medium" | "hard";
+export type HadithGrading = "sahih" | "hasan" | "daif";
 
 // Each reminder time maps to an hour (24h) that we schedule the notification
 export type ReminderSlot =
@@ -25,18 +25,22 @@ export interface SunnahGroup {
   description?: string;
 }
 
+export interface HadithEvidence {
+  id?: string;
+  text: string; // نص الحديث الشريف كاملاً متضمناً الصحابي الراوي
+  source: string; // التخريج والمصدر (مثلاً: رواه مسلم ٣٨٥)
+  grading: HadithGrading; // درجة الحديث
+}
+
 export interface Sunnah {
   id: string;
   title: string; // Arabic title name
   action: string;
-  hadith: string; // supporting hadith text
-  category: string;
+  hadiths: HadithEvidence[]; // supporting hadiths & sources array
   groupId?: string; // contextual bundle / group ID (e.g. "after_prayer", "eating_etiquette")
-  difficulty: SunnahDifficulty;
   notificationSchedule: NotificationSchedule;
   notificationMessages: string[]; // rotated randomly for contextual reminders
   reward?: string;
-  rewardSource: string | null;
   deprecated?: boolean; // never remove; mark deprecated to hide from rotation
 }
 
