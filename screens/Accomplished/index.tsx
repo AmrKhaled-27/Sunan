@@ -57,7 +57,7 @@ export default function AccomplishedScreen() {
                 لم تنجز أي سنن بعد
               </Text>
               <Text className="font-tajawal text-[16px] text-warmBrownLight text-center mt-3 leading-7">
-                أتمّ سنة لسبعة أيام متتالية، وستظهر هنا كعادة ثبتّها.
+                أتمّ روتيناً لسبعة أيام متتالية، وستظهر سننه هنا ضمن إنجازاتك.
               </Text>
             </View>
           </View>

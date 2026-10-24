@@ -1,9 +1,9 @@
 import * as Notifications from "expo-notifications";
 import { Platform } from "react-native";
-import { REMINDER_SLOT_TIMES } from "@/constants/data";
+import { REMINDER_SLOT_TIMES } from "@/constants/reminders";
 import { palette } from "@/constants/theme";
 import { calculatePrayerTimes } from "@/services/prayerTimes";
-import { PrayerTimesResult, Sunnah } from "@/types";
+import { PrayerTimesResult, Routine } from "@/types";
 import { pickRandom } from "@/utils/array";
 
 // ─── Notification Handler ─────────────────────────────────────────────────────
@@ -72,26 +72,29 @@ export async function requestPermissions(): Promise<boolean> {
 
 // ─── Schedule notifications for an active sunnah ─────────────────────────────
 
-export async function scheduleSunnahNotifications(
-  sunnah: Sunnah,
+async function scheduleRoutineSnapshot(
+  routine: Routine,
   endOfDayHour: number,
   endOfDayMinute: number,
   streakCount: number,
   isDoneToday: boolean,
-  prayerTimes?: PrayerTimesResult | null
+  prayerTimes?: PrayerTimesResult | null,
+  isCurrent: () => boolean = () => true,
 ) {
   // Always cancel old notifications first
-  await cancelSunnahNotifications();
+  // Cancellation and permissions are handled by the serialized public entry point.
 
   const now = new Date();
   const daysToSchedule = 7;
 
   for (let offset = 0; offset < daysToSchedule; offset++) {
+    if (!isCurrent()) return;
     // If done today, skip all notifications for today (offset 0)
     if (isDoneToday && offset === 0) continue;
 
     // 1. Contextual reminder notifications
-    for (const slot of sunnah.notificationSchedule.reminderSlots) {
+    for (const slot of routine.notificationSchedule.reminderSlots) {
+      if (!isCurrent()) return;
       let hour: number;
       let minute: number;
 
@@ -155,13 +158,13 @@ export async function scheduleSunnahNotifications(
 
       // Only schedule if the time hasn't passed
       if (targetDate > now) {
-        const message = pickRandom(sunnah.notificationMessages);
+        const message = pickRandom(routine.notificationMessages);
         await Notifications.scheduleNotificationAsync({
           identifier: `${PREFIX_REMINDER}_${slot}_day${offset}`,
           content: {
-            title: sunnah.title,
+            title: routine.title,
             body: message,
-            data: { type: "reminder", sunnahId: sunnah.id },
+            data: { type: "reminder", routineId: routine.id },
             color: palette.warmGold,
           },
           trigger: {
@@ -174,7 +177,8 @@ export async function scheduleSunnahNotifications(
     }
 
     // 2. End-of-day check-in
-    if (sunnah.notificationSchedule.endOfDayCheckIn) {
+    if (!isCurrent()) return;
+    if (routine.notificationSchedule.endOfDayCheckIn) {
       const checkInDate = new Date(now);
       checkInDate.setDate(now.getDate() + offset);
       checkInDate.setHours(endOfDayHour, endOfDayMinute, 0, 0);
@@ -184,8 +188,8 @@ export async function scheduleSunnahNotifications(
           identifier: `${PREFIX_CHECKIN}_day${offset}`,
           content: {
             title: "كيف كان يومك؟ 🌙",
-            body: `هل التزمت اليوم بـ «${sunnah.title}»؟`,
-            data: { type: "checkin", sunnahId: sunnah.id },
+            body: `هل التزمت اليوم بروتين «${routine.title}»؟`,
+            data: { type: "checkin", routineId: routine.id },
             color: palette.warmGold,
           },
           trigger: {
@@ -198,6 +202,7 @@ export async function scheduleSunnahNotifications(
     }
 
     // 3. Streak protection (30 min before end-of-day check-in, only if streak > 0)
+    if (!isCurrent()) return;
     if (streakCount > 0) {
       const streakDate = new Date(now);
       streakDate.setDate(now.getDate() + offset);
@@ -215,8 +220,8 @@ export async function scheduleSunnahNotifications(
           identifier: `${PREFIX_STREAK}_day${offset}`,
           content: {
             title: "لا تكسر سلسلتك! ✨",
-            body: `أنت في اليوم ${streakCount + 1} من 7 لسنة «${sunnah.title}»`,
-            data: { type: "streak", sunnahId: sunnah.id },
+            body: `أنت في اليوم ${streakCount + 1} من ${routine.streakDays ?? 7} لروتين «${routine.title}»`,
+            data: { type: "streak", routineId: routine.id },
             color: palette.warmGold,
           },
           trigger: {
@@ -230,23 +235,36 @@ export async function scheduleSunnahNotifications(
   }
 }
 
-export async function cancelSunnahNotifications() {
-  try {
-    const scheduled = await Notifications.getAllScheduledNotificationsAsync();
-    const ours = scheduled.filter(
-      (n) =>
-        n.identifier.startsWith(PREFIX_REMINDER) ||
-        n.identifier.startsWith(PREFIX_CHECKIN) ||
-        n.identifier.startsWith(PREFIX_STREAK)
-    );
-    for (const notif of ours) {
-      await Notifications.cancelScheduledNotificationAsync(notif.identifier);
+let notificationWork = Promise.resolve();
+let latestRequest = 0;
+
+/** All cancellation, permission checks and scheduling share one queue. A newer
+ * snapshot always cancels the previous snapshot, including legacy v2 reminders. */
+export function scheduleRoutineNotifications(
+  routine: Routine | null,
+  endOfDayHour: number,
+  endOfDayMinute: number,
+  streakCount: number,
+  isDoneToday: boolean,
+  prayerTimes?: PrayerTimesResult | null,
+  enabled = true,
+): Promise<void> {
+  const request = ++latestRequest;
+  notificationWork = notificationWork.catch(() => {}).then(async () => {
+    if (request !== latestRequest) return;
+    await Notifications.cancelAllScheduledNotificationsAsync();
+    if (!enabled || !routine || request !== latestRequest) return;
+    if (!(await requestPermissions()) || request !== latestRequest) return;
+    try {
+      await scheduleRoutineSnapshot(routine, endOfDayHour, endOfDayMinute, streakCount, isDoneToday, prayerTimes, () => request === latestRequest);
+    } catch (error) {
+      await Notifications.cancelAllScheduledNotificationsAsync();
+      throw error;
     }
-  } catch (e) {
-    console.warn("Failed to cancel notifications", e);
-  }
+  });
+  return notificationWork;
 }
 
-export async function cancelAllNotifications() {
-  await Notifications.cancelAllScheduledNotificationsAsync();
+export function cancelAllNotifications() {
+  return scheduleRoutineNotifications(null, 22, 0, 0, false, null, false);
 }

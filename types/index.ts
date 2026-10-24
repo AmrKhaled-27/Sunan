@@ -18,13 +18,6 @@ export interface NotificationSchedule {
   endOfDayCheckIn: boolean; // whether to send end-of-day "did you do it?" question
 }
 
-export interface SunnahGroup {
-  id: string;
-  title: string; // Arabic group title e.g. "أذكار ما بعد الصلاة"
-  icon?: string;
-  description?: string;
-}
-
 export interface HadithEvidence {
   id?: string;
   text: string; // نص الحديث الشريف كاملاً متضمناً الصحابي الراوي
@@ -37,11 +30,20 @@ export interface Sunnah {
   title: string; // Arabic title name
   action: string;
   hadiths: HadithEvidence[]; // supporting hadiths & sources array
-  groupId?: string; // contextual bundle / group ID (e.g. "after_prayer", "eating_etiquette")
-  notificationSchedule: NotificationSchedule;
-  notificationMessages: string[]; // rotated randomly for contextual reminders
   reward?: string;
   deprecated?: boolean; // never remove; mark deprecated to hide from rotation
+}
+
+export interface Routine {
+  id: string;
+  title: string;
+  icon?: string;
+  intro?: string;
+  sunnahIds: string[];
+  notificationSchedule: NotificationSchedule;
+  notificationMessages: string[];
+  deprecated?: boolean;
+  streakDays?: 7;
 }
 
 // ─── Prayer Times Types ───────────────────────────────────────────────────────
@@ -70,38 +72,40 @@ export type AccomplishedMethod = "streak" | "already_doing";
 
 export interface AccomplishedRecord {
   id: string;
+  routineId?: string;
   completedAt: string | null; // ISO date 'YYYY-MM-DD'; null for older saves
   method: AccomplishedMethod | null;
 }
 
 export interface PersistedState {
-  version?: number;
-  currentSunnahId: string | null;
+  version: 3;
+  currentRoutineId: string | null;
   streakDates: string[]; // ISO date strings 'YYYY-MM-DD'
   accomplishedIds: string[];
   accomplishedRecords?: AccomplishedRecord[];
-  skippedIds: string[];
+  skippedRoutineIds: string[];
   settings: UserSettings;
   totalCompleted: number;
   longestStreak: number;
 }
 
 export interface SunnahContextType {
-  currentSunnah: Sunnah | null;
+  currentRoutine: Routine | null;
+  remainingMembers: Sunnah[];
   streakDates: string[];
   streakCount: number;
   accomplishedSunnahs: Sunnah[];
   accomplishedRecords: AccomplishedRecord[];
-  skippedSunnahs: Sunnah[];
+  skippedRoutines: Routine[];
   settings: UserSettings;
   totalCompleted: number;
   longestStreak: number;
   isLoading: boolean;
   hasMarkedToday: boolean;
   streakBrokenToday: boolean;
-  markDoneToday: () => void;
+  markDoneToday: () => Routine | null;
   markAlreadyDoing: () => void;
-  skipSunnah: () => void;
+  postponeRoutine: () => void;
   updateSettings: (s: Partial<UserSettings>) => void;
   prayerTimes: PrayerTimesResult | null;
   refreshPrayerTimes: () => Promise<void>;

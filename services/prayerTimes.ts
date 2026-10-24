@@ -1,7 +1,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { CalculationMethod, Coordinates, PrayerTimes } from "adhan";
 import * as Location from "expo-location";
-import { REMINDER_SLOT_TIMES } from "@/constants/data";
+import { REMINDER_SLOT_TIMES } from "@/constants/reminders";
 import { PrayerTimesResult } from "@/types";
 
 export type { PrayerTimesResult };

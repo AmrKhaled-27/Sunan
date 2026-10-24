@@ -1,65 +1,7 @@
-import { ReminderSlot, Sunnah, SunnahGroup } from "@/types";
+import { Sunnah } from "@/types";
 
-// Re-export types for backward compatibility
-export type {
-  HadithEvidence,
-  HadithGrading,
-  NotificationSchedule,
-  ReminderSlot,
-  Sunnah,
-  SunnahGroup,
-} from "@/types";
-
-// ─── Sunnah Contextual Groups / Bundles ───────────────────────────────────────
-export const SUNNAH_GROUPS: Record<string, SunnahGroup> = {
-  eating_etiquette: {
-    id: "eating_etiquette",
-    title: "آداب الطعام والشراب",
-    icon: "🍽️",
-  },
-  after_prayer: {
-    id: "after_prayer",
-    title: "أذكار ما بعد الصلاة",
-    icon: "📿",
-  },
-  toilet_etiquette: {
-    id: "toilet_etiquette",
-    title: "آداب الخلاء",
-    icon: "🚪",
-  },
-  sleep_etiquette: {
-    id: "sleep_etiquette",
-    title: "آداب وسنن النوم",
-    icon: "🌙",
-  },
-  adhan_etiquette: {
-    id: "adhan_etiquette",
-    title: "سنن الأذان والنداء",
-    icon: "🕌",
-  },
-};
-
-// ─── Reminder slot → default hour/minute ──────────────────────────────────────
-
-export const REMINDER_SLOT_TIMES: Record<
-  ReminderSlot,
-  { hour: number; minute: number }
-> = {
-  fajr: { hour: 5, minute: 0 },
-  morning: { hour: 7, minute: 30 },
-  dhuhr: { hour: 12, minute: 30 },
-  asr: { hour: 15, minute: 30 },
-  afternoon: { hour: 15, minute: 30 },
-  maghrib: { hour: 18, minute: 30 },
-  ishaa: { hour: 20, minute: 0 },
-  before_sleep: { hour: 22, minute: 0 },
-};
-
-// ─── Sunnah Data ──────────────────────────────────────────────────────────────
-// RULE: Never change or reuse an existing ID. Mark deprecated instead of deleting.
-
+// Never change or reuse IDs; retain each Sunnah's complete evidence.
 export const SUNNAHS: Sunnah[] = [
-  // ------- After Prayer Sunnahs ------
   {
     id: "1",
     title: "الاستغفار بعد الصلاة",
@@ -77,15 +19,6 @@ export const SUNNAHS: Sunnah[] = [
         grading: "sahih",
       },
     ],
-    groupId: "after_prayer",
-    notificationSchedule: {
-      reminderSlots: ["fajr", "dhuhr", "asr", "maghrib", "ishaa"],
-      endOfDayCheckIn: true,
-    },
-    notificationMessages: [
-      "انتهيت من الصلاة؟ لا تنس الاستغفار ثلاثًا",
-      "لا تفوّت الاستغفار بعد صلاتك، فهو من هدي النبي صلى الله عليه وسلم",
-    ],
     reward: "جبر النقص والخلل الواقع في الصلاة",
     deprecated: false,
   },
@@ -101,20 +34,10 @@ export const SUNNAHS: Sunnah[] = [
         grading: "sahih",
       },
     ],
-    groupId: "after_prayer",
-    notificationSchedule: {
-      reminderSlots: ["fajr", "dhuhr", "asr", "maghrib", "ishaa"],
-      endOfDayCheckIn: true,
-    },
-    notificationMessages: [
-      "٣٣ تسبيحة، ٣٣ تحميدة، ٣٣ تكبيرة ثم لا اله الا الله وحده... لا تنسها بعد صلاتك",
-      "غفرت خطاياه وإن كانت مثل زبد البحر.. فضل عظيم بعد كل صلاة",
-    ],
     reward:
       "غفرت خطاياه وإن كانت مثل زبد البحر (وهو الرغوة التي تعلو ماء البحر عند هيجانه، كناية عن الكثرة البالغة)",
     deprecated: false,
   },
-
   {
     id: "3",
     title: "تهليل: اللهم لا مانع لما أعطيت",
@@ -126,15 +49,6 @@ export const SUNNAHS: Sunnah[] = [
         source: "رواه البخاري (844) ومسلم (593)",
         grading: "sahih",
       },
-    ],
-    groupId: "after_prayer",
-    notificationSchedule: {
-      reminderSlots: ["fajr", "dhuhr", "asr", "maghrib", "ishaa"],
-      endOfDayCheckIn: true,
-    },
-    notificationMessages: [
-      "بعد صلاتك، لا تنس: لا إله إلا الله وحده لا شريك له",
-      "اللهم لا مانع لما أعطيت، ولا معطي لما منعت",
     ],
     reward: "اتباع هدي النبي صلى الله عليه وسلم",
     deprecated: false,
@@ -151,15 +65,6 @@ export const SUNNAHS: Sunnah[] = [
         grading: "sahih",
       },
     ],
-    groupId: "after_prayer",
-    notificationSchedule: {
-      reminderSlots: ["fajr", "dhuhr", "asr", "maghrib", "ishaa"],
-      endOfDayCheckIn: true,
-    },
-    notificationMessages: [
-      "لا إله إلا الله وحده لا شريك له.. ذكر بسيط بعد كل صلاة",
-      "كان رسول الله يهلل بهن دبر كل صلاة، فلا تنسها",
-    ],
     reward: "اتباع هدي النبي صلى الله عليه وسلم",
     deprecated: false,
   },
@@ -175,20 +80,10 @@ export const SUNNAHS: Sunnah[] = [
         grading: "sahih",
       },
     ],
-    groupId: "after_prayer",
-    notificationSchedule: {
-      reminderSlots: ["fajr", "dhuhr", "asr", "maghrib", "ishaa"],
-      endOfDayCheckIn: true,
-    },
-    notificationMessages: [
-      "لا تنس آية الكرسي بعد صلاتك",
-      "من قرأها دبر كل صلاة لم يمنعه من دخول الجنة إلا الموت",
-    ],
     reward:
       "من قرأ آية الكرسي دبر كل صلاة مكتوبة لم يمنعه من دخول الجنة إلا أن يموت",
     deprecated: false,
   },
-
   {
     id: "6",
     title: "قراءة المعوذات دبر كل صلاة",
@@ -200,16 +95,6 @@ export const SUNNAHS: Sunnah[] = [
           "رواه أبو داود (1523)، والترمذي (2903)، والنسائي (1336)، وصححه الألباني",
         grading: "sahih",
       },
-    ],
-    groupId: "after_prayer",
-    notificationSchedule: {
-      reminderSlots: ["fajr", "dhuhr", "asr", "maghrib", "ishaa"],
-      endOfDayCheckIn: true,
-    },
-    notificationMessages: [
-      "انتهيت من صلاتك؟ اقرأ المعوذات (الإخلاص، الفلق، الناس)",
-      "أمر النبي ﷺ بقراءة المعوذات دبر كل صلاة.. تحصين وحفظ تام",
-      "قل هو الله أحد والمعوذتين بعد صلاتك.. لا تفوتها",
     ],
     reward: "اتباع أمر النبي صلى الله عليه وسلم",
     deprecated: false,
@@ -226,20 +111,9 @@ export const SUNNAHS: Sunnah[] = [
         grading: "sahih",
       },
     ],
-    groupId: "after_prayer",
-    notificationSchedule: {
-      reminderSlots: ["fajr", "dhuhr", "asr", "maghrib", "ishaa"],
-      endOfDayCheckIn: true,
-    },
-    notificationMessages: [
-      "وصية النبي ﷺ لمعاذ: لا تدعن دبر كل صلاة: اللهم أعني على ذكرك وشكرك وحسن عبادتك",
-      "بعد صلاتك قل: اللهم أعني على ذكرك وشكرك وحسن عبادتك",
-    ],
     reward: "اتباع وصية النبي صلى الله عليه وسلم لمعاذ رضي الله عنه",
     deprecated: false,
   },
-
-  // ------- Toilet Sunnahs ------
   {
     id: "8",
     title: "دعاء دخول الخلاء",
@@ -262,24 +136,6 @@ export const SUNNAHS: Sunnah[] = [
         grading: "sahih",
       },
     ],
-    groupId: "toilet_etiquette",
-    notificationSchedule: {
-      reminderSlots: [
-        "fajr",
-        "morning",
-        "dhuhr",
-        "asr",
-        "maghrib",
-        "ishaa",
-        "before_sleep",
-      ],
-      endOfDayCheckIn: true,
-    },
-    notificationMessages: [
-      "قبل ما تدخل الحمام، قل: اللهم إني أعوذ بك من الخبث والخبائث",
-      "دعاء صغير يحميك من شر الشياطين قبل دخول الخلاء",
-      "لا تنس دعاء دخول الخلاء، فهو من هدي النبي صلى الله عليه وسلم",
-    ],
     reward:
       "الستر من أعين الجن والتحصن والتعوذ بالله من شر الشياطين وأذاهم في أماكن قضاء الحاجة",
     deprecated: false,
@@ -296,29 +152,9 @@ export const SUNNAHS: Sunnah[] = [
         grading: "sahih",
       },
     ],
-    groupId: "toilet_etiquette",
-    notificationSchedule: {
-      reminderSlots: [
-        "fajr",
-        "morning",
-        "dhuhr",
-        "asr",
-        "maghrib",
-        "ishaa",
-        "before_sleep",
-      ],
-      endOfDayCheckIn: true,
-    },
-    notificationMessages: [
-      "لما تخرج من الحمام، لا تنس تقول: غفرانك",
-      "خرجت من الخلاء؟ قل: غفرانك",
-    ],
     reward: "طلب مغفرة الذنوب",
     deprecated: false,
   },
-
-  // ------- Sleep Sunnahs ------
-
   {
     id: "18",
     title: "الوضوء قبل النوم",
@@ -329,15 +165,6 @@ export const SUNNAHS: Sunnah[] = [
         source: "رواه البخاري (247) ومسلم (2710)",
         grading: "sahih",
       },
-    ],
-    groupId: "sleep_etiquette",
-    notificationSchedule: {
-      reminderSlots: ["ishaa", "before_sleep"],
-      endOfDayCheckIn: true,
-    },
-    notificationMessages: [
-      "قبل النوم، توضأ وضوءك للصلاة ",
-      "سنة يسيرة قبل نومك: توضأ وضوءك للصلاة",
     ],
     reward: "المبيت على طهارة و اتباع هدي النبي",
     deprecated: false,
@@ -359,15 +186,6 @@ export const SUNNAHS: Sunnah[] = [
         grading: "sahih",
       },
     ],
-    groupId: "sleep_etiquette",
-    notificationSchedule: {
-      reminderSlots: ["ishaa", "before_sleep"],
-      endOfDayCheckIn: true,
-    },
-    notificationMessages: [
-      "قل: «بسم الله»، ثم انفض فراشك ٣ مرات بطرف ثوبك قبل نومك",
-      "سمِّ الله، ثم انفض فراشك ثلاث مرات",
-    ],
     reward:
       "اتباع هدي النبي صلى الله عليه وسلم، والحفظ والسلامة من الهوام والأذى وما قد يطرأ على الفراش",
     deprecated: false,
@@ -383,16 +201,6 @@ export const SUNNAHS: Sunnah[] = [
         source: "رواه البخاري (6320) ومسلم (2714)",
         grading: "sahih",
       },
-    ],
-    groupId: "sleep_etiquette",
-    notificationSchedule: {
-      reminderSlots: ["ishaa", "before_sleep"],
-      endOfDayCheckIn: true,
-    },
-    notificationMessages: [
-      "..اضطجع على جنبك الأيمن وقل: باسمك ربي وضعت جنبي وبك أرفعه",
-      "قبل نومك، فوّض أمرك إلى الله: إن أمسكت نفسي فارحمها، وإن أرسلتها فاحفظها",
-      "نم على شقك الأيمن واذكر الله بدعاء النوم ",
     ],
     reward:
       "اتباع هدي النبي صلى الله عليه وسلم، وتفويض الأمر إلى الله والتوكل عليه وحفظ النفس عند النوم",
@@ -410,15 +218,6 @@ export const SUNNAHS: Sunnah[] = [
         grading: "sahih",
       },
     ],
-    groupId: "sleep_etiquette",
-    notificationSchedule: {
-      reminderSlots: ["ishaa", "before_sleep"],
-      endOfDayCheckIn: true,
-    },
-    notificationMessages: [
-      "اجمع كفيك وانفث واقرأ الإخلاص والمعوذتين وامسح جسدك ٣ مرات",
-      "سنة نبوية مؤكدة كل ليلة: قراءة المعوذات في الكفين والمسح بها ثلاثًا",
-    ],
     reward: "اتباع هدي النبي صلى الله عليه وسلم",
     deprecated: false,
   },
@@ -432,15 +231,6 @@ export const SUNNAHS: Sunnah[] = [
         source: "رواه البخاري (2311)",
         grading: "sahih",
       },
-    ],
-    groupId: "sleep_etiquette",
-    notificationSchedule: {
-      reminderSlots: ["ishaa", "before_sleep"],
-      endOfDayCheckIn: true,
-    },
-    notificationMessages: [
-      "قبل ما تنام، اقرأ آية الكرسي",
-      "لن يزال عليك من الله حافظ حتى تصبح.. لا تنسها",
     ],
     reward: "لن يزال عليك من الله حافظ، ولا يقربك شيطان حتى تصبح",
     deprecated: false,
@@ -456,15 +246,6 @@ export const SUNNAHS: Sunnah[] = [
         source: "رواه البخاري (5009) ومسلم (808)",
         grading: "sahih",
       },
-    ],
-    groupId: "sleep_etiquette",
-    notificationSchedule: {
-      reminderSlots: ["ishaa", "before_sleep"],
-      endOfDayCheckIn: true,
-    },
-    notificationMessages: [
-      "اقرأ آخر آيتين من سورة البقرة في ليلتك كفتاك من كل شر",
-      "آيتان خفيفتان فضلهما عظيم: «من قرأ بالآيتين من آخر سورة البقرة في ليلة كفتاه»",
     ],
     reward: "كفتاه من كل سوء وشر ومكروه",
     deprecated: false,
@@ -494,15 +275,6 @@ export const SUNNAHS: Sunnah[] = [
         grading: "sahih",
       },
     ],
-    groupId: "sleep_etiquette",
-    notificationSchedule: {
-      reminderSlots: ["ishaa", "before_sleep"],
-      endOfDayCheckIn: true,
-    },
-    notificationMessages: [
-      "قبل أن تنام، اقرأ سورتي السجدة والملك اقتداءً بهدي النبي ﷺ",
-      "كان النبي ﷺ لا ينام حتى يقرأ السجدة وتبارك الذي بيده الملك.. اقرأهما الليلة",
-    ],
     reward: "النجاة من عذاب القبر، وشفاعة السورة لقارئها حتى يُغفر له",
     deprecated: false,
   },
@@ -517,15 +289,6 @@ export const SUNNAHS: Sunnah[] = [
           "رواه أبو داود (5055) والترمذي (3403) وأحمد (23807)، وصححه الألباني",
         grading: "sahih",
       },
-    ],
-    groupId: "sleep_etiquette",
-    notificationSchedule: {
-      reminderSlots: ["ishaa", "before_sleep"],
-      endOfDayCheckIn: true,
-    },
-    notificationMessages: [
-      "اقرأ سورة الكافرون عند منامك فإنها براءة من الشرك",
-      "سورة قصيرة تقرؤها قبل نومك تكون لك براءة من الشرك",
     ],
     reward: "براءة من الشرك",
     deprecated: false,
@@ -547,12 +310,6 @@ export const SUNNAHS: Sunnah[] = [
         grading: "sahih",
       },
     ],
-    groupId: "sleep_etiquette",
-    notificationSchedule: {
-      reminderSlots: ["ishaa", "before_sleep"],
-      endOfDayCheckIn: true,
-    },
-    notificationMessages: ["٣٤ تكبيرة، ٣٣ تحميدة، ٣٣ تسبيحة.. قبل نومك"],
     reward: "خير لكما من خادم، و اتباع لهدي النبي",
     deprecated: false,
   },
@@ -567,15 +324,6 @@ export const SUNNAHS: Sunnah[] = [
         source: "رواه مسلم (2715)",
         grading: "sahih",
       },
-    ],
-    groupId: "sleep_etiquette",
-    notificationSchedule: {
-      reminderSlots: ["ishaa", "before_sleep"],
-      endOfDayCheckIn: true,
-    },
-    notificationMessages: [
-      "أويت إلى فراشك في أمن وكفاية؟ قل: الحمد لله الذي أطعمنا وسقانا وكفانا وآوانا",
-      "اشكر نعم الله عليك قبل نومك: الحمد لله الذي أطعمنا وسقانا وكفانا وآوانا",
     ],
     reward: "شكر نعم الله واستشعار حفظه وكفايته والاعتراف بفضله على العبد",
     deprecated: false,
@@ -592,15 +340,6 @@ export const SUNNAHS: Sunnah[] = [
         grading: "sahih",
       },
     ],
-    groupId: "sleep_etiquette",
-    notificationSchedule: {
-      reminderSlots: ["ishaa", "before_sleep"],
-      endOfDayCheckIn: true,
-    },
-    notificationMessages: [
-      "ضع يدك اليمنى تحت خدك وقل ٣ مرات: اللهم قني عذابك يوم تبعث عبادك",
-      "دعاء نبوي خفيف عند وضع الخد على الفراش: اللهم قني عذابك يوم تبعث عبادك",
-    ],
     reward:
       "الاستعاذة من عذاب يوم القيامة واليقظة القلبية واستحضار الحساب عند النوم",
     deprecated: false,
@@ -615,15 +354,6 @@ export const SUNNAHS: Sunnah[] = [
         source: "رواه البخاري (6312) ومسلم (2711)",
         grading: "sahih",
       },
-    ],
-    groupId: "sleep_etiquette",
-    notificationSchedule: {
-      reminderSlots: ["ishaa", "before_sleep"],
-      endOfDayCheckIn: true,
-    },
-    notificationMessages: [
-      "قبل أن تغمض عينيك، قل: باسمك اللهم أموت وأحيا",
-      "دعاء النوم القصير المأثور: باسمك اللهم أموت وأحيا",
     ],
     reward: "تفويض الحياة والموت إلى الله، وبداية النوم على اسمه سبحانه",
     deprecated: false,
@@ -640,19 +370,9 @@ export const SUNNAHS: Sunnah[] = [
         grading: "sahih",
       },
     ],
-    groupId: "sleep_etiquette",
-    notificationSchedule: {
-      reminderSlots: ["ishaa", "before_sleep"],
-      endOfDayCheckIn: true,
-    },
-    notificationMessages: [
-      "اجعل آخر كلماتك قبل نومك: اللهم أسلمت نفسي إليك وفوضت أمري إليك.. لتبيت على الفطرة",
-      "سيد أدعية النوم: واجعلهن آخر ما تتكلم به.. فإن مت من ليلتك فأنت على الفطرة",
-    ],
     reward: "الموت على الفطرة، وكمال التوكل وتفويض الأمر لله تعالى",
     deprecated: false,
   },
-  // ------- Adhan Sunnahs ------
   {
     id: "14",
     title: "ترديد الأذان",
@@ -675,15 +395,6 @@ export const SUNNAHS: Sunnah[] = [
         grading: "sahih",
       },
     ],
-    groupId: "adhan_etiquette",
-    notificationSchedule: {
-      reminderSlots: ["fajr", "dhuhr", "asr", "maghrib", "ishaa"],
-      endOfDayCheckIn: true,
-    },
-    notificationMessages: [
-      "المؤذن ينادي الآن.. ردد خلفه من قلبك لتدخل الجنة وتُغفر ذنوبك",
-      "دقيقتان مع الأذان بيقين وإخلاص ثوابهما الجنة ومغفرة الذنوب.. ردد خلف المؤذن",
-    ],
     reward: "دخل الجنة (إذا قالها من قلبه)، وغُفر له ذنبه",
     deprecated: false,
   },
@@ -704,19 +415,9 @@ export const SUNNAHS: Sunnah[] = [
         grading: "sahih",
       },
     ],
-    groupId: "adhan_etiquette",
-    notificationSchedule: {
-      reminderSlots: ["fajr", "dhuhr", "asr", "maghrib", "ishaa"],
-      endOfDayCheckIn: true,
-    },
-    notificationMessages: [
-      "بعد الأذان، لا تنس دعاء الوسيلة",
-      "من قالها حلت له شفاعة النبي يوم القيامة",
-    ],
     reward: "حلت له شفاعتي يوم القيامة، وصلى الله عليه عشرًا بالصلاة على نبيه",
     deprecated: false,
   },
-  // ------- Eating Sunnahs ------
   {
     id: "16",
     title: "التسمية قبل الأكل",
@@ -740,17 +441,6 @@ export const SUNNAHS: Sunnah[] = [
         grading: "sahih",
       },
     ],
-    groupId: "eating_etiquette",
-    notificationSchedule: {
-      reminderSlots: ["morning", "afternoon", "maghrib"],
-      endOfDayCheckIn: true,
-    },
-    notificationMessages: [
-      "قبل ما تاكل، قل: بسم الله",
-      "سمِّ الله، وكل بيمينك، وكل مما يليك",
-      "نسيت التسمية؟ قول: بسم الله في أوله وآخره",
-      "هتاكل؟ لا تنس التسمية، ولو نسيتها استدركها",
-    ],
     reward: "حرمان الشيطان من مشاركتك في طعامك وحلول البركة في الرزق",
     deprecated: false,
   },
@@ -772,18 +462,7 @@ export const SUNNAHS: Sunnah[] = [
         grading: "sahih",
       },
     ],
-    groupId: "eating_etiquette",
-    notificationSchedule: {
-      reminderSlots: ["morning", "afternoon", "maghrib"],
-      endOfDayCheckIn: true,
-    },
-    notificationMessages: [
-      "خلصت أكلك؟ قول: الحمد لله الذي أطعمني هذا",
-      "كلمة بسيطة بعد الأكل، وفضلها غفران الذنوب",
-      "من قالها غفر له ما تقدم من ذنبه",
-      "لا تنس الحمد بعد ما تخلص طعامك",
-    ],
     reward: "غفر له ما تقدم من ذنبه، ورضا الله سبحانه وتعالى عن عبده",
     deprecated: false,
-  },
+  }
 ];

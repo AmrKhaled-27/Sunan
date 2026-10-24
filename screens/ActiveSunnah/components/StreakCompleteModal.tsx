@@ -5,7 +5,7 @@ import { ConfettiCanvas, useConfetti } from "react-native-confetti-reanimated";
 
 interface StreakCompleteModalProps {
   visible: boolean;
-  sunnahTitle: string;
+  routineTitle: string;
   onClose: () => void;
 }
 
@@ -25,7 +25,7 @@ const CONFETTI_COLORS = [
 // card overlay is conditionally shown.
 export function StreakCompleteModal({
   visible,
-  sunnahTitle,
+  routineTitle,
   onClose,
 }: StreakCompleteModalProps) {
   const { confettiRef, fire, reset } = useConfetti();
@@ -65,7 +65,7 @@ export function StreakCompleteModal({
                 مبارك!
               </Text>
               <Text className="font-tajawal text-warmBrownLight text-sm text-center leading-6">
-                {`أتممت 7 أيام متتالية لسنة «${sunnahTitle}». جزاك الله خيراً`}
+                {`أتممت 7 أيام متتالية لروتين «${routineTitle}»، وأُضيفت سننه لإنجازاتك. جزاك الله خيراً`}
               </Text>
 
               <View className="h-[0.5px] bg-warmGold/25 my-3.5" />

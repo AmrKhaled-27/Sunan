@@ -5,21 +5,9 @@ import { PaperBackground } from "@/components/ui/PaperBackground";
 import { palette } from "@/constants/theme";
 import { useOnboarding } from "@/context/OnboardingContext";
 import { useSunnah } from "@/context/SunnahContext";
-import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import {
-  ActivityIndicator,
-  Image,
-  NativeScrollEvent,
-  NativeSyntheticEvent,
-  Platform,
-  ScrollView,
-  Text,
-  TouchableOpacity,
-  Vibration,
-  View,
-} from "react-native";
+import { ActivityIndicator, Platform, ScrollView, Text, TouchableOpacity, Vibration, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { AlreadyDoingModal } from "./components/AlreadyDoingModal";
 import { SkipModal } from "./components/SkipModal";
@@ -27,317 +15,105 @@ import { StreakBrokenToast } from "./components/StreakBrokenToast";
 import { StreakCompleteModal } from "./components/StreakCompleteModal";
 import { StreakDots } from "./components/StreakDots";
 
-const HADITH_CHAR_LIMIT = 120;
-
-function getTruncatedHadith(text: string, limit: number): string {
-  if (text.length <= limit) return text;
-  const sliced = text.slice(0, limit);
-  const lastSpace = sliced.lastIndexOf(" ");
-  return (lastSpace > 20 ? sliced.slice(0, lastSpace) : sliced) + "...";
-}
-
+// Plan 1 bridge: expose every credited action; final Today design is Plan 2.
 export default function ActiveSunnahScreen() {
   const insets = useSafeAreaInsets();
-  const {
-    currentSunnah,
-    streakCount,
-    hasMarkedToday,
-    streakBrokenToday,
-    markDoneToday,
-    markAlreadyDoing,
-    skipSunnah,
-    isLoading,
-  } = useSunnah();
-
+  const { currentRoutine, remainingMembers, streakCount, hasMarkedToday, streakBrokenToday,
+    markDoneToday, markAlreadyDoing, postponeRoutine, isLoading } = useSunnah();
   const { registerScroller, setHomeReady } = useOnboarding();
   const cardRef = useTourTarget("card");
   const streakDotsRef = useTourTarget("streakDots");
   const markDoneRef = useTourTarget("markDone");
   const alreadyDoingRef = useTourTarget("alreadyDoing");
   const skipRef = useTourTarget("skip");
-
   const scrollRef = useRef<ScrollView>(null);
   const scrollOffsetRef = useRef(0);
-
+  const [confirmRoutineId, setConfirmRoutineId] = useState<string | null>(null);
   const [showAlreadyConfirm, setShowAlreadyConfirm] = useState(false);
   const [showSkipConfirm, setShowSkipConfirm] = useState(false);
-  const [showCelebration, setShowCelebration] = useState(false);
-  const [celebrationTitle, setCelebrationTitle] = useState("");
-  const [hadithExpanded, setHadithExpanded] = useState(false);
+  const [celebrationTitle, setCelebrationTitle] = useState<string | null>(null);
+  const [showEvidence, setShowEvidence] = useState(false);
+  const actionLocked = useRef(false);
 
-  // Reset hadith expand state when sunnah changes
-  useEffect(() => {
-    setHadithExpanded(false);
-  }, [currentSunnah?.id]);
-
-  // Record the commanded offset up front: onScroll lags behind an animated
-  // scroll, and the tour computes its next scroll from this value.
+  useEffect(() => { actionLocked.current = false; });
+  useEffect(() => { setShowEvidence(false); }, [currentRoutine?.id]);
   const scrollTourTo = useCallback((y: number) => {
     scrollOffsetRef.current = y;
     scrollRef.current?.scrollTo({ y, animated: true });
   }, []);
-
-  // Let the tour scroll targets into view before measuring them.
   useEffect(() => {
-    registerScroller({
-      scrollTo: scrollTourTo,
-      getOffset: () => scrollOffsetRef.current,
-    });
+    registerScroller({ scrollTo: scrollTourTo, getOffset: () => scrollOffsetRef.current });
     return () => registerScroller(null);
   }, [registerScroller, scrollTourTo]);
-
-  // The tour only makes sense once the real card and controls are on screen.
   useEffect(() => {
-    setHomeReady(!isLoading && !!currentSunnah);
+    setHomeReady(!isLoading && !!currentRoutine);
     return () => setHomeReady(false);
-  }, [isLoading, currentSunnah, setHomeReady]);
-
-  const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
-    scrollOffsetRef.current = event.nativeEvent.contentOffset.y;
-  };
+  }, [isLoading, currentRoutine, setHomeReady]);
 
   const handleMarkDone = () => {
-    if (hasMarkedToday) return;
-    const completingStreak = streakCount === 6;
-    const completedTitle = currentSunnah?.title;
-
-    try {
-      if (Platform.OS === "ios") {
-        void Haptics.notificationAsync(
-          Haptics.NotificationFeedbackType.Success,
-        );
-      } else {
-        void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
-        Vibration.vibrate(80);
-      }
-    } catch {
-      Vibration.vibrate(80);
-    }
-
-    markDoneToday();
-    if (completingStreak && completedTitle) {
-      setCelebrationTitle(completedTitle);
-      setShowCelebration(true);
-    }
+    if (actionLocked.current || hasMarkedToday || !currentRoutine) return;
+    actionLocked.current = true;
+    const completed = markDoneToday();
+    if (completed) setCelebrationTitle(completed.title);
+    if (Platform.OS === "ios") {
+      void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
+    } else { Vibration.vibrate(80); }
   };
 
-  if (isLoading) {
-    return (
-      <PaperBackground>
-        <View className="flex-1 justify-center items-center">
-          <ActivityIndicator size="large" color={palette.warmGold} />
-        </View>
-      </PaperBackground>
-    );
-  }
-
-  if (!currentSunnah) {
-    return (
-      <PaperBackground>
-        <View
-          className="flex-1 justify-center items-center p-6"
-          style={{ paddingTop: insets.top }}
-        >
-          <Image
-            source={require("@/assets/images/app-icon.png")}
-            className="w-24 h-24 rounded-2xl mb-6 opacity-80"
-            resizeMode="contain"
-          />
-          <Text className="font-tajawal-bold text-warmBrown text-2xl text-center mb-2">
-            أتممت جميع السنن!
-          </Text>
-          <Text className="font-tajawal text-warmBrownLight text-lg text-center leading-8">
-            جزاك الله خيراً، انتظر إضافة سنن جديدة
-          </Text>
-        </View>
-
-        <StreakCompleteModal
-          visible={showCelebration}
-          sunnahTitle={celebrationTitle}
-          onClose={() => setShowCelebration(false)}
-        />
-      </PaperBackground>
-    );
-  }
-
-  const hadithText = currentSunnah.hadiths[0]?.text ?? "";
-  const isLongHadith = hadithText.length > HADITH_CHAR_LIMIT;
-
-  return (
-    <PaperBackground>
-      {/* Animated auto-dismissing broken streak toast */}
-      <StreakBrokenToast visible={streakBrokenToday} />
-
-      <ScrollView
-        ref={scrollRef}
-        onScroll={handleScroll}
-        scrollEventThrottle={16}
-        // Android clips off-screen children by default, which detaches them
-        // from the native view hierarchy. The tour has to measure targets
-        // while they are still out of view in order to scroll to them.
-        removeClippedSubviews={false}
-        className="flex-1"
-        contentContainerClassName="p-5 pb-[100px]"
-        contentContainerStyle={{
-          paddingTop: insets.top + 12,
-        }}
-      >
-        {/* Title */}
-        <Text className="font-tajawal-bold text-[26px] text-warmBrown text-center mb-5">
-          سنة اليوم
-        </Text>
-
-        {/* Streak dots */}
-        <StreakDots ref={streakDotsRef} count={streakCount} />
-
-        {/* Sunnah Card */}
-        <Card ref={cardRef} variant="home" className="mb-4">
-          <Text className="font-amiri-bold text-[28px] text-warmBrown text-center mb-4 leading-[44px]">
-            {currentSunnah.title}
-          </Text>
-
-          {/* Explanation (Action) */}
-          {currentSunnah.action && (
-            <Text className="font-tajawal-bold text-lg text-warmBrownLight text-center leading-8 mb-5">
-              {currentSunnah.action}
-            </Text>
-          )}
-
-          <View className="flex-row items-center justify-center mb-4">
-            <View className="flex-1 h-[0.5px] bg-warmGold/30" />
-            <View className="mx-3">
-              <Ionicons
-                name="moon-outline"
-                size={16}
-                color={palette.warmGold}
-              />
+  return <PaperBackground>
+    <StreakBrokenToast visible={streakBrokenToday} />
+    {isLoading ? <View className="flex-1 items-center justify-center"><ActivityIndicator color={palette.warmGold} /></View>
+      : !currentRoutine ? <View className="flex-1 items-center justify-center p-6">
+        <Text className="font-tajawal-bold text-warmBrown text-2xl text-center">أتممت جميع السنن!</Text>
+        <Text className="font-tajawal text-warmBrownLight text-lg text-center">جزاك الله خيراً، انتظر إضافة سنن جديدة</Text>
+      </View> : <>
+        <ScrollView ref={scrollRef} removeClippedSubviews={false} scrollEventThrottle={16}
+          onScroll={event => { scrollOffsetRef.current = event.nativeEvent.contentOffset.y; }}
+          contentContainerClassName="p-5 pb-[100px]" contentContainerStyle={{ paddingTop: insets.top + 12 }}>
+          <Text className="font-tajawal-bold text-[26px] text-warmBrown text-center mb-5">روتين اليوم</Text>
+          <StreakDots ref={streakDotsRef} count={streakCount} />
+          <Card variant="home" className="mb-4">
+            <View ref={cardRef} collapsable={false}>
+            <Text className="font-amiri-bold text-[28px] text-warmBrown text-center mb-4">{currentRoutine.title}</Text>
+            <Text className="font-tajawal text-warmBrownLight text-center mb-4">الترتيب للتعلّم والعرض، ولا يدل على ترتيب شرعي ملزم.</Text>
             </View>
-            <View className="flex-1 h-[0.5px] bg-warmGold/30" />
-          </View>
-
-          {/* Hadith */}
-          <Text
-            className="font-amiri text-lg text-warmBrownLight/80 text-center leading-[32px]"
-            onPress={() => {
-              if (isLongHadith) setHadithExpanded((prev) => !prev);
-            }}
-          >
-            {isLongHadith && !hadithExpanded
-              ? getTruncatedHadith(hadithText, HADITH_CHAR_LIMIT)
-              : hadithText}
-          </Text>
-
-          {isLongHadith && (
-            <TouchableOpacity
-              onPress={() => setHadithExpanded((prev) => !prev)}
-              accessibilityRole="button"
-              accessibilityLabel={
-                hadithExpanded ? "عرض أقل للحديث" : "اقرأ المزيد من الحديث"
-              }
-              activeOpacity={0.7}
-              className="mt-2 py-1 self-center flex-row items-center justify-center gap-1.5"
-            >
-              <Text className="font-tajawal-bold text-sm text-warmGold">
-                {hadithExpanded ? "عرض أقل" : "اقرأ المزيد..."}
-              </Text>
-              <Ionicons
-                name={hadithExpanded ? "chevron-up" : "chevron-down"}
-                size={14}
-                color={palette.warmGold}
-              />
+            {remainingMembers.map(member => <View key={member.id} className="mb-6">
+              <Text className="font-tajawal-bold text-xl text-warmBrown text-center mb-2">{member.title}</Text>
+              <Text className="font-tajawal text-lg text-warmBrownLight text-center leading-8">{member.action}</Text>
+              {showEvidence && member.hadiths.map((hadith, index) => <View key={index} className="mt-4">
+                <Text className="font-amiri text-lg text-warmBrownLight text-center leading-8">{hadith.text}</Text>
+                <Text className="font-tajawal text-warmBrown text-center">{hadith.source} — {({ sahih: "صحيح", hasan: "حسن", daif: "ضعيف" })[hadith.grading]}</Text>
+              </View>)}
+              {member.reward && <Text className="font-tajawal text-warmBrown text-center mt-3">الثواب والأجر: {member.reward}</Text>}
+            </View>)}
+            <TouchableOpacity accessibilityRole="button" onPress={() => setShowEvidence(value => !value)} className="py-3">
+              <Text className="font-tajawal-bold text-warmGold text-center">{showEvidence ? "إخفاء الأدلة" : "عرض أدلة جميع السنن"}</Text>
             </TouchableOpacity>
-          )}
-
-          {/* Reward */}
-          {currentSunnah.reward && (
-            <View className="mt-6 bg-warmGold/10 px-4 py-3 rounded-xl border border-warmGold/20">
-              <View className="flex-row items-center justify-center mb-2 gap-1">
-                <Ionicons
-                  name="gift-outline"
-                  size={18}
-                  color={palette.warmGold}
-                />
-                <Text className="font-tajawal-bold text-warmGold text-sm">
-                  الثواب والأجر
-                </Text>
-              </View>
-              <Text className="font-tajawal-bold text-base text-warmBrown text-center leading-7">
-                {currentSunnah.reward}
-              </Text>
-            </View>
-          )}
-        </Card>
-
-        {/* Primary Action */}
-        <View ref={markDoneRef} collapsable={false} className="mt-2">
-          <Button
-            title={hasMarkedToday ? "تم إنجازها اليوم" : "فعلتها اليوم"}
-            onPress={handleMarkDone}
-            color={palette.oliveGreen}
-            colorEnd={palette.oliveGreenDark}
-            textColor={palette.white}
-            disabled={hasMarkedToday}
-          />
-        </View>
-
-        {/* Secondary Actions */}
-        <View className="flex-row gap-3 mt-1 mb-2">
-          <TouchableOpacity
-            ref={alreadyDoingRef}
-            onPress={() => setShowAlreadyConfirm(true)}
-            accessibilityRole="button"
-            accessibilityLabel="أفعلها بالفعل"
-            accessibilityHint="تحديد أنك ملتزم بهذه السنة مسبقاً والانتقال للسنة التالية"
-            activeOpacity={0.8}
-            className="flex-1 py-3.5 rounded-2xl bg-warmGold/15 border border-warmGold/30 items-center"
-          >
-            <Text className="font-tajawal-bold text-warmBrownLight text-sm">
-              أفعلها بالفعل
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            ref={skipRef}
-            onPress={() => setShowSkipConfirm(true)}
-            accessibilityRole="button"
-            accessibilityLabel="تخطي هذه السنة"
-            accessibilityHint="تخطي هذه السنة مؤقتاً والانتقال للسنة التالية"
-            activeOpacity={0.8}
-            className="flex-1 py-3.5 rounded-2xl bg-warmGold/15 border border-warmGold/30 items-center"
-          >
-            <Text className="font-tajawal-bold text-warmBrownLight text-sm">
-              تخطي
-            </Text>
-          </TouchableOpacity>
-        </View>
-      </ScrollView>
-
-      {/* Already Doing Confirm Modal */}
-      <AlreadyDoingModal
-        visible={showAlreadyConfirm}
-        sunnahTitle={currentSunnah.title}
-        onConfirm={() => {
+          </Card>
+          <View ref={markDoneRef} collapsable={false}>
+            <Button title={hasMarkedToday ? "تم تسجيل الروتين اليوم" : "فعلت الروتين اليوم"} onPress={handleMarkDone}
+              color={palette.oliveGreen} colorEnd={palette.oliveGreenDark} textColor={palette.white} disabled={hasMarkedToday} />
+          </View>
+          <View className="flex-row gap-3 mt-2">
+            <TouchableOpacity ref={alreadyDoingRef} accessibilityRole="button" className="flex-1 py-4"
+              onPress={() => { setConfirmRoutineId(currentRoutine.id); setShowAlreadyConfirm(true); }}>
+              <Text className="font-tajawal-bold text-warmBrown text-center">أفعل الروتين بالفعل</Text>
+            </TouchableOpacity>
+            <TouchableOpacity ref={skipRef} accessibilityRole="button" className="flex-1 py-4"
+              onPress={() => { setConfirmRoutineId(currentRoutine.id); setShowSkipConfirm(true); }}>
+              <Text className="font-tajawal-bold text-warmBrown text-center">تأجيل الروتين</Text>
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
+        <AlreadyDoingModal visible={showAlreadyConfirm} routineTitle={currentRoutine.title} onConfirm={() => {
           setShowAlreadyConfirm(false);
-          markAlreadyDoing();
-        }}
-        onClose={() => setShowAlreadyConfirm(false)}
-      />
-
-      {/* Skip Confirm Modal */}
-      <SkipModal
-        visible={showSkipConfirm}
-        onConfirm={() => {
+          if (confirmRoutineId === currentRoutine.id) markAlreadyDoing();
+        }} onClose={() => setShowAlreadyConfirm(false)} />
+        <SkipModal visible={showSkipConfirm} onConfirm={() => {
           setShowSkipConfirm(false);
-          skipSunnah();
-        }}
-        onClose={() => setShowSkipConfirm(false)}
-      />
-
-      <StreakCompleteModal
-        visible={showCelebration}
-        sunnahTitle={celebrationTitle}
-        onClose={() => setShowCelebration(false)}
-      />
-    </PaperBackground>
-  );
+          if (confirmRoutineId === currentRoutine.id) postponeRoutine();
+        }} onClose={() => setShowSkipConfirm(false)} />
+      </>}
+    <StreakCompleteModal visible={celebrationTitle !== null} routineTitle={celebrationTitle ?? ""} onClose={() => setCelebrationTitle(null)} />
+  </PaperBackground>;
 }

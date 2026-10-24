@@ -4,14 +4,14 @@ import { palette } from "@/constants/theme";
 
 interface AlreadyDoingModalProps {
   visible: boolean;
-  sunnahTitle?: string;
+  routineTitle?: string;
   onConfirm: () => void;
   onClose: () => void;
 }
 
 export function AlreadyDoingModal({
   visible,
-  sunnahTitle,
+  routineTitle,
   onConfirm,
   onClose,
 }: AlreadyDoingModalProps) {
@@ -19,7 +19,7 @@ export function AlreadyDoingModal({
     <ConfirmModal
       visible={visible}
       title="هل أنت متأكد؟"
-      description={`هذا يعني أنك تفعل «${sunnahTitle}» بانتظام في حياتك، وستنتقل مباشرةً للسنة التالية.`}
+      description={`هذا يعني أنك تفعل جميع سنن روتين «${routineTitle}» بانتظام. ستُضاف السنن المتبقية لإنجازاتك وتنتقل مباشرةً للروتين التالي.`}
       confirmText="نعم، أفعلها باستمرار"
       cancelText="رجوع"
       confirmColor={palette.oliveGreen}

@@ -2,9 +2,9 @@
 
 # سُنن · Sunan
 
-**Build prophetic habits one Sunnah at a time.**
+**Build prophetic habits one routine at a time.**
 
-An Arabic, right-to-left, fully offline habit app. Practise a single Sunnah for seven consecutive days until it sticks — then the app moves you on to the next one.
+An Arabic, right-to-left, fully offline habit app. Practise a routine of Sunnahs for seven consecutive days — then the app credits its Sunnahs individually and advances to the next routine.
 
 [![Expo SDK](https://img.shields.io/badge/Expo%20SDK-54-000020?logo=expo&logoColor=white)](https://docs.expo.dev/versions/v54.0.0/)
 [![React Native](https://img.shields.io/badge/React%20Native-0.81-61DAFB?logo=react&logoColor=black)](https://reactnative.dev)
@@ -21,13 +21,13 @@ An Arabic, right-to-left, fully offline habit app. Practise a single Sunnah for 
 
 Most habit apps hand you a checklist. Sunan hands you **one** thing.
 
-The home screen shows a single Sunnah — its name, a plain-language explanation of exactly what to do, the hadith it comes from, and the reward reported for it. You practise it for seven consecutive days. On the seventh day it moves into your achievements and the next Sunnah takes its place. If you already practise it, you say so and skip ahead. If it does not fit your life right now, you postpone it and the app brings it back later.
+The home screen shows a routine and every remaining Sunnah's full action, with access to its evidence and individual reward. One daily tap confirms the entire routine. Seven consecutive marked dates credit the remaining Sunnahs to achievements and advance to the next routine. “Already doing” credits the whole routine immediately. Postponement clears the active streak and brings the routine back after the others.
 
 Reminders are timed to the moment the act is actually relevant — a reminder about table manners arrives around meal times, a reminder about post-prayer remembrance arrives after a prayer — by calculating your real prayer times on the device.
 
 ## Highlights
 
-- **One Sunnah at a time.** A ten-entry curated catalog, each with its narration, its reward, and the source reference for both.
+- **One routine at a time.** Nine routines cover 26 Sunnahs, retaining all 39 original evidence entries.
 - **Seven-day streaks.** Stored as calendar dates rather than a counter, so a missed day is detected honestly and the same day cannot be marked twice.
 - **Context-aware reminders.** Three kinds — contextual nudges, an end-of-day check-in at a time you choose, and a streak-protection warning 30 minutes earlier. Marking the day done cancels the rest of today's.
 - **Offline prayer times.** Computed on-device with [`adhan`](https://github.com/batoulapps/adhan-js) from a single cached coordinate pair, using the calculation method conventional for your region. No prayer-time API is ever called.
@@ -101,8 +101,8 @@ components/
   onboarding/            Spotlight overlay, step definitions, measurement probes
 context/                 SunnahContext (all progress + settings), OnboardingContext (tour)
 services/                storage, notifications, prayerTimes
-constants/               data.ts (the Sunnah catalog), theme.js (design tokens)
-utils/                   Pure helpers: date, streak, sunnah rotation, array
+constants/               sunnahs.ts, routines.ts, reminders.ts, theme.js
+utils/                   Pure helpers: date, streak, routine rotation/state, array
 types/                   Domain types — the single source of truth for the data model
 docs/                    Full documentation, one file per feature
 ```
@@ -112,6 +112,8 @@ Route files under `app/` are one-line re-exports of `screens/*`. The indirection
 ## Documentation
 
 Every feature has a document in [`docs/`](./docs), each split into a **user guide** half and a **technical deep dive** half that records the reasoning behind non-obvious decisions.
+
+For the current routine model, v3 storage, context contract and verification limits, read the [Plan 1 handoff](./docs/routines-plan-1-handoff.md). It supersedes older single-Sunnah behavior described in the feature documents below.
 
 Start with [`docs/README.md`](./docs/README.md), or jump straight in:
 
@@ -143,7 +145,7 @@ Contributions are welcome. Two rules matter more than the rest.
 
 ### 1. Never change or reuse a Sunnah ID
 
-IDs in `constants/data.ts` are permanent foreign keys. Every user's device stores their progress as ID strings, so reusing `"3"` for a different Sunnah would silently rewrite the history of every existing install, and deleting an entry would leave dangling references.
+IDs in `constants/sunnahs.ts` are permanent foreign keys. Every user's device stores their progress as ID strings, so reusing `"3"` for a different Sunnah would silently rewrite the history of every existing install, and deleting an entry would leave dangling references.
 
 Retire an entry with `deprecated: true` instead — the rotation logic filters on it, while users who already completed it keep it in their achievements.
 
@@ -153,11 +155,11 @@ Every Sunnah carries a `hadiths` array of evidence. Additions need an accurate n
 
 ### Development notes
 
-- **Add a Sunnah** by appending to `SUNNAHS` with the next unused ID, giving it reminder slots that suit the act and at least two `notificationMessages` (they are sampled randomly, so a single-entry pool makes every reminder identical).
+- **Keep catalog evidence intact.** Sunnah content lives in `constants/sunnahs.ts`; routine membership and reminder ownership live in `constants/routines.ts`. Expanding the catalog is separate work.
 - **Add a colour** to both `constants/theme.js` and `constants/theme.d.ts` — the types are hand-written and will drift otherwise.
 - **Tab bar height is duplicated** in `app/(tabs)/_layout.tsx` and `context/OnboardingContext.tsx`, because the tour cannot attach a ref to the navigator's bar. Change both together.
 - **Keep `SunnahContext` the single writer of persisted state.** The notification rescheduling effect depends on it.
-- There is no test suite yet. The pure functions in `utils/` — `appendStreakDate`, `nextSunnahId`, `daysBetween`, `formatTime12h` — are written to be trivially testable and are the natural place to start.
+- Run `npm test` for routine behavior checks and `npx tsc --noEmit` for type checking.
 
 Run `npm run lint` before opening a pull request.
 
@@ -183,7 +185,7 @@ eas update --channel production                  # ship a JS-only change over th
 
 Released under the [MIT License](./LICENSE) — free to use, modify, and distribute, including commercially, provided the copyright notice is retained.
 
-The license covers the **code**. It does not extend to the hadith texts in `constants/data.ts`, which are quoted from their published collections and cited in place, nor does it grant rights to the decorative artwork in `assets/images/` beyond use within this project.
+The license covers the **code**. It does not extend to the hadith texts in `constants/sunnahs.ts`, which are quoted from their published collections and cited in place, nor does it grant rights to the decorative artwork in `assets/images/` beyond use within this project.
 
 ---
 

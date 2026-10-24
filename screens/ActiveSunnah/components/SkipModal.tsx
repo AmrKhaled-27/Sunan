@@ -12,8 +12,8 @@ export function SkipModal({ visible, onConfirm, onClose }: SkipModalProps) {
   return (
     <ConfirmModal
       visible={visible}
-      title="تخطي هذه السنة؟"
-      description="ستنتقل للسنة التالية. يمكنك العودة إليها لاحقاً من قائمة السنن."
+      title="تأجيل هذا الروتين؟"
+      description="سيُصفّر عدّاد الأيام لهذا الروتين وينتقل إلى الروتين التالي. نعود للروتينات المؤجلة بعد البقية. إذا كان هذا آخر روتين متبقٍ فسيبقى نشطاً ويبدأ عدّاده من جديد."
       confirmText="نعم، تخطي"
       cancelText="رجوع"
       confirmColor={palette.warmBrownSubtle}
