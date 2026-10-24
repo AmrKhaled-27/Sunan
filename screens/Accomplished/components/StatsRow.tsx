@@ -34,16 +34,8 @@ export function StatsRow({
 }) {
   return (
     <View className="flex-row gap-3 mx-5 mb-4">
-      <StatCard
-        value={totalCompleted}
-        label="سنن مكتملة"
-        icon="checkmark"
-      />
-      <StatCard
-        value={longestStreak}
-        label="أطول سلسلة"
-        icon="flame-outline"
-      />
+      <StatCard value={totalCompleted} label="سنن مكتملة" icon="checkmark" />
+      <StatCard value={longestStreak} label="أطول سلسلة" icon="flame-outline" />
     </View>
   );
 }

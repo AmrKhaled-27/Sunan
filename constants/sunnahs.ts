@@ -464,5 +464,5 @@ export const SUNNAHS: Sunnah[] = [
     ],
     reward: "غفر له ما تقدم من ذنبه، ورضا الله سبحانه وتعالى عن عبده",
     deprecated: false,
-  }
+  },
 ];

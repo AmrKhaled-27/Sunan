@@ -86,17 +86,17 @@ Use routine-specific titles and messages appropriate to the whole routine. Exist
 
 The routine array establishes learning rotation. Each member list establishes presentation order only.
 
-| Routine ID | Members in order | Suggested title |
-| --- | --- | --- |
-| `after_prayer_core` | `1`, `3`, `4`, `2` | أذكار ما بعد الصلاة |
-| `after_prayer_recitation` | `5`, `6`, `7` | القراءة والدعاء بعد الصلاة |
-| `adhan` | `14`, `15` | سنن الأذان |
-| `eating` | `16`, `17` | سنن الطعام |
-| `toilet` | `8`, `9` | آداب الخلاء |
-| `sleep_prep` | `18`, `10`, `11`, `24` | الاستعداد للنوم |
-| `sleep_recitation` | `19`, `12`, `20`, `22` | القراءة قبل النوم |
-| `sleep_dhikr` | `13`, `23`, `25`, `26` | أذكار النوم |
-| `sajda_mulk` | `21` | قراءة السجدة والملك |
+| Routine ID                | Members in order       | Suggested title            |
+| ------------------------- | ---------------------- | -------------------------- |
+| `after_prayer_core`       | `1`, `3`, `4`, `2`     | أذكار ما بعد الصلاة        |
+| `after_prayer_recitation` | `5`, `6`, `7`          | القراءة والدعاء بعد الصلاة |
+| `adhan`                   | `14`, `15`             | سنن الأذان                 |
+| `eating`                  | `16`, `17`             | سنن الطعام                 |
+| `toilet`                  | `8`, `9`               | آداب الخلاء                |
+| `sleep_prep`              | `18`, `10`, `11`, `24` | الاستعداد للنوم            |
+| `sleep_recitation`        | `19`, `12`, `20`, `22` | القراءة قبل النوم          |
+| `sleep_dhikr`             | `13`, `23`, `25`, `26` | أذكار النوم                |
+| `sajda_mulk`              | `21`                   | قراءة السجدة والملك        |
 
 Titles are implementation copy suggestions, not protected evidence. Single-Sunnah routines use the same model and behavior as larger routines.
 
@@ -112,14 +112,14 @@ Provide pure selectors for looking up a routine's ordered members, obtaining rem
 
 Update `utils/sunnah.ts` or introduce a clearly named routine utility, and switch its consumers. Preserve the existing selection policy: first prioritize unfinished, non-postponed routines in array order; when none remain, cycle through unfinished postponed routines; return `null` only when no unfinished active routines exist.
 
-| Event | Required result |
-| --- | --- |
-| Mark today, below day 7 | Append today's local date once; update longest streak; leave active routine unchanged. |
-| Mark today, day 7 | Accomplish every remaining member, add per-Sunnah records with today's date and method `streak`, advance, and clear active streak dates. |
-| Already doing | Accomplish every remaining member with method `already_doing`, advance, and clear active streak dates. |
-| Postpone | Add the routine ID to postponed IDs once, select the next routine using the existing policy, and clear active streak dates. |
-| Missed day | Preserve existing continuity behavior: a gap of two or more calendar dates resets the active streak. |
-| Everything accomplished | Active routine is `null`; show the all-complete state and cancel practice notifications. |
+| Event                   | Required result                                                                                                                          |
+| ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| Mark today, below day 7 | Append today's local date once; update longest streak; leave active routine unchanged.                                                   |
+| Mark today, day 7       | Accomplish every remaining member, add per-Sunnah records with today's date and method `streak`, advance, and clear active streak dates. |
+| Already doing           | Accomplish every remaining member with method `already_doing`, advance, and clear active streak dates.                                   |
+| Postpone                | Add the routine ID to postponed IDs once, select the next routine using the existing policy, and clear active streak dates.              |
+| Missed day              | Preserve existing continuity behavior: a gap of two or more calendar dates resets the active streak.                                     |
+| Everything accomplished | Active routine is `null`; show the all-complete state and cancel practice notifications.                                                 |
 
 Preserve the edge case where postponing the only remaining routine selects that same routine and clears its streak. Do not silently disable or change this behavior; its confirmation copy must explain the reset.
 
@@ -149,12 +149,12 @@ Build each routine's initial schedule from the union of its original members' re
 
 The current members agree within every proposed routine, so the expected schedules are:
 
-| Routines | Reminder slots |
-| --- | --- |
-| Both after-prayer routines and `adhan` | `fajr`, `dhuhr`, `asr`, `maghrib`, `ishaa` |
-| `eating` | `morning`, `afternoon`, `maghrib` |
-| `toilet` | `fajr`, `morning`, `dhuhr`, `asr`, `maghrib`, `ishaa`, `before_sleep` |
-| All four sleep routines | `ishaa`, `before_sleep` |
+| Routines                               | Reminder slots                                                        |
+| -------------------------------------- | --------------------------------------------------------------------- |
+| Both after-prayer routines and `adhan` | `fajr`, `dhuhr`, `asr`, `maghrib`, `ishaa`                            |
+| `eating`                               | `morning`, `afternoon`, `maghrib`                                     |
+| `toilet`                               | `fajr`, `morning`, `dhuhr`, `asr`, `maghrib`, `ishaa`, `before_sleep` |
+| All four sleep routines                | `ishaa`, `before_sleep`                                               |
 
 All initially enable the end-of-day check-in. A reminder slot produces one routine notification, not one notification per member. Messages must describe the routine rather than imply that one member is the whole practice. Streak copy must use the routine target/default of seven.
 

@@ -37,18 +37,18 @@ Reminders are timed to the moment the act is actually relevant — a reminder ab
 
 ## Tech stack
 
-| Concern | Choice |
-| --- | --- |
-| Framework | Expo SDK 54, React Native 0.81, React 19, New Architecture |
-| Routing | Expo Router v6 (file-based, typed routes) |
-| Styling | NativeWind v4 (Tailwind) with tokens from `constants/theme.js` |
-| State | React Context — `SunnahContext` for progress, `OnboardingContext` for the tour |
-| Persistence | `@react-native-async-storage/async-storage` |
-| Prayer times | `adhan` + `expo-location` (one-shot, lowest accuracy) |
-| Notifications | `expo-notifications`, local `DATE` triggers only |
-| Animation | Reanimated 4 for the tour and confetti; legacy `Animated` for press feedback |
-| Typography | `@expo-google-fonts/amiri`, `@expo-google-fonts/tajawal` |
-| Delivery | EAS Build + EAS Update (OTA) |
+| Concern       | Choice                                                                         |
+| ------------- | ------------------------------------------------------------------------------ |
+| Framework     | Expo SDK 54, React Native 0.81, React 19, New Architecture                     |
+| Routing       | Expo Router v6 (file-based, typed routes)                                      |
+| Styling       | NativeWind v4 (Tailwind) with tokens from `constants/theme.js`                 |
+| State         | React Context — `SunnahContext` for progress, `OnboardingContext` for the tour |
+| Persistence   | `@react-native-async-storage/async-storage`                                    |
+| Prayer times  | `adhan` + `expo-location` (one-shot, lowest accuracy)                          |
+| Notifications | `expo-notifications`, local `DATE` triggers only                               |
+| Animation     | Reanimated 4 for the tour and confetti; legacy `Animated` for press feedback   |
+| Typography    | `@expo-google-fonts/amiri`, `@expo-google-fonts/tajawal`                       |
+| Delivery      | EAS Build + EAS Update (OTA)                                                   |
 
 ## Requirements
 
@@ -117,19 +117,19 @@ For the current routine model, v3 storage, context contract and verification lim
 
 Start with [`docs/README.md`](./docs/README.md), or jump straight in:
 
-| Document | Covers |
-| --- | --- |
-| [app-shell.md](./docs/app-shell.md) | Boot sequence, RTL, routing, tab bar, error boundary, build config |
-| [data-persistence.md](./docs/data-persistence.md) | Storage schema, load-time validation, reset semantics |
-| [daily-sunnah.md](./docs/daily-sunnah.md) | The home tab and the Sunnah card |
-| [streak-tracking.md](./docs/streak-tracking.md) | Marking days, the seven dots, broken streaks, celebration |
-| [sunnah-rotation.md](./docs/sunnah-rotation.md) | "Already doing", "Skip", and which Sunnah comes next |
-| [accomplishments.md](./docs/accomplishments.md) | The achievements tab and its statistics |
-| [notifications.md](./docs/notifications.md) | The three reminder types and how they are scheduled |
-| [prayer-times.md](./docs/prayer-times.md) | Offline calculation, region methods, coordinate caching |
-| [settings.md](./docs/settings.md) | Notification controls, time picker, reset |
-| [onboarding-tour.md](./docs/onboarding-tour.md) | The spotlight tour and its coordinate calibration |
-| [design-system.md](./docs/design-system.md) | Palette, typography, shared components |
+| Document                                          | Covers                                                             |
+| ------------------------------------------------- | ------------------------------------------------------------------ |
+| [app-shell.md](./docs/app-shell.md)               | Boot sequence, RTL, routing, tab bar, error boundary, build config |
+| [data-persistence.md](./docs/data-persistence.md) | Storage schema, load-time validation, reset semantics              |
+| [daily-sunnah.md](./docs/daily-sunnah.md)         | The home tab and the Sunnah card                                   |
+| [streak-tracking.md](./docs/streak-tracking.md)   | Marking days, the seven dots, broken streaks, celebration          |
+| [sunnah-rotation.md](./docs/sunnah-rotation.md)   | "Already doing", "Skip", and which Sunnah comes next               |
+| [accomplishments.md](./docs/accomplishments.md)   | The achievements tab and its statistics                            |
+| [notifications.md](./docs/notifications.md)       | The three reminder types and how they are scheduled                |
+| [prayer-times.md](./docs/prayer-times.md)         | Offline calculation, region methods, coordinate caching            |
+| [settings.md](./docs/settings.md)                 | Notification controls, time picker, reset                          |
+| [onboarding-tour.md](./docs/onboarding-tour.md)   | The spotlight tour and its coordinate calibration                  |
+| [design-system.md](./docs/design-system.md)       | Palette, typography, shared components                             |
 
 New to the codebase? Read `app-shell.md` and `data-persistence.md` first — nearly every feature reads or writes that one storage key.
 
@@ -161,17 +161,22 @@ Every Sunnah carries a `hadiths` array of evidence. Additions need an accurate n
 - **Keep `SunnahContext` the single writer of persisted state.** The notification rescheduling effect depends on it.
 - Run `npm test` for routine behavior checks and `npx tsc --noEmit` for type checking.
 
-Run `npm run lint` before opening a pull request.
+Formatting is standardized in `.prettierrc.json`: two spaces, double quotes,
+semicolons, trailing commas, and LF line endings. Run `npm run format` to format
+the repository, or `npm run format:check` to check without changing files.
+Generated files and the npm lockfile are excluded through `.prettierignore`.
+
+Run `npm run format:check` and `npm run lint` before opening a pull request.
 
 ## Releasing
 
 Build profiles are defined in [`eas.json`](./eas.json):
 
-| Profile | Distribution | Channel | Notes |
-| --- | --- | --- | --- |
-| `development` | internal | `development` | Dev client |
-| `preview` | internal | `preview` | Android builds as an installable APK |
-| `production` | store | `production` | Build numbers auto-incremented by EAS |
+| Profile       | Distribution | Channel       | Notes                                 |
+| ------------- | ------------ | ------------- | ------------------------------------- |
+| `development` | internal     | `development` | Dev client                            |
+| `preview`     | internal     | `preview`     | Android builds as an installable APK  |
+| `production`  | store        | `production`  | Build numbers auto-incremented by EAS |
 
 ```bash
 eas build --profile preview --platform android   # shareable APK

@@ -1,6 +1,12 @@
 import { palette } from "@/constants/theme";
 import React, { useEffect } from "react";
-import { Pressable, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import {
+  Pressable,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { ConfettiCanvas, useConfetti } from "react-native-confetti-reanimated";
 
 interface StreakCompleteModalProps {
@@ -123,4 +129,3 @@ const styles = StyleSheet.create({
     elevation: 10,
   },
 });
-

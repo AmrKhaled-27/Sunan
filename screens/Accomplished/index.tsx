@@ -10,8 +10,12 @@ import { StatsRow } from "./components/StatsRow";
 
 export default function AccomplishedScreen() {
   const insets = useSafeAreaInsets();
-  const { accomplishedSunnahs, accomplishedRecords, totalCompleted, longestStreak } =
-    useSunnah();
+  const {
+    accomplishedSunnahs,
+    accomplishedRecords,
+    totalCompleted,
+    longestStreak,
+  } = useSunnah();
 
   const recordsById = useMemo(() => {
     const map = new Map(
@@ -51,7 +55,11 @@ export default function AccomplishedScreen() {
                 resizeMode="contain"
               />
               <View className="w-14 h-14 rounded-full bg-warmGold/15 items-center justify-center mb-4">
-                <Ionicons name="moon-outline" size={26} color={palette.warmGold} />
+                <Ionicons
+                  name="moon-outline"
+                  size={26}
+                  color={palette.warmGold}
+                />
               </View>
               <Text className="font-tajawal-bold text-[22px] text-warmBrown text-center">
                 لم تنجز أي سنن بعد

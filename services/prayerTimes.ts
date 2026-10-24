@@ -74,7 +74,7 @@ export function getCalculationParameters(latitude: number, longitude: number) {
 export function calculatePrayerTimes(
   latitude: number,
   longitude: number,
-  date: Date = new Date()
+  date: Date = new Date(),
 ): PrayerTimesResult {
   const coordinates = new Coordinates(latitude, longitude);
   const params = getCalculationParameters(latitude, longitude);
@@ -95,7 +95,7 @@ export function calculatePrayerTimes(
 
 /** Retrieve prayer times using offline calculation with cached coordinates fallback */
 export async function getPrayerTimes(
-  forceRefresh = false
+  forceRefresh = false,
 ): Promise<PrayerTimesResult> {
   try {
     if (!forceRefresh) {
@@ -126,14 +126,14 @@ export async function getPrayerTimes(
     // Cache coordinates for instant 100% offline calculations next time
     await AsyncStorage.setItem(
       COORDS_STORAGE_KEY,
-      JSON.stringify({ latitude, longitude })
+      JSON.stringify({ latitude, longitude }),
     );
 
     return calculatePrayerTimes(latitude, longitude, new Date());
   } catch (error) {
     console.warn(
       "Failed to calculate offline prayer times, using fallback:",
-      error
+      error,
     );
 
     // Try using cached coordinates even on error

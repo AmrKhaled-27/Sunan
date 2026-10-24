@@ -1,10 +1,5 @@
 export type TourTargetKey =
-  | "card"
-  | "streakDots"
-  | "markDone"
-  | "alreadyDoing"
-  | "skip"
-  | "tabBar";
+  "card" | "streakDots" | "markDone" | "alreadyDoing" | "skip" | "tabBar";
 
 export interface OnboardingStep {
   id: string;

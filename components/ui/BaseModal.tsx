@@ -88,4 +88,3 @@ const styles = StyleSheet.create({
     direction: "rtl",
   },
 });
-

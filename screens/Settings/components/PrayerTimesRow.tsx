@@ -78,38 +78,26 @@ export function PrayerTimesRow({
     ? [
         {
           name: "الفجر",
-          time: formatTime12h(
-            prayerTimes.fajr.hour,
-            prayerTimes.fajr.minute
-          ),
+          time: formatTime12h(prayerTimes.fajr.hour, prayerTimes.fajr.minute),
         },
         {
           name: "الظهر",
-          time: formatTime12h(
-            prayerTimes.dhuhr.hour,
-            prayerTimes.dhuhr.minute
-          ),
+          time: formatTime12h(prayerTimes.dhuhr.hour, prayerTimes.dhuhr.minute),
         },
         {
           name: "العصر",
-          time: formatTime12h(
-            prayerTimes.asr.hour,
-            prayerTimes.asr.minute
-          ),
+          time: formatTime12h(prayerTimes.asr.hour, prayerTimes.asr.minute),
         },
         {
           name: "المغرب",
           time: formatTime12h(
             prayerTimes.maghrib.hour,
-            prayerTimes.maghrib.minute
+            prayerTimes.maghrib.minute,
           ),
         },
         {
           name: "العشاء",
-          time: formatTime12h(
-            prayerTimes.ishaa.hour,
-            prayerTimes.ishaa.minute
-          ),
+          time: formatTime12h(prayerTimes.ishaa.hour, prayerTimes.ishaa.minute),
         },
       ]
     : [];
@@ -129,11 +117,7 @@ export function PrayerTimesRow({
               أوقات الصلاة
             </Text>
             {isFallback && (
-              <Ionicons
-                name="alert-circle-outline"
-                size={16}
-                color="#D97706"
-              />
+              <Ionicons name="alert-circle-outline" size={16} color="#D97706" />
             )}
           </View>
           <Text
@@ -170,7 +154,8 @@ export function PrayerTimesRow({
                 </Text>
               </View>
               <Text className="font-tajawal text-warmBrownLight text-xs leading-5 mb-3">
-                لحساب مواعيد التذكيرات المناسبة لمدينتك بدقة، يحتاج التطبيق إلى إذن الموقع (تُحسب محلياً على جهازك دون اتصال ولا نجمع بياناتك).
+                لحساب مواعيد التذكيرات المناسبة لمدينتك بدقة، يحتاج التطبيق إلى
+                إذن الموقع (تُحسب محلياً على جهازك دون اتصال ولا نجمع بياناتك).
               </Text>
               <TouchableOpacity
                 onPress={handleRequestPermission}

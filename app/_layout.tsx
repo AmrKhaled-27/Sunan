@@ -3,7 +3,10 @@ import { TourOriginProbe } from "@/components/onboarding/TourOriginProbe";
 import { palette } from "@/constants/theme";
 import { OnboardingProvider } from "@/context/OnboardingContext";
 import { SunnahProvider } from "@/context/SunnahContext";
-import { initNotificationHandler, requestPermissions } from "@/services/notifications";
+import {
+  initNotificationHandler,
+  requestPermissions,
+} from "@/services/notifications";
 import {
   Amiri_400Regular,
   Amiri_700Bold,
@@ -16,11 +19,7 @@ import {
 import { DefaultTheme, ThemeProvider } from "@react-navigation/native";
 import * as NavigationBar from "expo-navigation-bar";
 import * as Notifications from "expo-notifications";
-import {
-  ErrorBoundaryProps,
-  Stack,
-  useRouter,
-} from "expo-router";
+import { ErrorBoundaryProps, Stack, useRouter } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
 import * as SystemUI from "expo-system-ui";

@@ -50,4 +50,3 @@ export function formatArabicDate(iso: string): string {
     year: "numeric",
   }).format(new Date(year, month - 1, day));
 }
-

@@ -30,11 +30,15 @@ export async function loadPersistedState() {
 
 export function savePersistedState(state: PersistedState): Promise<void> {
   const serialized = JSON.stringify(state);
-  pendingWrite = pendingWrite.catch(() => {}).then(() => AsyncStorage.setItem(STORAGE_KEY, serialized));
+  pendingWrite = pendingWrite
+    .catch(() => {})
+    .then(() => AsyncStorage.setItem(STORAGE_KEY, serialized));
   return pendingWrite;
 }
 
 export function clearPersistedState(): Promise<void> {
-  pendingWrite = pendingWrite.catch(() => {}).then(() => AsyncStorage.removeItem(STORAGE_KEY));
+  pendingWrite = pendingWrite
+    .catch(() => {})
+    .then(() => AsyncStorage.removeItem(STORAGE_KEY));
   return pendingWrite;
 }

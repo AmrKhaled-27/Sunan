@@ -42,7 +42,9 @@ export default function SettingsScreen() {
   const [showTimePicker, setShowTimePicker] = useState(false);
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [showBatteryModal, setShowBatteryModal] = useState(false);
-  const [hasNotifPermission, setHasNotifPermission] = useState<boolean | null>(null);
+  const [hasNotifPermission, setHasNotifPermission] = useState<boolean | null>(
+    null,
+  );
   const [requestingNotif, setRequestingNotif] = useState(false);
 
   const checkNotificationPermission = useCallback(async () => {
@@ -183,7 +185,8 @@ export default function SettingsScreen() {
                 </Text>
               </View>
               <Text className="font-tajawal text-warmBrownLight text-xs leading-5 mb-3">
-                لتلقي التذكيرات اليومية وتنبيهات حماية السلسلة، يحتاج التطبيق إلى إذن إرسال الإشعارات.
+                لتلقي التذكيرات اليومية وتنبيهات حماية السلسلة، يحتاج التطبيق
+                إلى إذن إرسال الإشعارات.
               </Text>
               <TouchableOpacity
                 onPress={handleRequestPermission}

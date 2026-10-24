@@ -1,7 +1,4 @@
-import {
-	TourMeasurable,
-	useOnboarding,
-} from "@/context/OnboardingContext";
+import { TourMeasurable, useOnboarding } from "@/context/OnboardingContext";
 import React, { useCallback } from "react";
 import { View, ViewStyle } from "react-native";
 import { TourTargetKey } from "./steps";
@@ -12,40 +9,40 @@ import { TourTargetKey } from "./steps";
  * sees — an extra wrapper view would swallow the child's margins.
  */
 export function useTourTarget(tourKey: TourTargetKey) {
-	const { registerTarget } = useOnboarding();
+  const { registerTarget } = useOnboarding();
 
-	return useCallback(
-		(node: TourMeasurable | null) => {
-			registerTarget(tourKey, node);
-		},
-		[registerTarget, tourKey],
-	);
+  return useCallback(
+    (node: TourMeasurable | null) => {
+      registerTarget(tourKey, node);
+    },
+    [registerTarget, tourKey],
+  );
 }
 
 interface TourTargetProps {
-	tourKey: TourTargetKey;
-	children: React.ReactNode;
-	className?: string;
-	style?: ViewStyle;
+  tourKey: TourTargetKey;
+  children: React.ReactNode;
+  className?: string;
+  style?: ViewStyle;
 }
 
 /** Wrapper for targets that cannot take a ref of their own. */
 export function TourTarget({
-	tourKey,
-	children,
-	className,
-	style,
+  tourKey,
+  children,
+  className,
+  style,
 }: TourTargetProps) {
-	const setTargetRef = useTourTarget(tourKey);
+  const setTargetRef = useTourTarget(tourKey);
 
-	return (
-		<View
-			ref={setTargetRef}
-			collapsable={false}
-			className={className}
-			style={style}
-		>
-			{children}
-		</View>
-	);
+  return (
+    <View
+      ref={setTargetRef}
+      collapsable={false}
+      className={className}
+      style={style}
+    >
+      {children}
+    </View>
+  );
 }

@@ -193,7 +193,9 @@ export function SpotlightOverlay() {
       top: holeY.value,
       left: mirror ? screenWidth - x - width : x,
       width,
-      height: isTabBar ? Math.max(0, screenHeight - holeY.value) : Math.max(0, holeHeight.value),
+      height: isTabBar
+        ? Math.max(0, screenHeight - holeY.value)
+        : Math.max(0, holeHeight.value),
       opacity: ringOpacity.value,
       borderRadius: isTabBar ? 0 : 18,
       borderTopWidth: 2,

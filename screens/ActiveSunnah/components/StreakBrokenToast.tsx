@@ -1,10 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import {
-  Animated,
-  Pressable,
-  Text,
-  View,
-} from "react-native";
+import { Animated, Pressable, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { palette } from "@/constants/theme";
@@ -102,7 +97,12 @@ export function StreakBrokenToast({
         accessibilityLabel="إغلاق التنبيه"
         className="bg-red-50 border border-red-200 rounded-2xl px-4 py-3 shadow-md flex-row items-center justify-between"
       >
-        <Ionicons name="close" size={18} color="#991B1B" style={{ opacity: 0.7 }} />
+        <Ionicons
+          name="close"
+          size={18}
+          color="#991B1B"
+          style={{ opacity: 0.7 }}
+        />
         <Text className="font-tajawal-bold text-red-800 text-sm text-center flex-1 mx-2 leading-5">
           انقطعت سلسلتك بسبب يوم فائت. ابدأ من جديد! 🌱
         </Text>

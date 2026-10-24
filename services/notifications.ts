@@ -109,7 +109,7 @@ async function scheduleRoutineSnapshot(
             const dayTimes = calculatePrayerTimes(
               prayerTimes.latitude,
               prayerTimes.longitude,
-              targetDay
+              targetDay,
             );
             fajrHour = dayTimes.fajr.hour;
             fajrMinute = dayTimes.fajr.minute;
@@ -140,7 +140,7 @@ async function scheduleRoutineSnapshot(
           const dayTimes = calculatePrayerTimes(
             prayerTimes.latitude,
             prayerTimes.longitude,
-            targetDay
+            targetDay,
           );
           hour = dayTimes[slot].hour;
           minute = dayTimes[slot].minute;
@@ -250,18 +250,28 @@ export function scheduleRoutineNotifications(
   enabled = true,
 ): Promise<void> {
   const request = ++latestRequest;
-  notificationWork = notificationWork.catch(() => {}).then(async () => {
-    if (request !== latestRequest) return;
-    await Notifications.cancelAllScheduledNotificationsAsync();
-    if (!enabled || !routine || request !== latestRequest) return;
-    if (!(await requestPermissions()) || request !== latestRequest) return;
-    try {
-      await scheduleRoutineSnapshot(routine, endOfDayHour, endOfDayMinute, streakCount, isDoneToday, prayerTimes, () => request === latestRequest);
-    } catch (error) {
+  notificationWork = notificationWork
+    .catch(() => {})
+    .then(async () => {
+      if (request !== latestRequest) return;
       await Notifications.cancelAllScheduledNotificationsAsync();
-      throw error;
-    }
-  });
+      if (!enabled || !routine || request !== latestRequest) return;
+      if (!(await requestPermissions()) || request !== latestRequest) return;
+      try {
+        await scheduleRoutineSnapshot(
+          routine,
+          endOfDayHour,
+          endOfDayMinute,
+          streakCount,
+          isDoneToday,
+          prayerTimes,
+          () => request === latestRequest,
+        );
+      } catch (error) {
+        await Notifications.cancelAllScheduledNotificationsAsync();
+        throw error;
+      }
+    });
   return notificationWork;
 }
 

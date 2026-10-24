@@ -19,30 +19,30 @@ export const MIRROR_MARKER_WIDTH = 8;
  * `left` was rewritten to the layout's start edge, as happens in an RTL app.
  */
 export function TourOriginProbe() {
-	const { registerOriginProbe, registerMirrorMarker } = useOnboarding();
+  const { registerOriginProbe, registerMirrorMarker } = useOnboarding();
 
-	return (
-		<View
-			ref={registerOriginProbe}
-			collapsable={false}
-			pointerEvents="none"
-			style={StyleSheet.absoluteFill}
-		>
-			<View
-				ref={registerMirrorMarker}
-				collapsable={false}
-				style={styles.marker}
-			/>
-		</View>
-	);
+  return (
+    <View
+      ref={registerOriginProbe}
+      collapsable={false}
+      pointerEvents="none"
+      style={StyleSheet.absoluteFill}
+    >
+      <View
+        ref={registerMirrorMarker}
+        collapsable={false}
+        style={styles.marker}
+      />
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({
-	marker: {
-		position: "absolute",
-		top: 0,
-		left: 0,
-		width: MIRROR_MARKER_WIDTH,
-		height: 1,
-	},
+  marker: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    width: MIRROR_MARKER_WIDTH,
+    height: 1,
+  },
 });
