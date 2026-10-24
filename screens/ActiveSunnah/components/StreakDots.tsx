@@ -1,5 +1,6 @@
+import { ArabicText } from "@/components/ui/ArabicText";
 import React from "react";
-import { Text, View } from "react-native";
+import { View } from "react-native";
 
 export const StreakDots = React.forwardRef<
   View,
@@ -9,46 +10,33 @@ export const StreakDots = React.forwardRef<
     <View
       ref={ref}
       collapsable={false}
-      className="flex-row justify-center items-center mb-8"
+      accessible
+      accessibilityLabel={`أتممت ${count} من ${total} أيام متتالية`}
+      className="flex-row items-center justify-center self-center w-full"
+      style={{ direction: "rtl", maxWidth: 310 }}
     >
-      {Array.from({ length: total }).map((_, i) => {
-        const filled = i < count;
-        const current = i === count;
-        return (
-          <View key={i} className="flex-row items-center">
+      {Array.from({ length: total }).map((_, index) => (
+        <React.Fragment key={index}>
+          {index > 0 && (
             <View
-              className={[
-                "items-center justify-center rounded-full",
-                filled
-                  ? "w-8 h-8 bg-warmGold"
-                  : current
-                    ? "w-9 h-9 bg-warmGold/15 border-2 border-warmGold"
-                    : "w-8 h-8 bg-warmGold/15 border border-warmGold/30",
-              ].join(" ")}
+              className={`h-[2px] rounded-full ${index < count ? "bg-warmGold" : "bg-warmGold/25"}`}
+              style={{ width: 4, marginHorizontal: 1 }}
+            />
+          )}
+          <View
+            className={`rounded-full items-center justify-center ${index < count ? "bg-warmGold" : index === count ? "bg-warmGold/15 border-2 border-warmGold" : "bg-warmGold/10 border border-warmGold/30"}`}
+            style={{ flex: 1, aspectRatio: 1, maxWidth: 36 }}
+          >
+            <ArabicText
+              align="center"
+              maxFontSizeMultiplier={1.3}
+              className={`font-tajawal-bold text-xs ${index < count ? "text-white" : index === count ? "text-warmBrown" : "text-warmBrownMuted"}`}
             >
-              <Text
-                className={[
-                  "font-tajawal-bold text-[11px]",
-                  filled
-                    ? "text-white"
-                    : current
-                      ? "text-warmGold"
-                      : "text-warmGold/50",
-                ].join(" ")}
-              >
-                {filled ? "✓" : i + 1}
-              </Text>
-            </View>
-            {i < total - 1 && (
-              <View
-                className={`w-2.5 h-[2px] mx-0.5 rounded-full ${
-                  i < count - 1 ? "bg-warmGold" : "bg-warmGold/25"
-                }`}
-              />
-            )}
+              {index < count ? "✓" : (index + 1).toLocaleString("ar-EG")}
+            </ArabicText>
           </View>
-        );
-      })}
+        </React.Fragment>
+      ))}
     </View>
   );
 });

@@ -8,7 +8,9 @@ import {
   StyleSheet,
   View,
   ViewStyle,
+  useWindowDimensions,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export interface BaseModalProps {
   visible: boolean;
@@ -34,6 +36,8 @@ export function BaseModal({
   style,
   animationType = "fade",
 }: BaseModalProps) {
+  const insets = useSafeAreaInsets();
+  const { height } = useWindowDimensions();
   const handleDismiss = () => {
     if (dismissible) {
       onClose();
@@ -48,13 +52,31 @@ export function BaseModal({
       statusBarTranslucent
       onRequestClose={handleDismiss}
     >
-      <View style={styles.overlay}>
+      <View
+        style={[
+          styles.overlay,
+          {
+            paddingTop: insets.top + 16,
+            paddingBottom: insets.bottom + 16,
+            paddingHorizontal: Math.max(20, insets.left, insets.right),
+          },
+        ]}
+      >
         <Pressable
           style={StyleSheet.absoluteFill}
           onPress={handleDismiss}
           accessible={false}
         />
-        <View style={[styles.card, style]} className={className}>
+        <View
+          accessibilityViewIsModal
+          onAccessibilityEscape={handleDismiss}
+          style={[
+            styles.card,
+            { maxHeight: height - insets.top - insets.bottom - 32 },
+            style,
+          ]}
+          className={className}
+        >
           {children}
         </View>
       </View>

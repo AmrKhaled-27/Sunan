@@ -73,7 +73,7 @@ export default function AccomplishedScreen() {
           <FlatList
             data={newestFirst}
             keyExtractor={(item) => item.id}
-            contentContainerClassName="px-5 pb-[110px] pt-2"
+            contentContainerClassName="px-5 pb-8 pt-2"
             renderItem={({ item }) => (
               <AccomplishedCard item={item} record={recordsById.get(item.id)} />
             )}

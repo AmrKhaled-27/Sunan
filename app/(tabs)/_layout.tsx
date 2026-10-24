@@ -9,15 +9,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 function TabBarWithTourTarget(props: BottomTabBarProps) {
   return (
-    <TourTarget
-      tourKey="tabBar"
-      style={{
-        position: "absolute",
-        bottom: 0,
-        left: 0,
-        right: 0,
-      }}
-    >
+    <TourTarget tourKey="tabBar">
       <BottomTabBar {...props} />
     </TourTarget>
   );
@@ -56,8 +48,8 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: "سنة اليوم",
-          tabBarLabel: "سنة اليوم",
+          title: "سنن اليوم",
+          tabBarLabel: "سنن اليوم",
           tabBarIcon: ({ color, focused }) => (
             <Ionicons
               name={focused ? "moon" : "moon-outline"}

@@ -10,7 +10,7 @@
     "lint": "expo lint",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "test": "node --test tests/routines.test.cjs"
+    "test": "node --test tests/*.test.cjs"
   },
   "dependencies": {
     "@expo-google-fonts/amiri": "^0.4.1",

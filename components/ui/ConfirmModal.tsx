@@ -1,10 +1,12 @@
+import { ArabicText } from "@/components/ui/ArabicText";
 import { palette } from "@/constants/theme";
 import React from "react";
-import { Text, TouchableOpacity, View } from "react-native";
+import { ScrollView, TouchableOpacity, View } from "react-native";
 import { BaseModal } from "./BaseModal";
 
 export interface ConfirmModalProps {
   visible: boolean;
+  embedded?: boolean;
   title: string;
   description: string;
   confirmText: string;
@@ -17,6 +19,7 @@ export interface ConfirmModalProps {
 
 export function ConfirmModal({
   visible,
+  embedded = false,
   title,
   description,
   confirmText,
@@ -26,27 +29,33 @@ export function ConfirmModal({
   onConfirm,
   onClose,
 }: ConfirmModalProps) {
-  return (
-    <BaseModal visible={visible} onClose={onClose}>
-      <Text className="font-tajawal-bold text-warmBrown text-lg text-center mb-1.5">
+  const content = (
+    <ScrollView>
+      <ArabicText
+        align="center"
+        className="font-tajawal-bold text-warmBrown text-lg mb-1.5"
+      >
         {title}
-      </Text>
-      <Text className="font-tajawal text-warmBrownLight text-sm text-center leading-6">
+      </ArabicText>
+      <ArabicText
+        align="center"
+        className="font-tajawal text-warmBrownLight text-sm leading-6"
+      >
         {description}
-      </Text>
+      </ArabicText>
 
       <View className="h-[0.5px] bg-warmGold/25 my-3.5" />
 
-      <View className="flex-row items-center justify-between gap-3">
+      <View className="flex-row flex-wrap items-center justify-between gap-3">
         <TouchableOpacity
           onPress={onClose}
           accessibilityRole="button"
           accessibilityLabel={cancelText}
-          className="py-1.5 px-1"
+          className="min-h-11 py-3 px-2"
         >
-          <Text className="font-tajawal text-warmBrownMuted text-xs underline">
+          <ArabicText className="font-tajawal text-warmBrownMuted text-xs underline">
             {cancelText}
-          </Text>
+          </ArabicText>
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -54,16 +63,23 @@ export function ConfirmModal({
           accessibilityRole="button"
           accessibilityLabel={confirmText}
           style={{ backgroundColor: confirmColor }}
-          className="px-4 h-9 rounded-xl items-center justify-center shadow-sm"
+          className="px-4 py-3 min-h-11 rounded-xl items-center justify-center shadow-sm"
         >
-          <Text
+          <ArabicText
             className="font-tajawal-bold text-sm"
             style={{ color: confirmTextColor }}
           >
             {confirmText}
-          </Text>
+          </ArabicText>
         </TouchableOpacity>
       </View>
+    </ScrollView>
+  );
+  return embedded ? (
+    content
+  ) : (
+    <BaseModal visible={visible} onClose={onClose}>
+      {content}
     </BaseModal>
   );
 }

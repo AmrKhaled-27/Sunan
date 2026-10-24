@@ -7,6 +7,7 @@ interface CardProps {
   children: React.ReactNode;
   style?: ViewStyle;
   className?: string;
+  contentClassName?: string;
   color?: string;
   accentColor?: string;
   variant?: "default" | "home";
@@ -17,6 +18,7 @@ export const Card = React.forwardRef<View, CardProps>(function Card(
     children,
     style,
     className = "",
+    contentClassName = "px-5 py-8",
     color = palette.parchmentLight,
     accentColor = palette.warmGold,
     variant = "default",
@@ -56,7 +58,7 @@ export const Card = React.forwardRef<View, CardProps>(function Card(
 
         {/* Inner Content (No background) */}
         <View className="m-3.5 mt-8 rounded-2xl border-[1.5px] border-goldAccent/50 min-h-[200px] z-10">
-          <View className="px-5 py-8">{children}</View>
+          <View className={contentClassName}>{children}</View>
         </View>
       </View>
     );

@@ -1,13 +1,11 @@
 export type TourTargetKey =
-  "card" | "streakDots" | "markDone" | "alreadyDoing" | "skip" | "tabBar";
+  "card" | "streakDots" | "markDone" | "routineMenu" | "tabBar";
 
 export interface OnboardingStep {
   id: string;
-  /** Omit to show a centered tooltip with no spotlight. */
   targetKey?: TourTargetKey;
   title: string;
   body: string;
-  /** Extra breathing room around the highlighted element, in points. */
   padding?: number;
 }
 
@@ -15,48 +13,41 @@ export const ONBOARDING_STEPS: OnboardingStep[] = [
   {
     id: "welcome",
     title: "مرحباً بك في سنن",
-    body: "روتين من السنن في كل مرة، حتى تصبح عادة. دعنا نشرح لك الواجهة في خطوات سريعة.",
-  },
-  {
-    id: "card",
-    targetKey: "card",
-    title: "هذا روتين اليوم",
-    body: "تجد هنا جميع السنن المتبقية في الروتين وشرح كل عمل. زر الأدلة يعرض أحاديث كل سنة ومصادرها.",
-    padding: 4,
+    body: "نُحيي مجموعة من السنن معاً، ونُداوم عليها سبعة أيام. خطوة صغيرة كل يوم، حتى تصبح عادة.",
   },
   {
     id: "streakDots",
     targetKey: "streakDots",
-    title: "النقاط السبع",
-    body: "كل نقطة تعني يوماً تؤكد فيه تطبيق الروتين كله. بعد سبعة أيام متتالية تُحسب سننه ضمن إنجازاتك وتنتقل إلى الروتين التالي.",
-    padding: 10,
+    title: "كلّ يوم خطوة",
+    body: "كل نقطة يومٌ سجّلت فيه تطبيق جميع سنن المجموعة. بعد سبعة أيام متتالية تُضاف سننها إلى إنجازاتك وتبدأ مجموعة جديدة.",
+    padding: 6,
+  },
+  {
+    id: "card",
+    targetKey: "card",
+    title: "سنن واضحة، في مكان واحد",
+    body: "اقرأ شرح كل سنّة بالتمرير لأسفل. فضائلها في اللوحة التي تعلوها، وجميع أحاديثها في «عرض المصادر» أسفل القائمة.",
+    padding: 4,
   },
   {
     id: "markDone",
     targetKey: "markDone",
-    title: "زر «فعلت الروتين اليوم»",
-    body: "ضغطة واحدة تؤكد تطبيق الروتين كله لهذا اليوم، فتضيء نقطة جديدة من النقاط السبع.",
-    padding: 8,
+    title: "فعلتها اليوم",
+    body: "بعد تطبيق جميع السنن المعروضة، سجّل يومك بضغطة واحدة. يبقى هذا الزر أمامك أثناء القراءة، دون الحاجة لعلامة منفصلة لكل سنّة.",
+    padding: 6,
   },
   {
-    id: "alreadyDoing",
-    targetKey: "alreadyDoing",
-    title: "«أفعلها بالفعل»",
-    body: "إذا كنت تفعل جميع سنن هذا الروتين أصلاً، فاضغط هنا لتُحسب السنن المتبقية من إنجازاتك وتنتقل إلى الروتين التالي.",
-    padding: 10,
-  },
-  {
-    id: "skip",
-    targetKey: "skip",
-    title: "«تخطي»",
-    body: "يؤجل الروتين الحالي ويصفّر عدّاد أيامه. ستعود للروتينات المؤجلة بعد بقية الروتينات.",
-    padding: 10,
+    id: "routineMenu",
+    targetKey: "routineMenu",
+    title: "خيارات المجموعة",
+    body: "من زر «خيارات المجموعة» يمكنك إضافة السنن كلها إلى إنجازاتك إن كنت تفعلها بالفعل، أو تأجيلها مع تصفير عدّاد أيامها. سنطلب تأكيدك أولاً.",
+    padding: 6,
   },
   {
     id: "tabBar",
     targetKey: "tabBar",
-    title: "بقية الأقسام",
-    body: "«الانجازات» تعرض ما أتممته من السنن، و«الإعدادات» للتذكيرات وأوقات الصلاة.",
+    title: "تابع أثر خطواتك",
+    body: "في «الانجازات» تجد كل سنّة أتممتها؛ قد تضيف مجموعة واحدة عدة سنن. ومن «الإعدادات» تضبط التذكيرات وأوقات الصلاة.",
     padding: 0,
   },
 ];

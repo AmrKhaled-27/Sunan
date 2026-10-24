@@ -51,6 +51,7 @@ export interface TourMeasurable {
 export interface TourScroller {
   scrollTo: (y: number) => void;
   getOffset: () => number;
+  getViewport: () => TourMeasurable | null;
 }
 
 interface TourBounds {
@@ -132,20 +133,16 @@ function scrollDeltaFor(
 ): number {
   // For targets in the upper part of content (card, streakDots):
   // Align target near the top of the visible band so there is maximum room below for the tooltip
-  if (targetKey === "card" || targetKey === "streakDots") {
+  if (
+    targetKey === "card" ||
+    targetKey === "streakDots" ||
+    targetKey === "routineMenu"
+  ) {
     return rect.y - bounds.topLimit;
   }
 
-  // For buttons in the lower part of content (markDone, alreadyDoing, skip):
-  // Align the bottom of the button near bottomLimit so there is maximum room above for the tooltip
-  if (
-    targetKey === "markDone" ||
-    targetKey === "alreadyDoing" ||
-    targetKey === "skip"
-  ) {
-    const targetBottom = rect.y + rect.height;
-    return targetBottom - bounds.bottomLimit;
-  }
+  // The daily action lives outside the scroller.
+  if (targetKey === "markDone") return 0;
 
   // General bounds checking:
   const band = bounds.bottomLimit - bounds.topLimit;
@@ -366,9 +363,30 @@ export function OnboardingProvider({
       // Iterating keeps the spotlight accurate even when the reported scroll
       // offset lags or the scroller clamps at one of its ends.
       const scroller = scrollerRef.current;
-      if (rect && scroller && step.targetKey !== "tabBar") {
+      const viewportNode = scroller?.getViewport();
+      const viewport = viewportNode
+        ? await measureInWindowAsync(viewportNode)
+        : null;
+      if (isStale()) return;
+      const scrollBounds = viewport
+        ? {
+            ...boundsRef.current,
+            topLimit: Math.max(
+              boundsRef.current.topLimit,
+              viewport.y - originRef.current.y + SAFE_GAP,
+            ),
+            bottomLimit:
+              viewport.y - originRef.current.y + viewport.height - SAFE_GAP,
+          }
+        : boundsRef.current;
+      if (
+        rect &&
+        scroller &&
+        step.targetKey !== "tabBar" &&
+        step.targetKey !== "markDone"
+      ) {
         for (let pass = 0; pass < SCROLL_PASSES; pass++) {
-          const delta = scrollDeltaFor(rect, boundsRef.current, step.targetKey);
+          const delta = scrollDeltaFor(rect, scrollBounds, step.targetKey);
           if (Math.abs(delta) <= SCROLL_EPSILON) break;
 
           const from = scroller.getOffset();
@@ -390,6 +408,17 @@ export function OnboardingProvider({
         }
       }
 
+      // A multi-member panel can be taller than the screen. Spotlight its
+      // visible opening, leaving space for the explanation above the footer.
+      if (rect && step.targetKey === "card") {
+        rect = {
+          ...rect,
+          height: Math.min(
+            rect.height,
+            Math.max(56, (scrollBounds.bottomLimit - rect.y) * 0.42),
+          ),
+        };
+      }
       setTargetRect(rect);
     },
     [refreshCalibration, resolveSettledRect],
@@ -398,7 +427,15 @@ export function OnboardingProvider({
   useEffect(() => {
     if (!isActive) return;
     void measureStep(stepIndex);
-  }, [isActive, stepIndex, measureStep]);
+  }, [
+    isActive,
+    stepIndex,
+    measureStep,
+    windowWidth,
+    windowHeight,
+    insets.top,
+    insets.bottom,
+  ]);
 
   // ── Tour control ──────────────────────────────────────────────────────────
   const startTour = useCallback(() => {

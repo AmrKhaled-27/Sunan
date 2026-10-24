@@ -4,17 +4,26 @@ import { palette } from "@/constants/theme";
 
 interface SkipModalProps {
   visible: boolean;
+  embedded?: boolean;
+  routineTitle: string;
   onConfirm: () => void;
   onClose: () => void;
 }
 
-export function SkipModal({ visible, onConfirm, onClose }: SkipModalProps) {
+export function SkipModal({
+  visible,
+  embedded,
+  routineTitle,
+  onConfirm,
+  onClose,
+}: SkipModalProps) {
   return (
     <ConfirmModal
+      embedded={embedded}
       visible={visible}
-      title="تأجيل هذا الروتين؟"
-      description="سيُصفّر عدّاد الأيام لهذا الروتين وينتقل إلى الروتين التالي. نعود للروتينات المؤجلة بعد البقية. إذا كان هذا آخر روتين متبقٍ فسيبقى نشطاً ويبدأ عدّاده من جديد."
-      confirmText="نعم، تخطي"
+      title="تأجيل هذه السنن؟"
+      description={`ستُؤجَّل جميع سنن «${routineTitle}» ويُصفَّر عدّاد أيامها. ستعود إليها بعد بقية المجموعات. إذا كانت آخر مجموعة متبقية، فستبقى هنا ويبدأ عدّادها من جديد.`}
+      confirmText="تأجيل المجموعة"
       cancelText="رجوع"
       confirmColor={palette.warmBrownSubtle}
       onConfirm={onConfirm}

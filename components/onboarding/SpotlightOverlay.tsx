@@ -1,3 +1,4 @@
+import { ArabicText } from "@/components/ui/ArabicText";
 import { palette } from "@/constants/theme";
 import { TourRect, useOnboarding } from "@/context/OnboardingContext";
 import { Ionicons } from "@expo/vector-icons";
@@ -5,8 +6,8 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   LayoutChangeEvent,
   Pressable,
+  ScrollView,
   StyleSheet,
-  Text,
   TouchableOpacity,
   useWindowDimensions,
   View,
@@ -133,6 +134,7 @@ export function SpotlightOverlay() {
     ringOpacity.value = withTiming(padded ? 1 : 0, { duration: 150 });
   }, [
     isActive,
+    isTabBar,
     padded,
     screenWidth,
     screenHeight,
@@ -235,11 +237,7 @@ export function SpotlightOverlay() {
     // For bottom tab bar or buttons at the bottom of the screen, place above
     if (step.targetKey === "tabBar") {
       tooltipTop = targetTop - TOOLTIP_GAP - height;
-    } else if (
-      step.targetKey === "markDone" ||
-      step.targetKey === "alreadyDoing" ||
-      step.targetKey === "skip"
-    ) {
+    } else if (step.targetKey === "markDone") {
       if (fitsAbove) {
         tooltipTop = targetTop - TOOLTIP_GAP - height;
       } else if (fitsBelow) {
@@ -304,74 +302,85 @@ export function SpotlightOverlay() {
           styles.tooltip,
           {
             position: "absolute",
-            top: tooltipTop,
+            top: Math.max(topLimit, Math.min(tooltipTop, bottomLimit - height)),
+            maxHeight: bottomLimit - topLimit,
             left: TOOLTIP_MARGIN,
             right: TOOLTIP_MARGIN,
           },
         ]}
       >
-        <Text className="font-tajawal-bold text-warmBrown text-lg text-center mb-1.5">
-          {step.title}
-        </Text>
-        <Text className="font-tajawal text-warmBrownLight text-sm text-center leading-6">
-          {step.body}
-        </Text>
-
-        <View className="h-[0.5px] bg-warmGold/25 my-3" />
-
-        <View className="flex-row justify-center items-center gap-1.5 mb-3">
-          {Array.from({ length: totalSteps }).map((_, i) => (
-            <View
-              key={i}
-              className={
-                i === stepIndex
-                  ? "w-4 h-1.5 rounded-full bg-warmGold"
-                  : "w-1.5 h-1.5 rounded-full bg-warmGold/30"
-              }
-            />
-          ))}
-        </View>
-
-        <View className="flex-row items-center justify-between">
-          <TouchableOpacity
-            onPress={finishTour}
-            accessibilityRole="button"
-            accessibilityLabel="تخطي الشرح"
-            className="py-1.5"
+        <ScrollView style={{ flexShrink: 1 }}>
+          <ArabicText
+            align="center"
+            className="font-tajawal-bold text-warmBrown text-lg mb-1.5"
           >
-            <Text className="font-tajawal text-warmBrownMuted text-xs underline">
-              تخطي الشرح
-            </Text>
-          </TouchableOpacity>
+            {step.title}
+          </ArabicText>
+          <ArabicText
+            align="center"
+            className="font-tajawal text-warmBrownLight text-sm leading-6"
+          >
+            {step.body}
+          </ArabicText>
 
-          <View className="flex-row items-center gap-2">
-            {!isFirstStep && (
-              <TouchableOpacity
-                onPress={back}
-                accessibilityRole="button"
-                accessibilityLabel="الخطوة السابقة"
-                className="w-9 h-9 rounded-xl items-center justify-center border border-warmGold/30"
-              >
-                <Ionicons
-                  name="chevron-forward"
-                  size={16}
-                  color={palette.warmGold}
-                />
-              </TouchableOpacity>
-            )}
+          <View className="h-[0.5px] bg-warmGold/25 my-3" />
 
-            <TouchableOpacity
-              onPress={next}
-              accessibilityRole="button"
-              accessibilityLabel={isLastStep ? "إنهاء الشرح" : "الخطوة التالية"}
-              className="bg-warmGold px-4 h-9 rounded-xl items-center justify-center"
-            >
-              <Text className="font-tajawal-bold text-white text-sm">
-                {isLastStep ? "ابدأ" : "التالي"}
-              </Text>
-            </TouchableOpacity>
+          <View className="flex-row justify-center items-center gap-1.5 mb-3">
+            {Array.from({ length: totalSteps }).map((_, i) => (
+              <View
+                key={i}
+                className={
+                  i === stepIndex
+                    ? "w-4 h-1.5 rounded-full bg-warmGold"
+                    : "w-1.5 h-1.5 rounded-full bg-warmGold/30"
+                }
+              />
+            ))}
           </View>
-        </View>
+
+          <View className="flex-row items-center justify-between">
+            <TouchableOpacity
+              onPress={finishTour}
+              accessibilityRole="button"
+              accessibilityLabel="تخطي الشرح"
+              className="py-1.5"
+            >
+              <ArabicText className="font-tajawal text-warmBrownMuted text-xs underline">
+                تخطي الشرح
+              </ArabicText>
+            </TouchableOpacity>
+
+            <View className="flex-row items-center gap-2">
+              {!isFirstStep && (
+                <TouchableOpacity
+                  onPress={back}
+                  accessibilityRole="button"
+                  accessibilityLabel="الخطوة السابقة"
+                  className="w-9 h-9 rounded-xl items-center justify-center border border-warmGold/30"
+                >
+                  <Ionicons
+                    name="chevron-forward"
+                    size={16}
+                    color={palette.warmGold}
+                  />
+                </TouchableOpacity>
+              )}
+
+              <TouchableOpacity
+                onPress={next}
+                accessibilityRole="button"
+                accessibilityLabel={
+                  isLastStep ? "إنهاء الشرح" : "الخطوة التالية"
+                }
+                className="bg-warmGold px-4 h-9 rounded-xl items-center justify-center"
+              >
+                <ArabicText className="font-tajawal-bold text-white text-sm">
+                  {isLastStep ? "ابدأ" : "التالي"}
+                </ArabicText>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </ScrollView>
       </Animated.View>
     </Animated.View>
   );

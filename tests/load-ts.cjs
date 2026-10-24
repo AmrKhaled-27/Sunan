@@ -24,6 +24,7 @@ function createLoader(mocks = {}) {
         module: ts.ModuleKind.CommonJS,
         target: ts.ScriptTarget.ES2022,
         esModuleInterop: true,
+        jsx: ts.JsxEmit.ReactJSX,
       },
     }).outputText;
     new Function("require", "module", "exports", js)(

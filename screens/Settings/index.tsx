@@ -143,7 +143,7 @@ export default function SettingsScreen() {
     <PaperBackground>
       <ScrollView
         className="flex-1"
-        contentContainerClassName="px-5 pb-[115px]"
+        contentContainerClassName="px-5 pb-8"
         contentContainerStyle={{ paddingTop: insets.top + 12 }}
       >
         <Text className="font-tajawal-bold text-[26px] text-warmBrown text-center mb-6">
@@ -214,7 +214,7 @@ export default function SettingsScreen() {
 
           <SettingRow
             label="تذكير نهاية اليوم"
-            description="هل فعلت السنة اليوم?"
+            description="هل فعلت سنن اليوم؟"
             right={
               <TouchableOpacity
                 onPress={() => setShowTimePicker(true)}
