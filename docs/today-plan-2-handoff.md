@@ -50,3 +50,13 @@ Start with `npm start` and open the app in the existing SDK 54-compatible device
 - First-launch onboarding waits while a sources/options/celebration modal is open.
 - Page, footer, modal, and celebration padding now includes horizontal safe insets for landscape notches.
 - Screen handler regressions exercise rapid/stale daily taps, canceled confirmations, routine-change dialog reset before effects, sources preserving reward identity and progress, modal onboarding deferral, and final celebration identity. The tests use retained hook state and host stubs; they do not verify native rendering or focus behavior.
+
+## Unified manuscript redesign
+
+Implemented 2026-10-25 following design review:
+
+- Unified the routine header, 7-day progress, Sunnah actions, and sources trigger into one cohesive, gilded manuscript plate, eliminating fragmented nested cards.
+- Enhanced Card's home variant with crisp vector corner hairlines and double gilded borders, removing the floating tulip sticker and corner image clippings.
+- Positioned inline spiritual rewards (`✦ الفضل: «...»`) in warm Amiri script under each Sunnah's action text, maintaining title and action as primary reading heroes.
+- Placed a compact, understated `[ 📖 المصادر والأحاديث ]` button inside the manuscript plate to open the full evidence modal.
+- Added direct, discoverable routine lifecycle buttons (`[ أمارسها بالفعل ]` and `[ تأجيل المجموعة ]`) at the end of the scrollable content, while keeping the sticky footer focused exclusively on the daily habit action (`[ فعلتها اليوم ]`).

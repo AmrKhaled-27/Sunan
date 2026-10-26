@@ -1,6 +1,5 @@
-import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import React from "react";
-import { Image, View, ViewStyle } from "react-native";
+import { View, ViewStyle } from "react-native";
 import { palette } from "@/constants/theme";
 
 interface CardProps {
@@ -30,34 +29,29 @@ export const Card = React.forwardRef<View, CardProps>(function Card(
       <View
         ref={ref}
         collapsable={false}
-        className={`w-full mb-6 mt-7 ${className}`}
+        className={`w-full mb-6 rounded-3xl bg-parchmentPure border border-warmGold/35 shadow-md shadow-warmBrown/5 overflow-hidden ${className}`}
         style={style}
       >
-        {/* Main Background & Decorations (with overflow hidden to clip images to rounded corners) */}
-        <View className="absolute inset-0 bg-parchmentPure rounded-3xl shadow-sm shadow-black/5 overflow-hidden">
-          <Image
-            source={require("@/assets/images/top-right-decorations.png")}
-            className="absolute top-[-5] left-0 w-[140px] h-[140px] opacity-40"
-            resizeMode="contain"
+        {/* Subtle decorative gilded inner hairline */}
+        <View className="m-2 rounded-2xl border border-warmGold/20 relative">
+          {/* Subtle Islamic corner motifs (crisp hairline vectors) */}
+          <View
+            pointerEvents="none"
+            className="absolute top-2 right-2 w-3.5 h-3.5 border-t border-r border-warmGold/50 rounded-tr"
           />
-          <Image
-            source={require("@/assets/images/bottome-left-decorations.png")}
-            className="absolute bottom-[-12] right-0 w-[140px] h-[140px] opacity-40"
-            resizeMode="contain"
+          <View
+            pointerEvents="none"
+            className="absolute top-2 left-2 w-3.5 h-3.5 border-t border-l border-warmGold/50 rounded-tl"
           />
-        </View>
+          <View
+            pointerEvents="none"
+            className="absolute bottom-2 right-2 w-3.5 h-3.5 border-b border-r border-warmGold/50 rounded-br"
+          />
+          <View
+            pointerEvents="none"
+            className="absolute bottom-2 left-2 w-3.5 h-3.5 border-b border-l border-warmGold/50 rounded-bl"
+          />
 
-        {/* Top Badge */}
-        <View className="absolute -top-7 self-center w-14 h-14 rounded-full bg-warmGold border-[3px] border-parchmentPure items-center justify-center z-20 shadow-md shadow-black/10">
-          <MaterialCommunityIcons
-            name="flower-tulip"
-            size={26}
-            color={palette.white}
-          />
-        </View>
-
-        {/* Inner Content (No background) */}
-        <View className="m-3.5 mt-8 rounded-2xl border-[1.5px] border-goldAccent/50 min-h-[200px] z-10">
           <View className={contentClassName}>{children}</View>
         </View>
       </View>

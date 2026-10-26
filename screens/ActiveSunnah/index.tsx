@@ -1,8 +1,8 @@
-import { Card } from "@/components/ui/Card";
-import { ArabicText } from "@/components/ui/ArabicText";
 import { useTourTarget } from "@/components/onboarding/TourTarget";
-import { Button } from "@/components/ui/Button";
+import { ArabicText } from "@/components/ui/ArabicText";
 import { BaseModal } from "@/components/ui/BaseModal";
+import { Button } from "@/components/ui/Button";
+import { Card } from "@/components/ui/Card";
 import { PaperBackground } from "@/components/ui/PaperBackground";
 import { palette } from "@/constants/theme";
 import { useOnboarding } from "@/context/OnboardingContext";
@@ -198,61 +198,38 @@ export default function ActiveSunnahScreen() {
               <ArabicText
                 align="center"
                 accessibilityRole="header"
-                className="font-tajawal-bold text-[28px] text-warmBrown mb-3"
+                className="font-tajawal-bold text-2xl text-warmBrown mb-3"
               >
                 سنن اليوم
               </ArabicText>
               <Card
                 variant="home"
-                className="mb-5"
+                className="mb-4"
                 contentClassName="px-4 pt-5 pb-5"
               >
                 <ArabicText
                   align="center"
                   accessibilityRole="header"
-                  className="font-amiri-bold text-[30px] leading-[46px] text-warmBrown"
+                  className="font-amiri-bold text-[28px] leading-[42px] text-warmBrown"
                 >
                   {currentRoutine.title}
                 </ArabicText>
                 <ArabicText
                   align="center"
-                  className="font-tajawal text-warmBrownLight text-base leading-7 mt-2"
+                  className="font-tajawal text-warmBrownLight text-sm leading-6 mt-1"
                 >
                   {currentRoutine.intro ??
                     "نُحييها اليوم، ونُداوم عليها كلّ يوم"}
                 </ArabicText>
-                <Pressable
-                  ref={menuRef}
-                  collapsable={false}
-                  accessibilityRole="button"
-                  accessibilityLabel="خيارات المجموعة"
-                  accessibilityHint="إضافة جميع السنن إلى إنجازاتك أو تأجيلها"
-                  accessibilityState={{ expanded: dialog === "menu" }}
-                  onPress={() => setDialog("menu")}
-                  className="self-center flex-row items-center justify-center gap-2 rounded-xl border border-warmGold/40 bg-parchmentLight px-4 py-2 min-h-11 mt-4"
-                  style={{ direction: "rtl" }}
-                >
-                  <ArabicText
-                    align="center"
-                    className="shrink font-tajawal-bold text-warmBrownLight text-sm"
-                  >
-                    خيارات المجموعة
-                  </ArabicText>
-                  <Ionicons
-                    name="chevron-down"
-                    size={16}
-                    color={palette.warmBrownLight}
-                  />
-                </Pressable>
                 <View
                   ref={streakDotsRef}
                   collapsable={false}
-                  className="border-t border-warmGold/25 mt-5 pt-5"
+                  className="border-t border-warmGold/20 mt-4 pt-4 mb-1"
                 >
                   <StreakDots count={streakCount} />
                   <ArabicText
                     align="center"
-                    className="font-tajawal text-warmBrownLight text-sm leading-6 mt-3"
+                    className="font-tajawal text-warmBrownLight text-xs leading-5 mt-3"
                   >
                     {streakCount === 0
                       ? "سبعة أيام نحو المداومة"
@@ -261,37 +238,103 @@ export default function ActiveSunnahScreen() {
                         " من ٧ أيام"}
                   </ArabicText>
                 </View>
+
+                {remainingMembers.length > 0 && (
+                  <View className="border-t border-warmGold/20 mt-5 pt-5">
+                    <RoutineActionsPanel
+                      ref={cardRef}
+                      members={remainingMembers}
+                    />
+                  </View>
+                )}
+
+                <View className="border-t border-warmGold/20 mt-5 pt-4 items-center">
+                  <Pressable
+                    accessibilityRole="button"
+                    accessibilityLabel="عرض المصادر"
+                    accessibilityHint="قراءة جميع أحاديث هذه السنن ومصادرها ودرجاتها"
+                    onPress={() => setDialog("sources")}
+                    className="flex-row items-center justify-center gap-2 px-5 py-2 rounded-full border border-warmGold/35 bg-warmGold/10 min-h-10"
+                    style={{ direction: "rtl" }}
+                  >
+                    <Ionicons
+                      name="book-outline"
+                      size={15}
+                      color={palette.warmBrownLight}
+                    />
+                    <ArabicText className="font-tajawal-bold text-warmBrownLight text-xs">
+                      المصادر والأحاديث
+                    </ArabicText>
+                  </Pressable>
+                </View>
               </Card>
-              <RoutineRewardsPanel
-                key={currentRoutine.id}
-                members={remainingMembers}
-              />
-              {remainingMembers.length > 0 && (
-                <RoutineActionsPanel ref={cardRef} members={remainingMembers} />
-              )}
-              <Pressable
-                accessibilityRole="button"
-                accessibilityLabel="عرض المصادر"
-                accessibilityHint="قراءة جميع أحاديث هذه السنن ومصادرها ودرجاتها"
-                onPress={() => setDialog("sources")}
-                className="flex-row items-center justify-center gap-2 min-h-14 mt-4 rounded-2xl border border-warmGold/30 bg-parchmentLight"
-                style={{ direction: "rtl" }}
+
+              {/* End-of-scroll routine options */}
+              <View
+                ref={menuRef}
+                collapsable={false}
+                className="mt-1 mb-4 px-1"
               >
-                <Ionicons
-                  name="book-outline"
-                  size={19}
-                  color={palette.warmBrownLight}
-                />
-                <ArabicText className="font-tajawal-bold text-warmBrownLight text-base">
-                  عرض المصادر
+                <ArabicText
+                  align="center"
+                  className="font-tajawal text-warmBrownMuted text-xs mb-2.5"
+                >
+                  هل هذه السنن من عادتك اليومية بالفعل؟
                 </ArabicText>
-              </Pressable>
+                <View
+                  className="flex-row items-center justify-center gap-2.5"
+                  style={{ direction: "rtl" }}
+                >
+                  <Pressable
+                    accessibilityRole="button"
+                    accessibilityLabel="أفعل هذه السنن بالفعل"
+                    accessibilityHint="إضافة جميع السنن إلى إنجازاتك"
+                    onPress={() => setDialog("already")}
+                    className="flex-1 flex-row items-center justify-center gap-2 rounded-xl border border-warmGold/35 bg-parchmentPure/90 py-2.5 px-3 min-h-11 shadow-sm shadow-warmBrown/5"
+                    style={{ direction: "rtl" }}
+                  >
+                    <Ionicons
+                      name="checkmark-circle-outline"
+                      size={16}
+                      color={palette.oliveGreenDark}
+                    />
+                    <ArabicText className="font-tajawal-bold text-warmBrownLight text-xs">
+                      أمارسها بالفعل
+                    </ArabicText>
+                  </Pressable>
+
+                  <Pressable
+                    accessibilityRole="button"
+                    accessibilityLabel="تأجيل هذه السنن"
+                    accessibilityHint="العودة إليها لاحقاً وبدء العدّ من جديد"
+                    onPress={() => setDialog("postpone")}
+                    className="flex-1 flex-row items-center justify-center gap-2 rounded-xl border border-warmGold/35 bg-parchmentPure/90 py-2.5 px-3 min-h-11 shadow-sm shadow-warmBrown/5"
+                    style={{ direction: "rtl" }}
+                  >
+                    <Ionicons
+                      name="time-outline"
+                      size={16}
+                      color={palette.warmBrownMuted}
+                    />
+                    <ArabicText className="font-tajawal-bold text-warmBrownMuted text-xs">
+                      تأجيل المجموعة
+                    </ArabicText>
+                  </Pressable>
+                </View>
+              </View>
+
+              <View style={{ display: "none" }}>
+                <RoutineRewardsPanel
+                  key={currentRoutine.id}
+                  members={remainingMembers}
+                />
+              </View>
             </ScrollView>
           </View>
           {/* Normal flex layout reserves the footer's measured height. The tab bar
               is also in flow, including its bottom safe area, so nothing overlaps. */}
           <View
-            className="bg-parchmentLight border-t border-warmGold/25 pt-3 pb-2"
+            className="bg-parchmentLight/95 border-t border-warmGold/25 pt-3 pb-2.5 shadow-sm shadow-warmBrown/5"
             style={{
               paddingHorizontal: Math.max(20, insets.left, insets.right),
             }}
@@ -300,23 +343,25 @@ export default function ActiveSunnahScreen() {
               <ArabicText
                 align="center"
                 accessibilityLiveRegion="polite"
-                className="font-tajawal text-warmBrownLight text-sm leading-6 mb-2"
+                className="font-tajawal text-warmBrownLight text-xs leading-5 mb-2"
               >
                 {hasMarkedToday
-                  ? "تقبّل الله منك، نلتقي غداً على خير"
-                  : "ضغطة واحدة لتسجيل جميع سنن هذه المجموعة"}
+                  ? "تقبّل الله منك طاعتك ورزقك الثبات"
+                  : "ضغطة واحدة لتسجيل تطبيق جميع سنن هذه المجموعة اليوم"}
               </ArabicText>
               <View ref={markDoneRef} collapsable={false}>
                 <Button
-                  title={hasMarkedToday ? "تمّ اليوم ✓" : "فعلتها اليوم"}
+                  title={
+                    hasMarkedToday ? "تمّت بحمد الله اليوم ✓" : "فعلتها اليوم"
+                  }
                   accessibilityLabel={
                     hasMarkedToday
                       ? "تم تسجيل جميع هذه السنن اليوم"
                       : "فعلت جميع هذه السنن اليوم"
                   }
                   onPress={handleMarkDone}
-                  color={palette.oliveGreenDark}
-                  colorEnd="#666B52"
+                  color={hasMarkedToday ? "#82876E" : "#555C41"}
+                  colorEnd={hasMarkedToday ? "#72775E" : "#3F452E"}
                   disabled={
                     hasMarkedToday ||
                     remainingMembers.length === 0 ||

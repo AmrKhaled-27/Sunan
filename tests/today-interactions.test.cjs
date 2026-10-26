@@ -201,11 +201,9 @@ test("cancelled confirmations cannot dispatch queued callbacks, and rotation hid
   screen
     .find(
       "Pressable",
-      (props) => props.accessibilityLabel === "خيارات المجموعة",
+      (props) => props.accessibilityLabel === "أفعل هذه السنن بالفعل",
     )
     .props.onPress();
-  screen.render();
-  screen.find("RoutineMenu").props.onAlreadyDoing();
   screen.render();
   const confirm = screen.find("AlreadyDoingModal").props;
   confirm.onClose();
@@ -215,11 +213,9 @@ test("cancelled confirmations cannot dispatch queued callbacks, and rotation hid
   screen
     .find(
       "Pressable",
-      (props) => props.accessibilityLabel === "خيارات المجموعة",
+      (props) => props.accessibilityLabel === "تأجيل هذه السنن",
     )
     .props.onPress();
-  screen.render();
-  screen.find("RoutineMenu").props.onPostpone();
   screen.render();
   screen.update({ currentRoutine: { id: "two", title: "المجموعة الثانية" } });
   screen.render(false);
