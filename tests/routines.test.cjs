@@ -17,10 +17,10 @@ function day(offset) {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 }
 
-test("nine routines cover 26 Sunnahs once in agreed order with expected reminder slots", () => {
+test("fifteen routines cover 45 Sunnahs once in agreed order with expected reminder slots", () => {
   validateCatalog(SUNNAHS, ROUTINES);
-  assert.equal(ROUTINES.length, 9);
-  assert.equal(new Set(ROUTINES.flatMap((r) => r.sunnahIds)).size, 26);
+  assert.equal(ROUTINES.length, 15);
+  assert.equal(new Set(ROUTINES.flatMap((r) => r.sunnahIds)).size, 45);
   assert.deepEqual(
     ROUTINES.map((r) => r.sunnahIds),
     [
@@ -33,6 +33,12 @@ test("nine routines cover 26 Sunnahs once in agreed order with expected reminder
       ["19", "12", "20", "22"],
       ["13", "23", "25", "26"],
       ["21"],
+      ["27", "28"],
+      ["29", "30"],
+      ["31", "32", "33", "34"],
+      ["35", "36", "37", "38"],
+      ["39", "40", "41", "42"],
+      ["43", "44", "45"],
     ],
   );
   const prayer = ["fajr", "dhuhr", "asr", "maghrib", "ishaa"];
@@ -47,6 +53,12 @@ test("nine routines cover 26 Sunnahs once in agreed order with expected reminder
     sleep,
     sleep,
     sleep,
+    ["fajr", "dhuhr"],
+    ["maghrib", "ishaa"],
+    prayer,
+    sleep,
+    ["fajr", "morning"],
+    ["morning", "dhuhr", "asr", "maghrib"],
   ];
   for (const [index, r] of ROUTINES.entries()) {
     assert.deepEqual(r.notificationSchedule, {
@@ -93,11 +105,13 @@ test("rotation prioritizes unpostponed routines, then cycles postponed-only rout
   );
   const postponed = ROUTINES.map((r) => r.id);
   assert.equal(nextRoutineId(ROUTINES[0].id, [], postponed), ROUTINES[1].id);
-  assert.equal(nextRoutineId(ROUTINES[8].id, [], postponed), ROUTINES[0].id);
-  const allButLast = SUNNAHS.filter((s) => s.id !== "21").map((s) => s.id);
+  const lastRoutine = ROUTINES[ROUTINES.length - 1];
+  assert.equal(nextRoutineId(lastRoutine.id, [], postponed), ROUTINES[0].id);
+  const lastSunnah = SUNNAHS[SUNNAHS.length - 1];
+  const allButLast = SUNNAHS.filter((s) => s.id !== lastSunnah.id).map((s) => s.id);
   assert.equal(
-    nextRoutineId(ROUTINES[8].id, allButLast, postponed),
-    ROUTINES[8].id,
+    nextRoutineId(lastRoutine.id, allButLast, postponed),
+    lastRoutine.id,
   );
   assert.equal(
     nextRoutineId(
@@ -110,10 +124,11 @@ test("rotation prioritizes unpostponed routines, then cycles postponed-only rout
 });
 
 test("deprecated members and routines do not block rotation", () => {
+  const sajdaRoutine = ROUTINES.find((r) => r.id === "sajda_mulk");
   const member = SUNNAHS.find((s) => s.id === "21");
   try {
     member.deprecated = true;
-    assert.deepEqual(remainingMembers(ROUTINES[8], []), []);
+    assert.deepEqual(remainingMembers(sajdaRoutine, []), []);
     assert.equal(
       nextRoutineId(
         null,
@@ -183,20 +198,22 @@ test("postpone resets streak, avoids duplicate IDs and preserves last-routine se
   assert.deepEqual(skipped.streakDates, []);
   assert.deepEqual(skipped.skippedRoutineIds, [ROUTINES[0].id]);
   assert.equal(transitionRoutine(skipped, "postpone", initial), skipped);
+  const lastRoutine = ROUTINES[ROUTINES.length - 1];
+  const lastSunnah = SUNNAHS[SUNNAHS.length - 1];
   const last = {
     ...freshState(),
-    currentRoutineId: ROUTINES[8].id,
-    accomplishedIds: SUNNAHS.filter((s) => s.id !== "21").map((s) => s.id),
-    skippedRoutineIds: [ROUTINES[8].id],
+    currentRoutineId: lastRoutine.id,
+    accomplishedIds: SUNNAHS.filter((s) => s.id !== lastSunnah.id).map((s) => s.id),
+    skippedRoutineIds: [lastRoutine.id],
     streakDates: [today],
   };
   const postponed = transitionRoutine(last, "postpone");
-  assert.equal(postponed.currentRoutineId, ROUTINES[8].id);
-  assert.deepEqual(postponed.skippedRoutineIds, [ROUTINES[8].id]);
+  assert.equal(postponed.currentRoutineId, lastRoutine.id);
+  assert.deepEqual(postponed.skippedRoutineIds, [lastRoutine.id]);
   assert.deepEqual(postponed.streakDates, []);
   const complete = transitionRoutine(postponed, "already_doing");
   assert.equal(complete.currentRoutineId, null);
-  assert.equal(complete.totalCompleted, 26);
+  assert.equal(complete.totalCompleted, SUNNAHS.length);
   assert.equal(transitionRoutine(complete, "mark"), complete);
 });
 

@@ -121,7 +121,8 @@ test("sources render every exact evidence text, citation and Arabic grading in o
     }
     assert.equal(render(RoutineSourcesModal, { ...props, visible: false }), "");
   }
-  assert.equal(evidenceCount, 39);
+  const totalEvidence = ROUTINES.flatMap((r) => membersFor(r)).flatMap((m) => m.hadiths).length;
+  assert.equal(evidenceCount, totalEvidence);
 });
 
 test("reward preview skips empty rewards and preserves the first full reward's attribution", () => {
