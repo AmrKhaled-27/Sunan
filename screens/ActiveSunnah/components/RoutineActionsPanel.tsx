@@ -9,43 +9,28 @@ export const RoutineActionsPanel = React.forwardRef<
 >(function RoutineActionsPanel({ members }, ref) {
   return (
     <View ref={ref} collapsable={false} className="w-full">
-      <View className="items-center justify-center mb-4 pt-1">
-        <ArabicText
-          align="center"
-          accessibilityRole="header"
-          className="font-amiri-bold text-warmBrown text-2xl"
-        >
-          سنن نُحييها اليوم
-        </ArabicText>
-        <ArabicText
-          align="center"
-          className="font-tajawal text-warmBrownMuted text-xs leading-5 mt-1"
-        >
-          الأرقام للتوضيح، وليست ترتيباً شرعياً ملزماً
-        </ArabicText>
-      </View>
       {members.map((member, index) => (
-        <View
-          key={member.id}
-          className={
-            index > 0 ? "border-t border-warmGold/20 pt-5 mt-5" : "pt-2"
-          }
-        >
+        <View key={member.id}>
+          {index > 0 && (
+            <View className="mx-8 my-5 h-[1px] bg-warmGold/20" />
+          )}
           <View
-            className="flex-row items-center gap-3 mb-2.5"
+            className="flex-row items-center gap-2.5 mb-2"
             style={{ direction: "rtl" }}
           >
-            <View className="w-8 h-8 rounded-full border border-warmGold/40 bg-warmGold/15 items-center justify-center">
-              <ArabicText
-                align="center"
-                className="font-amiri-bold text-warmBrown text-base"
-              >
-                {(index + 1).toLocaleString("ar-EG")}
-              </ArabicText>
-            </View>
+            {members.length > 1 && (
+              <View className="w-7 h-7 rounded-full border border-warmGold/35 bg-warmGold/12 items-center justify-center">
+                <ArabicText
+                  align="center"
+                  className="font-amiri-bold text-warmBrown text-sm"
+                >
+                  {(index + 1).toLocaleString("ar-EG")}
+                </ArabicText>
+              </View>
+            )}
             <ArabicText
               accessibilityRole="header"
-              className="flex-1 font-tajawal-bold text-warmBrown text-lg leading-7"
+              className="flex-1 font-tajawal-bold text-warmBrown text-[18px] leading-7"
             >
               {member.title}
             </ArabicText>
@@ -59,15 +44,15 @@ export const RoutineActionsPanel = React.forwardRef<
           </ArabicText>
           {member.reward?.trim() ? (
             <View
-              className="mt-3 bg-warmGold/10 rounded-xl px-3.5 py-2.5 flex-row items-start gap-2 border border-warmGold/25"
+              className="mt-3 pr-3.5 pl-3 py-2 bg-warmGold/10 rounded-l-xl border-r-[2.5px] border-r-warmGold/60 flex-row items-start gap-2"
               style={{ direction: "rtl" }}
             >
-              <ArabicText className="font-amiri text-warmGold text-base leading-6">
+              <ArabicText className="font-amiri text-warmGold text-sm leading-6">
                 ✦
               </ArabicText>
               <ArabicText
                 selectable
-                className="flex-1 font-amiri text-warmBrown text-[15px] leading-6"
+                className="flex-1 font-amiri text-warmBrown text-[15px] leading-7"
                 style={{ writingDirection: "rtl" }}
               >
                 الفضل: «{member.reward.trim()}»

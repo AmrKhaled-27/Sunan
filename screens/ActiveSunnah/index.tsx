@@ -198,14 +198,14 @@ export default function ActiveSunnahScreen() {
               <ArabicText
                 align="center"
                 accessibilityRole="header"
-                className="font-tajawal-bold text-2xl text-warmBrown mb-3"
+                className="font-tajawal-bold text-[26px] text-warmBrown mb-4"
               >
                 سنن اليوم
               </ArabicText>
               <Card
                 variant="home"
                 className="mb-4"
-                contentClassName="px-4 pt-5 pb-5"
+                contentClassName="px-5 pt-6 pb-5"
               >
                 <ArabicText
                   align="center"
@@ -214,22 +214,23 @@ export default function ActiveSunnahScreen() {
                 >
                   {currentRoutine.title}
                 </ArabicText>
-                <ArabicText
-                  align="center"
-                  className="font-tajawal text-warmBrownLight text-sm leading-6 mt-1"
-                >
-                  {currentRoutine.intro ??
-                    "نُحييها اليوم، ونُداوم عليها كلّ يوم"}
-                </ArabicText>
+                {currentRoutine.intro ? (
+                  <ArabicText
+                    align="center"
+                    className="font-tajawal text-warmBrownLight text-sm leading-6 mt-1"
+                  >
+                    {currentRoutine.intro}
+                  </ArabicText>
+                ) : null}
                 <View
                   ref={streakDotsRef}
                   collapsable={false}
-                  className="border-t border-warmGold/20 mt-4 pt-4 mb-1"
+                  className="mt-4 mb-1"
                 >
                   <StreakDots count={streakCount} />
                   <ArabicText
                     align="center"
-                    className="font-tajawal text-warmBrownLight text-xs leading-5 mt-3"
+                    className="font-tajawal text-warmBrownMuted text-xs leading-5 mt-2.5"
                   >
                     {streakCount === 0
                       ? "سبعة أيام نحو المداومة"
@@ -240,21 +241,32 @@ export default function ActiveSunnahScreen() {
                 </View>
 
                 {remainingMembers.length > 0 && (
-                  <View className="border-t border-warmGold/20 mt-5 pt-5">
+                  <>
+                    <View className="flex-row items-center justify-center my-5 px-4">
+                      <View className="flex-1 h-[1px] bg-warmGold/25" />
+                      <View className="mx-3">
+                        <Ionicons
+                          name="moon-outline"
+                          size={15}
+                          color={palette.warmGold}
+                        />
+                      </View>
+                      <View className="flex-1 h-[1px] bg-warmGold/25" />
+                    </View>
                     <RoutineActionsPanel
                       ref={cardRef}
                       members={remainingMembers}
                     />
-                  </View>
+                  </>
                 )}
 
-                <View className="border-t border-warmGold/20 mt-5 pt-4 items-center">
+                <View className="border-t border-warmGold/15 mt-6 pt-4 items-center">
                   <Pressable
                     accessibilityRole="button"
                     accessibilityLabel="عرض المصادر"
                     accessibilityHint="قراءة جميع أحاديث هذه السنن ومصادرها ودرجاتها"
                     onPress={() => setDialog("sources")}
-                    className="flex-row items-center justify-center gap-2 px-5 py-2 rounded-full border border-warmGold/35 bg-warmGold/10 min-h-10"
+                    className="flex-row items-center justify-center gap-2 px-5 py-2.5 rounded-full border border-warmGold/30 bg-parchmentLight/80 min-h-10"
                     style={{ direction: "rtl" }}
                   >
                     <Ionicons
@@ -290,7 +302,7 @@ export default function ActiveSunnahScreen() {
                     accessibilityLabel="أفعل هذه السنن بالفعل"
                     accessibilityHint="إضافة جميع السنن إلى إنجازاتك"
                     onPress={() => setDialog("already")}
-                    className="flex-1 flex-row items-center justify-center gap-2 rounded-xl border border-warmGold/35 bg-parchmentPure/90 py-2.5 px-3 min-h-11 shadow-sm shadow-warmBrown/5"
+                    className="flex-1 flex-row items-center justify-center gap-2 rounded-xl border border-warmGold/30 bg-parchmentPure/90 py-2.5 px-3 min-h-11 shadow-sm shadow-warmBrown/5"
                     style={{ direction: "rtl" }}
                   >
                     <Ionicons
@@ -308,7 +320,7 @@ export default function ActiveSunnahScreen() {
                     accessibilityLabel="تأجيل هذه السنن"
                     accessibilityHint="العودة إليها لاحقاً وبدء العدّ من جديد"
                     onPress={() => setDialog("postpone")}
-                    className="flex-1 flex-row items-center justify-center gap-2 rounded-xl border border-warmGold/35 bg-parchmentPure/90 py-2.5 px-3 min-h-11 shadow-sm shadow-warmBrown/5"
+                    className="flex-1 flex-row items-center justify-center gap-2 rounded-xl border border-warmGold/30 bg-parchmentPure/90 py-2.5 px-3 min-h-11 shadow-sm shadow-warmBrown/5"
                     style={{ direction: "rtl" }}
                   >
                     <Ionicons
@@ -334,21 +346,12 @@ export default function ActiveSunnahScreen() {
           {/* Normal flex layout reserves the footer's measured height. The tab bar
               is also in flow, including its bottom safe area, so nothing overlaps. */}
           <View
-            className="bg-parchmentLight/95 border-t border-warmGold/25 pt-3 pb-2.5 shadow-sm shadow-warmBrown/5"
+            className="bg-parchmentLight/90 border-t border-warmGold/20 py-3"
             style={{
               paddingHorizontal: Math.max(20, insets.left, insets.right),
             }}
           >
             <View style={{ width: "100%", maxWidth: 640, alignSelf: "center" }}>
-              <ArabicText
-                align="center"
-                accessibilityLiveRegion="polite"
-                className="font-tajawal text-warmBrownLight text-xs leading-5 mb-2"
-              >
-                {hasMarkedToday
-                  ? "تقبّل الله منك طاعتك ورزقك الثبات"
-                  : "ضغطة واحدة لتسجيل تطبيق جميع سنن هذه المجموعة اليوم"}
-              </ArabicText>
               <View ref={markDoneRef} collapsable={false}>
                 <Button
                   title={
@@ -360,8 +363,8 @@ export default function ActiveSunnahScreen() {
                       : "فعلت جميع هذه السنن اليوم"
                   }
                   onPress={handleMarkDone}
-                  color={hasMarkedToday ? "#82876E" : "#555C41"}
-                  colorEnd={hasMarkedToday ? "#72775E" : "#3F452E"}
+                  color={palette.oliveGreen}
+                  colorEnd={palette.oliveGreenDark}
                   disabled={
                     hasMarkedToday ||
                     remainingMembers.length === 0 ||

@@ -5,25 +5,51 @@ import { Routine } from "@/types";
 export const ROUTINES: Routine[] = [
   {
     id: "after_prayer_core",
-    title: "أذكار ما بعد الصلاة",
+    title: "أذكار ما بعد الصلاة (١): التسبيح والتهليل",
     sunnahIds: ["1", "3", "4", "2"],
     notificationSchedule: {
       reminderSlots: ["fajr", "dhuhr", "asr", "maghrib", "ishaa"],
       endOfDayCheckIn: true,
     },
     notificationMessages: [
-      "تذكير بروتين أذكار ما بعد الصلاة، راجع أعماله وواصل المداومة عليها",
+      "تذكير بأذكار ما بعد الصلاة (١): الاستغفار، والتهليل، والتسبيح دبر كل صلاة",
     ],
   },
   {
     id: "after_prayer_recitation",
-    title: "القراءة والدعاء بعد الصلاة",
+    title: "أذكار ما بعد الصلاة (٢): الآيات والدعاء",
     sunnahIds: ["5", "6", "7"],
     notificationSchedule: {
       reminderSlots: ["fajr", "dhuhr", "asr", "maghrib", "ishaa"],
       endOfDayCheckIn: true,
     },
-    notificationMessages: ["تذكير بروتين القراءة والدعاء بعد الصلاة"],
+    notificationMessages: [
+      "تذكير بأذكار ما بعد الصلاة (٢): قراءة آية الكرسي والمعوذات والدعاء دبر كل صلاة",
+    ],
+  },
+  {
+    id: "rawatib_day",
+    title: "السنن الرواتب (١): الفجر والظهر",
+    sunnahIds: ["27", "28"],
+    notificationSchedule: {
+      reminderSlots: ["fajr", "dhuhr"],
+      endOfDayCheckIn: true,
+    },
+    notificationMessages: [
+      "تذكير بالسنن الرواتب (١): ركعتا الفجر وأربع ركعات قبل الظهر وركعتان بعدها",
+    ],
+  },
+  {
+    id: "rawatib_night",
+    title: "السنن الرواتب (٢): المغرب والعشاء",
+    sunnahIds: ["29", "30"],
+    notificationSchedule: {
+      reminderSlots: ["maghrib", "ishaa"],
+      endOfDayCheckIn: true,
+    },
+    notificationMessages: [
+      "تذكير بالسنن الرواتب (٢): ركعتان بعد المغرب وركعتان بعد العشاء وأداؤهما في البيت",
+    ],
   },
   {
     id: "adhan",
@@ -34,7 +60,43 @@ export const ROUTINES: Routine[] = [
       endOfDayCheckIn: true,
     },
     notificationMessages: [
-      "تذكير بسنن الأذان: راجع أعمال الروتين وواصل المداومة عليها",
+      "تذكير بسنن الأذان: الترديد خلف المؤذن والصلاة على النبي ﷺ والدعاء بعده",
+    ],
+  },
+  {
+    id: "wudu",
+    title: "سنن الوضوء",
+    sunnahIds: ["31", "32", "33", "34"],
+    notificationSchedule: {
+      reminderSlots: ["fajr", "dhuhr", "asr", "maghrib", "ishaa"],
+      endOfDayCheckIn: true,
+    },
+    notificationMessages: [
+      "تذكير بسنن الوضوء: السواك، التسمية، إسباغ الوضوء، الذكر بعده، وركعتا الطهور",
+    ],
+  },
+  {
+    id: "waking_up",
+    title: "سنن الاستيقاظ من النوم",
+    sunnahIds: ["39", "40", "41", "42"],
+    notificationSchedule: {
+      reminderSlots: ["fajr", "morning"],
+      endOfDayCheckIn: true,
+    },
+    notificationMessages: [
+      "تذكير بسنن الاستيقاظ: مسح النوم عن الوجه، دعاء اليقظة، السواك، وإسباغ الطهارة",
+    ],
+  },
+  {
+    id: "home_in_out",
+    title: "سنن الخروج من المنزل ودخوله",
+    sunnahIds: ["43", "44", "45"],
+    notificationSchedule: {
+      reminderSlots: ["morning", "dhuhr", "asr", "maghrib"],
+      endOfDayCheckIn: true,
+    },
+    notificationMessages: [
+      "تذكير بسنن المنزل: دعاء الخروج، وذكر الله والسلام والسواك عند الدخول",
     ],
   },
   {
@@ -45,7 +107,9 @@ export const ROUTINES: Routine[] = [
       reminderSlots: ["morning", "afternoon", "maghrib"],
       endOfDayCheckIn: true,
     },
-    notificationMessages: ["تذكير بروتين سنن الطعام"],
+    notificationMessages: [
+      "تذكير بسنن الطعام: التسمية والأكل باليمين ومما يليك، وحمد الله بعد الفراغ",
+    ],
   },
   {
     id: "toilet",
@@ -63,119 +127,66 @@ export const ROUTINES: Routine[] = [
       ],
       endOfDayCheckIn: true,
     },
-    notificationMessages: ["تذكير بروتين آداب الخلاء، راجع أعماله في التطبيق"],
+    notificationMessages: ["تذكير بآداب الخلاء: دعاء الدخول ودعاء الخروج"],
   },
   {
     id: "sleep_prep",
-    title: "الاستعداد للنوم",
+    title: "سنن النوم (١): الوضوء وآداب المضجع",
     sunnahIds: ["18", "10", "11", "24"],
     notificationSchedule: {
       reminderSlots: ["ishaa", "before_sleep"],
       endOfDayCheckIn: true,
     },
-    notificationMessages: ["تذكير بروتين الاستعداد للنوم"],
-  },
-  {
-    id: "sleep_recitation",
-    title: "القراءة قبل النوم",
-    sunnahIds: ["19", "12", "20", "22"],
-    notificationSchedule: {
-      reminderSlots: ["ishaa", "before_sleep"],
-      endOfDayCheckIn: true,
-    },
-    notificationMessages: ["تذكير بروتين القراءة قبل النوم"],
+    notificationMessages: [
+      "تذكير بسنن النوم (١): الوضوء، ونفض الفراش، والاضطجاع على الشق الأيمن",
+    ],
   },
   {
     id: "sleep_dhikr",
-    title: "أذكار النوم",
+    title: "سنن النوم (٢): التسبيح وأذكار الفراش",
     sunnahIds: ["13", "23", "25", "26"],
     notificationSchedule: {
       reminderSlots: ["ishaa", "before_sleep"],
       endOfDayCheckIn: true,
     },
-    notificationMessages: ["تذكير بروتين أذكار النوم"],
+    notificationMessages: [
+      "تذكير بسنن النوم (٢): التسبيح وأذكار الإيواء إلى الفراش",
+    ],
+  },
+  {
+    id: "sleep_recitation",
+    title: "سنن النوم (٣): الآيات والسور القصيرة",
+    sunnahIds: ["19", "12", "20", "22"],
+    notificationSchedule: {
+      reminderSlots: ["ishaa", "before_sleep"],
+      endOfDayCheckIn: true,
+    },
+    notificationMessages: [
+      "تذكير بسنن النوم (٣): النفث بالمعوذات، وآية الكرسي، وآخر البقرة، وسورة الكافرون",
+    ],
   },
   {
     id: "sajda_mulk",
-    title: "قراءة السجدة والملك",
+    title: "سنن النوم (٤): سورتا السجدة والملك",
     sunnahIds: ["21"],
     notificationSchedule: {
       reminderSlots: ["ishaa", "before_sleep"],
       endOfDayCheckIn: true,
     },
-    notificationMessages: ["تذكير بروتين قراءة السجدة والملك"],
-  },
-  {
-    id: "rawatib_day",
-    title: "رواتب الفجر والظهر",
-    sunnahIds: ["27", "28"],
-    notificationSchedule: {
-      reminderSlots: ["fajr", "dhuhr"],
-      endOfDayCheckIn: true,
-    },
     notificationMessages: [
-      "تذكير بالسنن الرواتب: ركعتا الفجر وأربع ركعات قبل الظهر وركعتان بعدها",
-    ],
-  },
-  {
-    id: "rawatib_night",
-    title: "رواتب المغرب والعشاء",
-    sunnahIds: ["29", "30"],
-    notificationSchedule: {
-      reminderSlots: ["maghrib", "ishaa"],
-      endOfDayCheckIn: true,
-    },
-    notificationMessages: [
-      "تذكير بالسنن الرواتب: ركعتان بعد المغرب وركعتان بعد العشاء وأداؤهما في البيت",
-    ],
-  },
-  {
-    id: "wudu",
-    title: "سنن الوضوء",
-    sunnahIds: ["31", "32", "33", "34"],
-    notificationSchedule: {
-      reminderSlots: ["fajr", "dhuhr", "asr", "maghrib", "ishaa"],
-      endOfDayCheckIn: true,
-    },
-    notificationMessages: [
-      "تذكير بسنن الوضوء: السواك، التسمية، إسباغ الوضوء، الذكر بعده، وركعتا الطهور",
+      "تذكير بسنن النوم (٤): قراءة سورتي السجدة والملك قبل النوم",
     ],
   },
   {
     id: "qiyam_al_layl",
-    title: "قيام الليل والوتر",
+    title: "قيام الليل وصلاة الوتر",
     sunnahIds: ["35", "36", "37", "38"],
     notificationSchedule: {
       reminderSlots: ["ishaa", "before_sleep"],
       endOfDayCheckIn: true,
     },
     notificationMessages: [
-      "تذكير بقيام الليل والوتر: اجعل آخر صلاتك وتراً، واستحضر القنوت والتسبيح",
-    ],
-  },
-  {
-    id: "waking_up",
-    title: "سنن الاستيقاظ من النوم",
-    sunnahIds: ["39", "40", "41", "42"],
-    notificationSchedule: {
-      reminderSlots: ["fajr", "morning"],
-      endOfDayCheckIn: true,
-    },
-    notificationMessages: [
-      "تذكير بسنن الاستيقاظ: مسح النوم عن الوجه، دعاء اليقظة، السواك، وإسباغ الطهارة",
-    ],
-  },
-  {
-    id: "home_in_out",
-    title: "سنن دخول المنزل والخروج منه",
-    sunnahIds: ["43", "44", "45"],
-    notificationSchedule: {
-      reminderSlots: ["morning", "dhuhr", "asr", "maghrib"],
-      endOfDayCheckIn: true,
-    },
-    notificationMessages: [
-      "تذكير بسنن المنزل: دعاء الخروج، ذكر الله والسلام عند الدخول، والسواك",
+      "تذكير بقيام الليل والوتر: اجعل آخر صلاتك وترًا، واستحضر القنوت والتسبيح",
     ],
   },
 ];
-

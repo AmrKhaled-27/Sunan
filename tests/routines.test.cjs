@@ -26,19 +26,19 @@ test("fifteen routines cover 45 Sunnahs once in agreed order with expected remin
     [
       ["1", "3", "4", "2"],
       ["5", "6", "7"],
+      ["27", "28"],
+      ["29", "30"],
       ["14", "15"],
+      ["31", "32", "33", "34"],
+      ["39", "40", "41", "42"],
+      ["43", "44", "45"],
       ["16", "17"],
       ["8", "9"],
       ["18", "10", "11", "24"],
-      ["19", "12", "20", "22"],
       ["13", "23", "25", "26"],
+      ["19", "12", "20", "22"],
       ["21"],
-      ["27", "28"],
-      ["29", "30"],
-      ["31", "32", "33", "34"],
       ["35", "36", "37", "38"],
-      ["39", "40", "41", "42"],
-      ["43", "44", "45"],
     ],
   );
   const prayer = ["fajr", "dhuhr", "asr", "maghrib", "ishaa"];
@@ -46,19 +46,19 @@ test("fifteen routines cover 45 Sunnahs once in agreed order with expected remin
   const expectedSlots = [
     prayer,
     prayer,
+    ["fajr", "dhuhr"],
+    ["maghrib", "ishaa"],
     prayer,
+    prayer,
+    ["fajr", "morning"],
+    ["morning", "dhuhr", "asr", "maghrib"],
     ["morning", "afternoon", "maghrib"],
     ["fajr", "morning", "dhuhr", "asr", "maghrib", "ishaa", "before_sleep"],
     sleep,
     sleep,
     sleep,
     sleep,
-    ["fajr", "dhuhr"],
-    ["maghrib", "ishaa"],
-    prayer,
     sleep,
-    ["fajr", "morning"],
-    ["morning", "dhuhr", "asr", "maghrib"],
   ];
   for (const [index, r] of ROUTINES.entries()) {
     assert.deepEqual(r.notificationSchedule, {
@@ -107,8 +107,8 @@ test("rotation prioritizes unpostponed routines, then cycles postponed-only rout
   assert.equal(nextRoutineId(ROUTINES[0].id, [], postponed), ROUTINES[1].id);
   const lastRoutine = ROUTINES[ROUTINES.length - 1];
   assert.equal(nextRoutineId(lastRoutine.id, [], postponed), ROUTINES[0].id);
-  const lastSunnah = SUNNAHS[SUNNAHS.length - 1];
-  const allButLast = SUNNAHS.filter((s) => s.id !== lastSunnah.id).map((s) => s.id);
+  const lastSunnahId = lastRoutine.sunnahIds[lastRoutine.sunnahIds.length - 1];
+  const allButLast = SUNNAHS.filter((s) => s.id !== lastSunnahId).map((s) => s.id);
   assert.equal(
     nextRoutineId(lastRoutine.id, allButLast, postponed),
     lastRoutine.id,
@@ -199,11 +199,11 @@ test("postpone resets streak, avoids duplicate IDs and preserves last-routine se
   assert.deepEqual(skipped.skippedRoutineIds, [ROUTINES[0].id]);
   assert.equal(transitionRoutine(skipped, "postpone", initial), skipped);
   const lastRoutine = ROUTINES[ROUTINES.length - 1];
-  const lastSunnah = SUNNAHS[SUNNAHS.length - 1];
+  const lastSunnahId = lastRoutine.sunnahIds[lastRoutine.sunnahIds.length - 1];
   const last = {
     ...freshState(),
     currentRoutineId: lastRoutine.id,
-    accomplishedIds: SUNNAHS.filter((s) => s.id !== lastSunnah.id).map((s) => s.id),
+    accomplishedIds: SUNNAHS.filter((s) => s.id !== lastSunnahId).map((s) => s.id),
     skippedRoutineIds: [lastRoutine.id],
     streakDates: [today],
   };
@@ -435,7 +435,7 @@ test("notifications use routine payload, slot union, daily suppression and fixed
   );
   assert.equal(new Set(entries.map((n) => n.identifier)).size, entries.length);
   await service.scheduleRoutineNotifications(
-    ROUTINES[5],
+    ROUTINES.find((r) => r.id === "sleep_prep"),
     23,
     15,
     0,

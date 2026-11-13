@@ -1,5 +1,5 @@
 import React from "react";
-import { View, ViewStyle } from "react-native";
+import { Image, View, ViewStyle } from "react-native";
 import { palette } from "@/constants/theme";
 
 interface CardProps {
@@ -17,7 +17,7 @@ export const Card = React.forwardRef<View, CardProps>(function Card(
     children,
     style,
     className = "",
-    contentClassName = "px-5 py-8",
+    contentClassName = "px-5 py-6",
     color = palette.parchmentLight,
     accentColor = palette.warmGold,
     variant = "default",
@@ -29,29 +29,23 @@ export const Card = React.forwardRef<View, CardProps>(function Card(
       <View
         ref={ref}
         collapsable={false}
-        className={`w-full mb-6 rounded-3xl bg-parchmentPure border border-warmGold/35 shadow-md shadow-warmBrown/5 overflow-hidden ${className}`}
+        className={`w-full mb-6 rounded-3xl bg-parchmentPure border border-warmGold/30 shadow-md shadow-warmBrown/8 overflow-hidden ${className}`}
         style={style}
       >
-        {/* Subtle decorative gilded inner hairline */}
-        <View className="m-2 rounded-2xl border border-warmGold/20 relative">
-          {/* Subtle Islamic corner motifs (crisp hairline vectors) */}
-          <View
-            pointerEvents="none"
-            className="absolute top-2 right-2 w-3.5 h-3.5 border-t border-r border-warmGold/50 rounded-tr"
-          />
-          <View
-            pointerEvents="none"
-            className="absolute top-2 left-2 w-3.5 h-3.5 border-t border-l border-warmGold/50 rounded-tl"
-          />
-          <View
-            pointerEvents="none"
-            className="absolute bottom-2 right-2 w-3.5 h-3.5 border-b border-r border-warmGold/50 rounded-br"
-          />
-          <View
-            pointerEvents="none"
-            className="absolute bottom-2 left-2 w-3.5 h-3.5 border-b border-l border-warmGold/50 rounded-bl"
-          />
+        {/* Soft manuscript corner foliage matching AccomplishedCard */}
+        <Image
+          source={require("@/assets/images/top-right-decorations.png")}
+          className="absolute top-[-6] left-0 w-[125px] h-[125px] opacity-45"
+          resizeMode="contain"
+        />
+        <Image
+          source={require("@/assets/images/bottome-left-decorations.png")}
+          className="absolute bottom-[-10] right-0 w-[125px] h-[125px] opacity-45"
+          resizeMode="contain"
+        />
 
+        {/* Delicate inner gilded frame */}
+        <View className="m-2.5 rounded-2xl border border-goldAccent/35 relative">
           <View className={contentClassName}>{children}</View>
         </View>
       </View>
