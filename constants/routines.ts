@@ -1,10 +1,19 @@
-import { Routine } from "@/types";
+import { Routine, RoutineGroup } from "@/types";
+
+// Families of routines that are parts of one topic; shown together in the UI.
+export const ROUTINE_GROUPS: RoutineGroup[] = [
+  { id: "after_prayer", title: "أذكار ما بعد الصلاة" },
+  { id: "rawatib", title: "السنن الرواتب" },
+  { id: "sleep", title: "سنن النوم" },
+];
 
 // Array/member order is learning order, not a prescribed religious sequence.
 // Schedules combine the original member reminder slots without duplicates.
 export const ROUTINES: Routine[] = [
   {
     id: "after_prayer_core",
+    groupId: "after_prayer",
+    partTitle: "التسبيح والتهليل",
     title: "أذكار ما بعد الصلاة (١): التسبيح والتهليل",
     sunnahIds: ["1", "3", "4", "2"],
     notificationSchedule: {
@@ -17,8 +26,10 @@ export const ROUTINES: Routine[] = [
   },
   {
     id: "after_prayer_recitation",
+    groupId: "after_prayer",
+    partTitle: "الآيات والدعاء",
     title: "أذكار ما بعد الصلاة (٢): الآيات والدعاء",
-    sunnahIds: ["5", "6", "7"],
+    sunnahIds: ["6", "5", "7"],
     notificationSchedule: {
       reminderSlots: ["fajr", "dhuhr", "asr", "maghrib", "ishaa"],
       endOfDayCheckIn: true,
@@ -29,6 +40,8 @@ export const ROUTINES: Routine[] = [
   },
   {
     id: "rawatib_day",
+    groupId: "rawatib",
+    partTitle: "الفجر والظهر",
     title: "السنن الرواتب (١): الفجر والظهر",
     sunnahIds: ["27", "28"],
     notificationSchedule: {
@@ -41,8 +54,10 @@ export const ROUTINES: Routine[] = [
   },
   {
     id: "rawatib_night",
+    groupId: "rawatib",
+    partTitle: "المغرب والعشاء",
     title: "السنن الرواتب (٢): المغرب والعشاء",
-    sunnahIds: ["29", "30"],
+    sunnahIds: ["29", "46", "30"],
     notificationSchedule: {
       reminderSlots: ["maghrib", "ishaa"],
       endOfDayCheckIn: true,
@@ -72,31 +87,31 @@ export const ROUTINES: Routine[] = [
       endOfDayCheckIn: true,
     },
     notificationMessages: [
-      "تذكير بسنن الوضوء: السواك، التسمية، إسباغ الوضوء، الذكر بعده، وركعتا الطهور",
+      "تذكير بسنن الوضوء: التسمية، إسباغ الوضوء، الذكر بعده، وركعتا الطهور",
     ],
   },
   {
     id: "waking_up",
     title: "سنن الاستيقاظ من النوم",
-    sunnahIds: ["39", "40", "41", "42"],
+    sunnahIds: ["39", "40", "49", "42"],
     notificationSchedule: {
       reminderSlots: ["fajr", "morning"],
       endOfDayCheckIn: true,
     },
     notificationMessages: [
-      "تذكير بسنن الاستيقاظ: مسح النوم عن الوجه، دعاء اليقظة، السواك، وإسباغ الطهارة",
+      "تذكير بسنن الاستيقاظ: مسح النوم عن الوجه، دعاء اليقظة، قراءة خواتيم آل عمران، وإسباغ الطهارة",
     ],
   },
   {
     id: "home_in_out",
     title: "سنن الخروج من المنزل ودخوله",
-    sunnahIds: ["43", "44", "45"],
+    sunnahIds: ["43", "44"],
     notificationSchedule: {
       reminderSlots: ["morning", "dhuhr", "asr", "maghrib"],
       endOfDayCheckIn: true,
     },
     notificationMessages: [
-      "تذكير بسنن المنزل: دعاء الخروج، وذكر الله والسلام والسواك عند الدخول",
+      "تذكير بسنن المنزل: دعاء الخروج، وذكر الله عند الدخول",
     ],
   },
   {
@@ -130,7 +145,21 @@ export const ROUTINES: Routine[] = [
     notificationMessages: ["تذكير بآداب الخلاء: دعاء الدخول ودعاء الخروج"],
   },
   {
+    id: "siwak",
+    title: "سنن السواك",
+    sunnahIds: ["41", "47", "48", "45"],
+    notificationSchedule: {
+      reminderSlots: ["fajr", "morning", "dhuhr", "asr", "maghrib", "ishaa"],
+      endOfDayCheckIn: true,
+    },
+    notificationMessages: [
+      "تذكير بسنن السواك: عند الاستيقاظ، وعند الوضوء، وعند الصلاة، وعند دخول البيت",
+    ],
+  },
+  {
     id: "sleep_prep",
+    groupId: "sleep",
+    partTitle: "الوضوء وآداب المضجع",
     title: "سنن النوم (١): الوضوء وآداب المضجع",
     sunnahIds: ["18", "10", "11", "24"],
     notificationSchedule: {
@@ -143,6 +172,8 @@ export const ROUTINES: Routine[] = [
   },
   {
     id: "sleep_dhikr",
+    groupId: "sleep",
+    partTitle: "التسبيح وأذكار الفراش",
     title: "سنن النوم (٢): التسبيح وأذكار الفراش",
     sunnahIds: ["13", "23", "25", "26"],
     notificationSchedule: {
@@ -155,6 +186,8 @@ export const ROUTINES: Routine[] = [
   },
   {
     id: "sleep_recitation",
+    groupId: "sleep",
+    partTitle: "الآيات والسور القصيرة",
     title: "سنن النوم (٣): الآيات والسور القصيرة",
     sunnahIds: ["19", "12", "20", "22"],
     notificationSchedule: {
@@ -167,6 +200,8 @@ export const ROUTINES: Routine[] = [
   },
   {
     id: "sajda_mulk",
+    groupId: "sleep",
+    partTitle: "سورتا السجدة والملك",
     title: "سنن النوم (٤): سورتا السجدة والملك",
     sunnahIds: ["21"],
     notificationSchedule: {

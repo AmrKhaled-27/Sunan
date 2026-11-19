@@ -1,6 +1,6 @@
-import { ROUTINES } from "@/constants/routines";
+import { ROUTINE_GROUPS, ROUTINES } from "@/constants/routines";
 import { SUNNAHS } from "@/constants/sunnahs";
-import { Routine, Sunnah } from "@/types";
+import { Routine, RoutineGroup, Sunnah } from "@/types";
 
 const VALID_SLOTS = new Set([
   "fajr",
@@ -13,7 +13,11 @@ const VALID_SLOTS = new Set([
   "before_sleep",
 ]);
 
-export function validateCatalog(sunnahs: Sunnah[], routines: Routine[]) {
+export function validateCatalog(
+  sunnahs: Sunnah[],
+  routines: Routine[],
+  groups: RoutineGroup[] = ROUTINE_GROUPS,
+) {
   function unique(ids: string[], label: string) {
     if (new Set(ids).size !== ids.length) throw new Error(`Duplicate ${label}`);
   }
@@ -25,8 +29,14 @@ export function validateCatalog(sunnahs: Sunnah[], routines: Routine[]) {
     routines.map((r) => r.id),
     "routine ID",
   );
+  unique(
+    groups.map((g) => g.id),
+    "routine group ID",
+  );
   const coverage = new Map<string, number>();
   for (const r of routines) {
+    if (r.groupId && !groups.some((g) => g.id === r.groupId))
+      throw new Error(`Unknown group ${r.groupId} in ${r.id}`);
     if (!r.sunnahIds.length) throw new Error(`Empty routine ${r.id}`);
     unique(r.sunnahIds, `member in ${r.id}`);
     unique(r.notificationSchedule.reminderSlots, `reminder slot in ${r.id}`);

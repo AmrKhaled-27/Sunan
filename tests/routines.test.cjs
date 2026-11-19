@@ -17,23 +17,24 @@ function day(offset) {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 }
 
-test("fifteen routines cover 45 Sunnahs once in agreed order with expected reminder slots", () => {
+test("sixteen routines cover 49 Sunnahs once in agreed order with expected reminder slots", () => {
   validateCatalog(SUNNAHS, ROUTINES);
-  assert.equal(ROUTINES.length, 15);
-  assert.equal(new Set(ROUTINES.flatMap((r) => r.sunnahIds)).size, 45);
+  assert.equal(ROUTINES.length, 16);
+  assert.equal(new Set(ROUTINES.flatMap((r) => r.sunnahIds)).size, 49);
   assert.deepEqual(
     ROUTINES.map((r) => r.sunnahIds),
     [
       ["1", "3", "4", "2"],
-      ["5", "6", "7"],
+      ["6", "5", "7"],
       ["27", "28"],
-      ["29", "30"],
+      ["29", "46", "30"],
       ["14", "15"],
       ["31", "32", "33", "34"],
-      ["39", "40", "41", "42"],
-      ["43", "44", "45"],
+      ["39", "40", "49", "42"],
+      ["43", "44"],
       ["16", "17"],
       ["8", "9"],
+      ["41", "47", "48", "45"],
       ["18", "10", "11", "24"],
       ["13", "23", "25", "26"],
       ["19", "12", "20", "22"],
@@ -54,6 +55,7 @@ test("fifteen routines cover 45 Sunnahs once in agreed order with expected remin
     ["morning", "dhuhr", "asr", "maghrib"],
     ["morning", "afternoon", "maghrib"],
     ["fajr", "morning", "dhuhr", "asr", "maghrib", "ishaa", "before_sleep"],
+    ["fajr", "morning", "dhuhr", "asr", "maghrib", "ishaa"],
     sleep,
     sleep,
     sleep,

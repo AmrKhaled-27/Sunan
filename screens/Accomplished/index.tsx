@@ -2,11 +2,20 @@ import { PaperBackground } from "@/components/ui/PaperBackground";
 import { palette } from "@/constants/theme";
 import { useSunnah } from "@/context/SunnahContext";
 import { Ionicons } from "@expo/vector-icons";
-import React, { useMemo } from "react";
+import { AccomplishedRecord, Sunnah } from "@/types";
+import { buildAchievementCollections } from "@/utils/achievements";
+import React, { useMemo, useState } from "react";
 import { FlatList, Image, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { AccomplishedCard } from "./components/AccomplishedCard";
+import { CollectionCard } from "./components/CollectionCard";
 import { StatsRow } from "./components/StatsRow";
+import { SunnahDetailModal } from "./components/SunnahDetailModal";
+
+interface Selection {
+  sunnah: Sunnah;
+  record?: AccomplishedRecord;
+  context: string;
+}
 
 export default function AccomplishedScreen() {
   const insets = useSafeAreaInsets();
@@ -17,17 +26,12 @@ export default function AccomplishedScreen() {
     longestStreak,
   } = useSunnah();
 
-  const recordsById = useMemo(() => {
-    const map = new Map(
-      accomplishedRecords.map((record) => [record.id, record]),
-    );
-    return map;
-  }, [accomplishedRecords]);
-
-  const newestFirst = useMemo(
-    () => [...accomplishedSunnahs].reverse(),
-    [accomplishedSunnahs],
+  const collections = useMemo(
+    () => buildAchievementCollections(accomplishedSunnahs, accomplishedRecords),
+    [accomplishedSunnahs, accomplishedRecords],
   );
+  const [selection, setSelection] = useState<Selection | null>(null);
+  const [detailVisible, setDetailVisible] = useState(false);
 
   return (
     <PaperBackground>
@@ -71,15 +75,29 @@ export default function AccomplishedScreen() {
           </View>
         ) : (
           <FlatList
-            data={newestFirst}
+            data={collections}
             keyExtractor={(item) => item.id}
             contentContainerClassName="px-5 pb-8 pt-2"
             renderItem={({ item }) => (
-              <AccomplishedCard item={item} record={recordsById.get(item.id)} />
+              <CollectionCard
+                collection={item}
+                onSelect={({ sunnah, record }, context) => {
+                  setSelection({ sunnah, record, context });
+                  setDetailVisible(true);
+                }}
+              />
             )}
           />
         )}
       </View>
+
+      <SunnahDetailModal
+        visible={detailVisible}
+        sunnah={selection?.sunnah ?? null}
+        record={selection?.record}
+        context={selection?.context}
+        onClose={() => setDetailVisible(false)}
+      />
     </PaperBackground>
   );
 }

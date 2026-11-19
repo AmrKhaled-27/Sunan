@@ -34,9 +34,18 @@ export interface Sunnah {
   deprecated?: boolean; // never remove; mark deprecated to hide from rotation
 }
 
+// A family of routines that are parts of one larger topic
+// (e.g. أذكار ما بعد الصلاة (١) و (٢)). Used to group them in the UI.
+export interface RoutineGroup {
+  id: string;
+  title: string;
+}
+
 export interface Routine {
   id: string;
   title: string;
+  groupId?: string; // RoutineGroup.id when this routine is one part of a family
+  partTitle?: string; // short label for this part, shown under the group title
   icon?: string;
   intro?: string;
   sunnahIds: string[];
