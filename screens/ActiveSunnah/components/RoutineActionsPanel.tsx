@@ -8,9 +8,13 @@ export const RoutineActionsPanel = React.forwardRef<
   { members: Sunnah[] }
 >(function RoutineActionsPanel({ members }, ref) {
   return (
-    <View ref={ref} collapsable={false} className="w-full">
+    <View className="w-full">
       {members.map((member, index) => (
-        <View key={member.id}>
+        <View
+          key={member.id}
+          ref={index === 0 ? ref : undefined}
+          collapsable={index === 0 ? false : undefined}
+        >
           {index > 0 && (
             <View className="mx-8 my-5 h-[1px] bg-warmGold/20" />
           )}

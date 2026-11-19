@@ -28,11 +28,13 @@ const MEASURE_TIMEOUT = 120;
 const SCROLL_EPSILON = 4;
 const SCROLL_PASSES = 2;
 /** Gives an animated scroll time to start before we watch it for a resting position. */
-const SCROLL_START_DELAY = 40;
-const SETTLE_POLL_INTERVAL = 25;
-const SETTLE_MAX_POLLS = 5;
+const SCROLL_START_DELAY = 60;
+const SETTLE_POLL_INTERVAL = 35;
+const SETTLE_MAX_POLLS = 10;
 const SETTLE_EPSILON = 1;
 const AUTO_START_DELAY = 400;
+/** Space reserved for the tooltip + gap when clamping an unusually tall card target. */
+const TOOLTIP_RESERVE = 240;
 
 export interface TourRect {
   x: number;
@@ -135,6 +137,7 @@ function scrollDeltaFor(
   // Align target near the top of the visible band so there is maximum room below for the tooltip
   if (
     targetKey === "card" ||
+    targetKey === "sources" ||
     targetKey === "streakDots" ||
     targetKey === "routineMenu"
   ) {
@@ -408,16 +411,22 @@ export function OnboardingProvider({
         }
       }
 
-      // A multi-member panel can be taller than the screen. Spotlight its
-      // visible opening, leaving space for the explanation above the footer.
+      // Keep the first sunnah's full measured height whenever it fits inside
+      // the scroll viewport with room for the tooltip; only clamp on very
+      // small screens or unusually long sunnahs.
       if (rect && step.targetKey === "card") {
-        rect = {
-          ...rect,
-          height: Math.min(
-            rect.height,
-            Math.max(56, (scrollBounds.bottomLimit - rect.y) * 0.42),
-          ),
-        };
+        const spaceAbove = rect.y - scrollBounds.topLimit;
+        const fitsTooltipAbove = spaceAbove >= TOOLTIP_RESERVE;
+        const maxBottom = fitsTooltipAbove
+          ? scrollBounds.bottomLimit
+          : Math.min(
+              scrollBounds.bottomLimit,
+              boundsRef.current.bottomLimit - TOOLTIP_RESERVE,
+            );
+        const maxHeight = Math.max(80, maxBottom - rect.y);
+        if (rect.height > maxHeight) {
+          rect = { ...rect, height: maxHeight };
+        }
       }
       setTargetRect(rect);
     },

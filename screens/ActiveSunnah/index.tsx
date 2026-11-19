@@ -51,6 +51,7 @@ export default function ActiveSunnahScreen() {
   } = useSunnah();
   const { registerScroller, setHomeReady } = useOnboarding();
   const cardRef = useTourTarget("card");
+  const sourcesRef = useTourTarget("sources");
   const streakDotsRef = useTourTarget("streakDots");
   const markDoneRef = useTourTarget("markDone");
   const menuRef = useTourTarget("routineMenu");
@@ -89,7 +90,6 @@ export default function ActiveSunnahScreen() {
   }, [currentRoutine?.id, setDialog]);
 
   const scrollTourTo = useCallback((y: number) => {
-    scrollOffsetRef.current = y;
     scrollRef.current?.scrollTo({ y, animated: true });
   }, []);
   useEffect(() => {
@@ -261,23 +261,25 @@ export default function ActiveSunnahScreen() {
                 )}
 
                 <View className="border-t border-warmGold/15 mt-6 pt-4 items-center">
-                  <Pressable
-                    accessibilityRole="button"
-                    accessibilityLabel="عرض المصادر"
-                    accessibilityHint="قراءة جميع أحاديث هذه السنن ومصادرها ودرجاتها"
-                    onPress={() => setDialog("sources")}
-                    className="flex-row items-center justify-center gap-2 px-5 py-2.5 rounded-full border border-warmGold/30 bg-parchmentLight/80 min-h-10"
-                    style={{ direction: "rtl" }}
-                  >
-                    <Ionicons
-                      name="book-outline"
-                      size={15}
-                      color={palette.warmBrownLight}
-                    />
-                    <ArabicText className="font-tajawal-bold text-warmBrownLight text-xs">
-                      المصادر والأحاديث
-                    </ArabicText>
-                  </Pressable>
+                  <View ref={sourcesRef} collapsable={false}>
+                    <Pressable
+                      accessibilityRole="button"
+                      accessibilityLabel="عرض المصادر"
+                      accessibilityHint="قراءة جميع أحاديث هذه السنن ومصادرها ودرجاتها"
+                      onPress={() => setDialog("sources")}
+                      className="flex-row items-center justify-center gap-2 px-5 py-2.5 rounded-full border border-warmGold/30 bg-parchmentLight/80 min-h-10"
+                      style={{ direction: "rtl" }}
+                    >
+                      <Ionicons
+                        name="book-outline"
+                        size={15}
+                        color={palette.warmBrownLight}
+                      />
+                      <ArabicText className="font-tajawal-bold text-warmBrownLight text-xs">
+                        المصادر والأحاديث
+                      </ArabicText>
+                    </Pressable>
+                  </View>
                 </View>
               </Card>
 
